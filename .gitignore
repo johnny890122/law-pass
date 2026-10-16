@@ -218,7 +218,7 @@ __marimo__/
 .streamlit/secrets.toml
 
 docker-compose.yml
-.claude/*
-!.claude/skills/
 backup-20260508/
 .roomodes
+# Playwright MCP snapshots and console logs
+.playwright-mcp/

@@ -2,7 +2,6 @@
 Unit tests for services/progress.py — REQ-012.
 Uses mongomock to avoid hitting a real MongoDB instance.
 """
-import pytest
 from datetime import datetime, timedelta
 from unittest.mock import patch, MagicMock
 from bson import ObjectId
@@ -165,7 +164,7 @@ class TestGetProgressSummaryEmpty:
 
 class TestAvgScoreRate:
     def test_two_answers(self):
-        from services.progress import _fill_date_gaps, get_daily_chart_data
+        from services.progress import _fill_date_gaps
         # 0.5 + 1.0 = 1.5 total over 2 questions → 75%
         records = [_record(0, 2, 1.5, [], 0)]
         filled = _fill_date_gaps(records, 1)

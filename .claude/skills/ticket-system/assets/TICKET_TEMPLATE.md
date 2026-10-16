@@ -24,6 +24,8 @@ One or two sentences: who needs what, and why now.
 - Current behavior → desired behavior.
 - Scope: which routes, services, templates, and Mongo collections.
 - `No artifact — <reason>.` or the visual question the variants must answer.
+- Stories and features only: `No PRD — <reason>.` or
+  `PRD: docs/prd/LP-XXXX-<slug>.md`.
 - Out of scope: what this ticket should not do.
 
 ## Acceptance Criteria
@@ -33,6 +35,7 @@ One or two sentences: who needs what, and why now.
 - [ ] `flake8` clean.
 - [ ] Seen working in the running app: what to open and what to observe.
 - [ ] Docs synced: `docs/modules/<module>/index.md` and a changelog entry.
+- [ ] PRD tickets only: report at `docs/reports/LP-XXXX-<slug>/report.md` is approved.
 
 ## Open Questions
 

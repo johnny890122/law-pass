@@ -16,6 +16,7 @@ with its docs in sync.
 | Stage | Home | Required |
 | --- | --- | --- |
 | 1. Ticket | [docs/issues/](docs/issues/): `LP-XXXX` | All but trivial changes |
+| 1b. PRD | `docs/prd/<ticket-id>-<slug>.md` | Only when the ticket calls for one |
 | 2. Artifact | `artifacts/LP-XXXX-<slug>/` | Only when a screen has a visual choice to make |
 | 3. Code | `routes/` `services/` `db/` `templates/` `static/` `tests/` | Always |
 | 4. Doc sync | `docs/modules/` and `docs/changelog/` | When behavior or a product rule changes |
@@ -32,14 +33,20 @@ Rules that make the flow hold:
   under `## Open Questions`.
 - **Open Questions are cleared before code.** A ticket moves to `in_progress`
   only when its `## Open Questions` reads `- None.`. The generator refuses
-  otherwise. Never answer a question on the user's behalf.
+  otherwise. Never answer a question on the user's behalf. A ticket that
+  calls for a PRD also waits for that PRD to be `approved`.
+- **Schema changes run [`schema-check`](.claude/skills/schema-check/SKILL.md).**
+  A field, index, collection, or `LAW_TYPES` key change goes through it
+  before code lands. [docs/modules/db/data-model.md](docs/modules/db/data-model.md)
+  is the schema's single source of truth, and `tests/test_schema_drift.py`
+  fails when code and that doc disagree.
 - **Status drives filing.** Change the `status` field and run
   `python3 .claude/skills/ticket-system/scripts/generate_issues_index.py`.
   Never move ticket files by hand.
 - **Commits** go on `main`, and the message starts with `LP-XXXX: `. Trivial
   un-ticketed commits carry no prefix.
-- **Keep the chain in sync.** Code that diverges from its ticket or module doc
-  is a defect in both. Fix both in the same turn, or say plainly which one you
+- **Keep the chain in sync.** Code that diverges from its ticket, PRD, or
+  module doc is a defect in both. Fix both in the same turn, or say plainly which one you
   left behind. A ticket that turns out to be wrong gets refined, not silently
   overridden in code.
 
@@ -57,9 +64,33 @@ A ticket resolves only when all four hold:
 4. **Docs synced.** Update the owning module doc and write a changelog entry,
    or have the ticket state why none applies.
 
+A PRD-backed ticket also needs its report at
+`docs/reports/<ticket-id>-<slug>/report.md` to be `approved` by the user.
+The [`prd-report`](.claude/skills/prd-report/SKILL.md) skill writes it once
+the four hold. This is checked by hand, like PRD approval.
+
 Then check every acceptance box, or rewrite it with a note. Write a 2–3 line
-`## Resolution` that links the changelog entry, fill in `resolved:`, and run
-the generator. `docs/issues/closure-debt.md` must gain no row.
+`## Resolution` that links the changelog entry (and, for a PRD ticket, the
+report), fill in `resolved:`, and run the generator.
+`docs/issues/closure-debt.md` must gain no row.
+
+### PRDs (conditional)
+
+A big feature story needs an exact spec before code: route contracts, data
+changes, UI copy, a test plan, and build order. Every story or feature ticket
+makes the call in Details, as `PRD: docs/prd/<ticket-id>-<slug>.md` or
+`No PRD — <reason>.` Bug fixes and small improvements rely on the ticket
+alone.
+
+Write them with the [`prd-creator`](.claude/skills/prd-creator/SKILL.md)
+skill. The ticket owns *what* and *why*, and the PRD owns *exactly how*. A
+PRD never reopens a settled decision. A new question goes into the ticket's
+`## Open Questions`. The closing step is the
+[`prd-report`](.claude/skills/prd-report/SKILL.md) skill: it checks the
+running app against the PRD and writes a plain-language report with
+screenshots, which the user signs off. Once the ticket resolves, the PRD and
+its report are historical records, and the PRD's rules live on in the module
+doc.
 
 ### Artifacts (conditional)
 
@@ -70,11 +101,12 @@ without an artifact carries `No artifact — <reason>.` in Details.
 The test is not "does this touch the frontend". It is **"is there a choice here
 the user should make by looking?"**
 
-- Build **two or three** standalone `.html` variants in
-  `artifacts/LP-XXXX-<slug>/`. No build step and no Flask. Use hardcoded stand-in
-  data, and link `../../static/css/design-tokens.css` for the real tokens.
-- Variants must differ on the question being asked. Say what each one trades
-  away.
+Build them with the [`design-variants`](.claude/skills/design-variants/SKILL.md)
+skill, which covers alignment, grounding, tokens, and verification. The
+contract below is what every artifact folder must satisfy.
+
+- **Two or three** standalone `.html` variants in `artifacts/LP-XXXX-<slug>/`,
+  with no build step and no Flask.
 - Screenshot each variant with Playwright MCP at **phone 390x844** and
   **desktop 1440x900** into `shots/<variant>-<viewport>.png`. The app is
   mobile-first, so the phone shot is the primary one.
@@ -91,9 +123,14 @@ rather than restating code.
 ```
 docs/
 ├── issues/                     # tickets, generator-managed
+├── prd/
+│   └── <ticket-id>-<slug>.md   # implementation spec, when a ticket calls for one
+├── reports/
+│   └── <ticket-id>-<slug>/     # audit report of an implemented PRD, with shots/
 ├── modules/
 │   ├── index.md                # owner map: module → what it owns
-│   └── <module>/index.md       # current truth for one area
+│   ├── <module>/index.md       # current truth for one area
+│   └── db/data-model.md        # db's module doc: the schema's source of truth
 └── changelog/
     ├── index.md                # file → LP ids + one line
     └── YYYY-MM-DD-<slug>.md    # one entry per landing

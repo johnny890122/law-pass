@@ -1,0 +1,9 @@
+# Modules
+
+Owner map: each area, its module doc, and what it owns. A module doc is
+created the first time a ticket changes that area, and gets a row here in the
+same change.
+
+| Module | Doc | Owns |
+| --- | --- | --- |
+| db | [db/data-model.md](db/data-model.md) | MongoDB collections, fields, indexes, `LAW_TYPES`, `init_db()`, and migrations. The schema's single source of truth, written only through the `schema-check` skill. |

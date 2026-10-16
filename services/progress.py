@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from bson import ObjectId
 
 from db.models import (user_daily_stats_collection, user_progress_collection,
-                        user_law_stats_collection, laws_collection, questions_collection)
+                       user_law_stats_collection, laws_collection, questions_collection)
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +15,7 @@ def upsert_daily_stats(user_id: ObjectId, law_id: str, score: float, law_type: s
     """Upsert the user_daily_stats document for today (UTC). Non-fatal on error."""
     try:
         today = datetime.utcnow().strftime("%Y-%m-%d")
-        law_ids_for_type = [str(l['_id']) for l in laws_collection.find({'type': law_type}, {'_id': 1})]
+        law_ids_for_type = [str(law['_id']) for law in laws_collection.find({'type': law_type}, {'_id': 1})]
         question_ids_for_type = [str(q['_id']) for q in questions_collection.find(
             {'law_id': {'$in': law_ids_for_type}}, {'_id': 1})]
         mastered_count = user_progress_collection.count_documents({
@@ -43,7 +43,7 @@ def _get_legacy_totals(user_id: ObjectId, law_type: str = None) -> dict:
     Returns the same keys used by get_progress_summary metrics (excluding streak/daily).
     """
     if law_type:
-        law_ids_for_type = [str(l['_id']) for l in laws_collection.find({'type': law_type}, {'_id': 1})]
+        law_ids_for_type = [str(law['_id']) for law in laws_collection.find({'type': law_type}, {'_id': 1})]
         law_stats = list(user_law_stats_collection.find({"user_id": user_id, "law_id": {"$in": law_ids_for_type}}))
         question_ids_for_type = [str(q['_id']) for q in questions_collection.find(
             {'law_id': {'$in': law_ids_for_type}}, {'_id': 1})]

@@ -4,8 +4,7 @@ Question generation is admin-only via CLI scripts; users cannot trigger generati
 """
 import logging
 import random
-from typing import List, Dict, Literal, Optional
-from bson import ObjectId
+from typing import List, Dict, Literal
 from db.models import questions_collection, user_progress_collection, laws_collection
 
 logger = logging.getLogger(__name__)

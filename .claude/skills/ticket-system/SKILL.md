@@ -68,6 +68,8 @@ Never answer a question on the user's behalf. A blocked ticket closes as
 ## Artifact Call
 
 Stage 2 (artifacts) is conditional, and the ticket makes the call either way.
+This skill only makes the call. Stage 2 itself is built by the
+[`design-variants`](../design-variants/SKILL.md) skill.
 
 - **Required** when the ticket turns on what a screen should look like: a
   choice the user should make by looking. There is no designer, so the
@@ -88,6 +90,31 @@ An artifact-backed ticket:
 - Lists `artifacts/LP-XXXX-<slug>/` in Related Files.
 - Implements the picked variant in `templates/` in the same ticket when the
   change is small, or as a follow-up story otherwise.
+
+## PRD Call
+
+Stage 1b (PRD) is conditional. Every `story` or `feature` ticket makes the
+call in one Details bullet. This skill only makes the call. The PRD itself is
+written by the [`prd-creator`](../prd-creator/SKILL.md) skill.
+
+- **Required** for a big feature: the story spans several layers and its exact
+  contracts are not obvious from Details. Examples are a new or changed route
+  together with a data change, a new external integration, or a prompt
+  change. The Details bullet reads
+  `PRD: docs/prd/<ticket-id>-<slug>.md`.
+- **Skipped** for bug fixes, small improvements, tooling, and docs. The bullet
+  reads `No PRD — <reason>.`
+
+A ticket whose PRD call is required moves to `in_progress` only once that PRD
+has `status: approved`, in addition to the Open Questions gate. The generator
+does not check this, so check the PRD by hand before changing `status`.
+Questions the PRD raises land in this ticket's `## Open Questions`, and the
+usual gate applies.
+
+A required call also keeps the template's report box:
+`PRD tickets only: report at docs/reports/LP-XXXX-<slug>/report.md is approved.`
+The report is written by the [`prd-report`](../prd-report/SKILL.md) skill
+once the code is done. A skipped call deletes the box.
 
 ## Test Coverage
 
@@ -123,8 +150,8 @@ Follow `assets/TICKET_TEMPLATE.md` exactly.
   `progress`, `inventory`, `i18n`, `auth`, `admin`, `ui`, `db`, `scripts`,
   `deploy`, `docs`, `tests`.
 - `## Description`: 1–2 sentences on who needs what, and why now.
-- `## Details`: current → desired behavior, scope, the artifact call, and out
-  of scope.
+- `## Details`: current → desired behavior, scope, the artifact call, the PRD
+  call (stories and features), and out of scope.
 - `## Acceptance Criteria`: checkboxes only, including the four done-gate boxes
   from `CLAUDE.md`.
 - `## Open Questions`: unresolved human decisions, or `- None.`
@@ -188,9 +215,13 @@ A ticket moves to `resolved` only when the done gate in `CLAUDE.md` holds:
 1. Every Acceptance Criteria box is checked, or rewritten with a note saying
    why it no longer applies. Never leave a box silently unchecked.
 2. `## Resolution` has 2–3 lines: what landed, what was deliberately not done,
-   and a link to the changelog entry that tells the full story.
-3. `resolved: YYYY-MM-DD` is filled.
-4. The generator runs, and `closure-debt.md` gains no row.
+   and a link to the changelog entry that tells the full story. A PRD ticket
+   links its report next to the changelog entry.
+3. A PRD ticket's report at `docs/reports/<ticket-id>-<slug>/report.md` reads
+   `status: approved`, with `approved:` and `reviewer:` filled. The generator
+   does not check this, so check it by hand.
+4. `resolved: YYYY-MM-DD` is filled.
+5. The generator runs, and `closure-debt.md` gains no row.
 
 ## Handoff
 
@@ -199,6 +230,8 @@ End with:
 - The ticket's id, title, and path.
 - Remaining Open Questions, and the reminder that they block `in_progress`.
 - The artifact call (required or skipped, and why).
+- The PRD call (required or skipped, and why), and the reminder that a
+  required PRD must be `approved` before `in_progress`.
 - The doc sync targets.
 - A reminder that this skill writes tickets only, and implementation happens
   separately.

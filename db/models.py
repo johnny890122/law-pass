@@ -156,16 +156,13 @@ class Database:
         self.laws_collection.create_index('type')  # For filtering by law type
         self.laws_collection.create_index([('type', 1), ('lang', 1)])  # Combined filter
         self.laws_collection.create_index([('type', 1), ('article_number_int', 1)])  # For sorted queries by type
-        # Unique index: allows same article_number across different law types
-        try:
-            self.laws_collection.create_index(
-                [('article_number', 1), ('lang', 1), ('type', 1)],
-                unique=True,
-                name='article_number_lang_type_unique'
-            )
-        except Exception:
-            # Index might already exist, which is fine
-            pass
+        # Unique index: allows same article_number across different law types.
+        # Not wrapped: a duplicate key or spec conflict must fail startup (LP-0001-01).
+        self.laws_collection.create_index(
+            [('article_number', 1), ('lang', 1), ('type', 1)],
+            unique=True,
+            name='article_number_lang_type_unique'
+        )
 
         # Questions indexes (shared content)
         self.questions_collection.create_index('law_id')
@@ -204,14 +201,11 @@ class Database:
             self.user_daily_stats_collection.drop_index('user_id_1_date_1')
         except Exception:
             pass  # Old index may not exist
-        try:
-            self.user_daily_stats_collection.create_index(
-                [('user_id', 1), ('date', 1), ('law_type', 1)],
-                unique=True,
-                name='user_id_date_law_type_unique'
-            )
-        except Exception:
-            pass  # Index might already exist
+        self.user_daily_stats_collection.create_index(
+            [('user_id', 1), ('date', 1), ('law_type', 1)],
+            unique=True,
+            name='user_id_date_law_type_unique'
+        )
         self.user_daily_stats_collection.create_index(
             [('user_id', 1), ('law_type', 1), ('date', -1)],
             name='user_id_law_type_date_desc'

@@ -5,6 +5,7 @@ os.environ.setdefault("MONGO_URI", "mongodb://localhost:27017/patent_act_test")
 os.environ.setdefault("SECRET_KEY", "ci-test-secret-not-for-production")
 
 import pytest
+from pymongo.errors import DuplicateKeyError
 
 from app import app as flask_app
 from db.models import Database
@@ -75,6 +76,26 @@ class TestMongoDBConnectivity:
         """Database.init_db() must complete without throwing."""
         db = Database()
         db.init_db()  # idempotent; safe to call multiple times
+
+    @pytest.mark.parametrize("collection, index_name, doc", [
+        ("laws", "article_number_lang_type_unique",
+         {"article_number": "第1條", "lang": "zh-TW", "type": "patent-act"}),
+        ("user_daily_stats", "user_id_date_law_type_unique",
+         {"user_id": "dup-user", "date": "2026-01-01", "law_type": "patent-act"}),
+    ])
+    def test_init_db_raises_when_unique_index_blocked(self, collection, index_name, doc):
+        """A duplicate key must fail startup loudly, naming the index (LP-0001-01)."""
+        db = Database()
+        db.init_db()
+        col = db.db[collection]
+        col.drop_index(index_name)
+        col.insert_many([dict(doc), dict(doc)])
+        try:
+            with pytest.raises(DuplicateKeyError, match=index_name):
+                db.init_db()
+        finally:
+            col.delete_many(doc)
+            db.init_db()
 
 
 class TestAuthRoutes:
