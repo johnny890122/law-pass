@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+
+{% block title %}測驗配置 - 專利法 AI 刷題助手{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Config Header - 更緊湊 -->
+    <div class="config-header">
+        <h1 class="config-title">開始新測驗</h1>
+    </div>
+
+    <!-- Quiz Configuration Form - 減少 padding -->
+    <div class="card" style="padding: 1rem;">
+        <form id="quiz-config-form">
+            <!-- Question Type Selection -->
+            <div class="form-group">
+                <label class="form-label">
+                    類型
+                </label>
+                <div class="radio-group">
+                    <label class="radio-card">
+                        <input type="radio" name="type" value="MCQ" checked>
+                        <div class="radio-content">
+                            <div class="radio-title">選擇題</div>
+                        </div>
+                        <span class="radio-check">✓</span>
+                    </label>
+                    
+                    <label class="radio-card">
+                        <input type="radio" name="type" value="ShortAnswer">
+                        <div class="radio-content">
+                            <div class="radio-title">簡答題</div>
+                        </div>
+                        <span class="radio-check">✓</span>
+                    </label>
+                    
+                    <label class="radio-card">
+                        <input type="radio" name="type" value="Mixed">
+                        <div class="radio-content">
+                            <div class="radio-title">混合題型</div>
+                        </div>
+                        <span class="radio-check">✓</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Session Mode Selection -->
+            <div class="form-group">
+                <label class="form-label">
+                    模式
+                </label>
+                <div class="radio-group">
+                    <label class="radio-card">
+                        <input type="radio" name="mode" value="new" checked>
+                        <div class="radio-content">
+                            <div class="radio-title">新題</div>
+                        </div>
+                        <span class="radio-check">✓</span>
+                    </label>
+                    
+                    <label class="radio-card">
+                        <input type="radio" name="mode" value="review">
+                        <div class="radio-content">
+                            <div class="radio-title">複習</div>
+                        </div>
+                        <span class="radio-check">✓</span>
+                    </label>
+                    
+                    <label class="radio-card">
+                        <input type="radio" name="mode" value="mixed">
+                        <div class="radio-content">
+                            <div class="radio-title">混合</div>
+                        </div>
+                        <span class="radio-check">✓</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Question Count Selection -->
+            <div class="form-group">
+                <label class="form-label">
+                    題數
+                    <span id="available-hint" style="color: var(--text-secondary, #666); font-size: 0.875rem; font-weight: normal;"></span>
+                </label>
+                <div class="count-selector">
+                    <button type="button" class="count-btn active" data-count="5">5 題</button>
+                    <button type="button" class="count-btn" data-count="10">10 題</button>
+                    <button type="button" class="count-btn" data-count="20">20 題</button>
+                    <button type="button" class="count-btn" data-count="30">30 題</button>
+                </div>
+                <input type="hidden" name="count" id="question-count" value="5">
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary btn-block" id="start-quiz-btn" style="margin-top: 0.5rem;">
+                開始測驗
+            </button>
+        </form>
+    </div>
+
+    <!-- Info Card - 更緊湊 -->
+    <div class="card" style="padding: 1rem;">
+        <h3 class="card-title" style="font-size: 1.125rem; margin-bottom: 0.75rem;">💡 說明</h3>
+        <ul class="info-list">
+            <li><strong>選擇題：</strong>四選一單選題型，快速測試基礎概念掌握度</li>
+            <li><strong>簡答題：</strong>開放式問答，AI 評分深入檢驗理解程度</li>
+            <li><strong>混合題型：</strong>選擇題與簡答題混合出題</li>
+            <li><strong>新題：</strong>挑戰未做過的題目，學習新法條內容</li>
+            <li><strong>複習：</strong>重做需加強的題目（答對 < 3 次）</li>
+            <li><strong>混合：</strong>50% 新題 + 50% 複習，平衡學習</li>
+        </ul>
+    </div>
+</div>
+
+<!-- Insufficient Questions Modal -->
+<div id="insufficient-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-header">
+            <h3 class="modal-title">題目數量不足</h3>
+            <button class="modal-close" id="modal-close-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p class="modal-description">題目數量不足，請聯繫管理員生成更多題目。</p>
+            <div class="modal-warning" id="insufficient-detail"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" id="modal-ok-btn">確認</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let availableQuestions = 0;
+
+    async function checkAvailableQuestions() {
+        const type = document.querySelector('input[name="type"]:checked').value;
+        const mode = document.querySelector('input[name="mode"]:checked').value;
+
+        try {
+            const response = await fetch(`/api/quiz/available?type=${type}&mode=${mode}`);
+            if (!response.ok) throw new Error('檢查失敗');
+
+            const data = await response.json();
+            availableQuestions = data.available;
+
+            const hint = document.getElementById('available-hint');
+            if (availableQuestions === 0) {
+                hint.textContent = '（目前無可用題目）';
+                hint.style.color = 'var(--error, #ef4444)';
+            } else {
+                hint.textContent = `（可用: ${availableQuestions} 題）`;
+                hint.style.color = 'var(--text-secondary, #666)';
+            }
+
+
+        } catch (error) {
+            console.error('Failed to check available questions:', error);
+        }
+    }
+
+    function showInsufficientModal(detail) {
+        document.getElementById('insufficient-detail').textContent = detail;
+        document.getElementById('insufficient-modal').style.display = 'flex';
+    }
+
+    function closeInsufficientModal() {
+        document.getElementById('insufficient-modal').style.display = 'none';
+    }
+
+    document.getElementById('modal-close-btn').addEventListener('click', closeInsufficientModal);
+    document.getElementById('modal-ok-btn').addEventListener('click', closeInsufficientModal);
+    document.getElementById('insufficient-modal').addEventListener('click', function(e) {
+        if (e.target === this) closeInsufficientModal();
+    });
+
+    document.querySelectorAll('.count-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            document.getElementById('question-count').value = this.dataset.count;
+            checkAvailableQuestions();
+        });
+    });
+
+    document.querySelectorAll('input[name="type"], input[name="mode"]').forEach(radio => {
+        radio.addEventListener('change', checkAvailableQuestions);
+    });
+
+    checkAvailableQuestions();
+
+    document.getElementById('quiz-config-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(e.target);
+        const currentLang = localStorage.getItem('appLang') || 'zh-TW';
+        const config = {
+            type: formData.get('type'),
+            mode: formData.get('mode'),
+            count: parseInt(formData.get('count')),
+            lang: currentLang
+        };
+
+        // Pre-flight: block if not enough questions
+        if (config.count > availableQuestions) {
+            const modeText = config.mode === 'new' ? '新題' : config.mode === 'review' ? '複習' : '混合';
+            showInsufficientModal(`目前只有 ${availableQuestions} 題${modeText}，但您要求 ${config.count} 題。`);
+            return;
+        }
+
+        const submitBtn = document.getElementById('start-quiz-btn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = '建立中...';
+
+        try {
+            const response = await fetch('/api/quiz/session', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(config)
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || '建立測驗失敗');
+            }
+
+            const data = await response.json();
+
+            localStorage.setItem('current_session', JSON.stringify({
+                session_id: data.session_id,
+                questions: data.questions,
+                config: config
+            }));
+
+            setTimeout(() => {
+                window.location.href = `/quiz/session/${data.session_id}`;
+            }, 500);
+
+        } catch (error) {
+            console.error('Error creating quiz session:', error);
+            showInsufficientModal(error.message);
+            submitBtn.disabled = false;
+            submitBtn.textContent = '開始測驗';
+        }
+    });
+
+    document.querySelectorAll('.radio-card input[type="radio"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            const group = this.closest('.radio-group');
+            group.querySelectorAll('.radio-card').forEach(card => card.classList.remove('selected'));
+            this.closest('.radio-card').classList.add('selected');
+        });
+    });
+
+    document.querySelectorAll('.radio-card input[type="radio"]:checked').forEach(radio => {
+        radio.closest('.radio-card').classList.add('selected');
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,483 @@
+{% extends "base.html" %}
+
+{% block title %}法條瀏覽 - 專利法 AI 刷題助手{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Chapter Filter & Search Section -->
+    <div class="filter-section">
+        <!-- Chapter Selector (Horizontal with Toggle) -->
+        <div class="chapter-selector-card">
+            <div class="chapter-selector-header">
+                <span class="chapter-selector-title">📚 章節篩選</span>
+                <button class="chapter-toggle-btn" id="chapter-toggle-btn" aria-label="切換章節選擇器">
+                    ▼
+                </button>
+            </div>
+            <div class="chapter-selector-wrapper" id="chapter-selector-wrapper">
+                <div class="chapter-selector" id="chapter-selector">
+                    <div class="chapter-tab active" data-chapter="all">
+                        <span>📑 全部</span>
+                        <span class="chapter-badge" id="count-all">0</span>
+                    </div>
+                    <!-- Chapters will be dynamically loaded here -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Search Bar -->
+        <div class="search-bar-wrapper">
+            <input
+                type="text"
+                id="search-input"
+                placeholder="🔍 搜尋法條內容或條號..."
+                class="search-input"
+            >
+            <button id="clear-search-btn" class="clear-btn hidden">✕</button>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Laws List -->
+    <ul id="laws-list" class="law-list hidden">
+        <!-- Laws will be dynamically loaded here -->
+    </ul>
+
+    <!-- Empty State -->
+    <div id="empty-state" class="empty-state hidden">
+        <div class="empty-state-icon">📭</div>
+        <div class="empty-state-title">找不到法條</div>
+        <p class="empty-state-text">請調整搜尋條件或聯繫管理員</p>
+    </div>
+
+    <!-- Pagination -->
+    <div id="pagination" class="pagination hidden">
+        <button class="pagination-btn" id="prev-btn" disabled>← 上一頁</button>
+        <span class="pagination-info" id="page-info">第 1 頁</span>
+        <button class="pagination-btn" id="next-btn">下一頁 →</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // State management
+    let currentPage = 1;
+    let totalPages = 1;
+    let currentChapter = 'all';
+    let currentSearchTerm = '';
+    const PAGE_SIZE = 10;  // Match backend default
+    // Language state: read from localStorage (set by language toggle)
+    let currentLang = localStorage.getItem('appLang') || 'zh-TW';
+    let allChapters = [];
+    let totalLawCount = 0;
+
+    // DOM elements
+    const loadingEl = document.getElementById('loading');
+    const lawsListEl = document.getElementById('laws-list');
+    const emptyStateEl = document.getElementById('empty-state');
+    const paginationEl = document.getElementById('pagination');
+    const searchInput = document.getElementById('search-input');
+    const clearSearchBtn = document.getElementById('clear-search-btn');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const pageInfo = document.getElementById('page-info');
+    const chapterSelector = document.getElementById('chapter-selector');
+    const chapterSelectorWrapper = document.getElementById('chapter-selector-wrapper');
+    const chapterToggleBtn = document.getElementById('chapter-toggle-btn');
+
+    // Fetch chapters from API
+    async function fetchChapters() {
+        try {
+            const qs = currentLang ? '?lang=' + encodeURIComponent(currentLang) : '';
+            const response = await fetch('/api/laws/chapters' + qs);
+            if (!response.ok) throw new Error('Failed to fetch chapters');
+            
+            const data = await response.json();
+            allChapters = data.chapters || [];
+            totalLawCount = data.total || 0;
+            
+            await buildChapterIndex();
+        } catch (error) {
+            console.error('Error fetching chapters:', error);
+        }
+    }
+
+    // Fetch laws with pagination from API
+    async function fetchLaws(page = 1) {
+        try {
+            loadingEl.classList.remove('hidden');
+            lawsListEl.classList.add('hidden');
+            emptyStateEl.classList.add('hidden');
+            
+            // Build query string
+            const params = new URLSearchParams({
+                page: page,
+                per_page: PAGE_SIZE
+            });
+            
+            if (currentLang) {
+                params.append('lang', currentLang);
+            }
+            
+            if (currentChapter !== 'all') {
+                params.append('chapter', currentChapter);
+            }
+            
+            // Add search parameter if exists
+            if (currentSearchTerm) {
+                params.append('search', currentSearchTerm);
+            }
+            
+            const response = await fetch('/api/laws?' + params.toString());
+            if (!response.ok) throw new Error('Failed to fetch laws');
+            
+            const data = await response.json();
+            
+            renderLaws(data.laws || [], data.page, data.total_pages, data.total);
+        } catch (error) {
+            console.error('Error fetching laws:', error);
+            loadingEl.classList.add('hidden');
+            emptyStateEl.classList.remove('hidden');
+        }
+    }
+
+    // Build chapter selector (horizontal tabs)
+    async function buildChapterIndex() {
+        // Update "all" count
+        document.getElementById('count-all').textContent = totalLawCount;
+        
+        // 中文數字對照表
+        const chineseNumbers = {
+            '一': 1, '二': 2, '三': 3, '四': 4, '五': 5,
+            '六': 6, '七': 7, '八': 8, '九': 9, '十': 10
+        };
+        
+        // Sort chapters by number (第 X 章)
+        const sortedChapters = allChapters.sort((a, b) => {
+            // Extract chapter number from "第 X 章 ..."
+            const matchA = a.name.match(/第\s*([一二三四五六七八九十]+)\s*章/);
+            const matchB = b.name.match(/第\s*([一二三四五六七八九十]+)\s*章/);
+            
+            if (matchA && matchB) {
+                const numA = chineseNumbers[matchA[1]] || 0;
+                const numB = chineseNumbers[matchB[1]] || 0;
+                return numA - numB;
+            }
+            
+            // If no match, sort alphabetically
+            return a.name.localeCompare(b.name);
+        });
+        
+        // Render chapter tabs (rebuild to avoid duplicates when switching language)
+        let html = '';
+        sortedChapters.forEach(chapter => {
+            // Shorten chapter name for display
+            const shortName = chapter.name.replace('第 ', '').replace(' 章', '');
+            html += `
+                <div class="chapter-tab" data-chapter="${chapter.name}">
+                    <span>${shortName}</span>
+                    <span class="chapter-badge">${chapter.count}</span>
+                </div>
+            `;
+        });
+
+        // Preserve the initial "全部" tab and rebuild the rest
+        const allTab = chapterSelector.querySelector('[data-chapter="all"]');
+        const allHtml = allTab ? allTab.outerHTML : `<div class="chapter-tab active" data-chapter="all"><span>📑 全部</span><span class="chapter-badge" id="count-all">0</span></div>`;
+        chapterSelector.innerHTML = allHtml + html;
+
+        // Attach click handlers to updated tabs
+        chapterSelector.querySelectorAll('.chapter-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const chapter = tab.getAttribute('data-chapter');
+                filterByChapter(chapter);
+            });
+        });
+    }
+
+    // Filter laws by chapter
+    function filterByChapter(chapter) {
+        currentChapter = chapter;
+        
+        // Clear search when filtering by chapter
+        if (chapter !== 'all' && currentSearchTerm) {
+            searchInput.value = '';
+            currentSearchTerm = '';
+            clearSearchBtn.classList.add('hidden');
+        }
+        
+        // Update active state in tabs
+        document.querySelectorAll('.chapter-tab').forEach(tab => {
+            tab.classList.remove('active');
+            if (tab.getAttribute('data-chapter') === chapter) {
+                tab.classList.add('active');
+            }
+        });
+        
+        // Fetch laws with new filter
+        fetchLaws(1);
+    }
+
+    // Render laws for current page
+    function renderLaws(laws, page, pages, total) {
+        currentPage = page;
+        totalPages = pages;
+        
+        if (laws.length === 0) {
+            loadingEl.classList.add('hidden');
+            lawsListEl.classList.add('hidden');
+            emptyStateEl.classList.remove('hidden');
+            paginationEl.classList.add('hidden');
+            return;
+        }
+        
+        // Group laws by chapter (only if not filtering by chapter)
+        let html = '';
+        if (currentChapter === 'all') {
+            const lawsByChapter = groupByChapter(laws);
+            html = renderGroupedLaws(lawsByChapter);
+        } else {
+            // Render without chapter headers when filtering
+            laws.forEach(law => {
+                html += createLawItem(law);
+            });
+        }
+        lawsListEl.innerHTML = html;
+        
+        loadingEl.classList.add('hidden');
+        lawsListEl.classList.remove('hidden');
+        emptyStateEl.classList.add('hidden');
+        paginationEl.classList.remove('hidden');
+        
+        updatePaginationControls();
+        attachEventListeners();
+    }
+    
+    // Group laws by chapter
+    function groupByChapter(laws) {
+        const grouped = {};
+        laws.forEach(law => {
+            const chapter = law.chapter || '未分類';
+            if (!grouped[chapter]) {
+                grouped[chapter] = [];
+            }
+            grouped[chapter].push(law);
+        });
+        return grouped;
+    }
+    
+    // Render grouped laws with chapter headers
+    function renderGroupedLaws(lawsByChapter) {
+        let html = '';
+        Object.keys(lawsByChapter).forEach(chapter => {
+            html += `
+                <li class="chapter-header">
+                    <h3 class="chapter-title">${chapter}</h3>
+                </li>
+            `;
+            lawsByChapter[chapter].forEach(law => {
+                html += createLawItem(law);
+            });
+        });
+        return html;
+    }
+
+    // Format law content with line breaks for numbered items
+    function formatLawContent(content) {
+        // Replace pattern " 數字 空格" with line break, except for the first one
+        // Pattern: one space + digit(s) + one space
+        return content.replace(/\s+(\d+)\s+/g, (match, digit, offset) => {
+            // Don't add line break if it's at the beginning
+            if (offset === 0) {
+                return match;
+            }
+            return '<br>' + digit + ' ';
+        });
+    }
+
+    // Create HTML for a single law item
+    function createLawItem(law) {
+        const starClass = law.is_starred ? 'starred' : '';
+        const starIcon = law.is_starred ? '⭐' : '☆';
+        
+        // Format content with line breaks for numbered items
+        const formattedContent = formatLawContent(law.content);
+        
+        // Handle avgScore and attempt count
+        let metaHtml = '';
+        if (law.attempt_count && law.attempt_count > 0) {
+            let accuracyText = '-';
+            let accuracyClass = '';
+            if (law.avg_score !== null && law.avg_score !== undefined) {
+                const accuracyPercent = Math.round(law.avg_score * 100);
+                accuracyText = `${accuracyPercent}%`;
+                accuracyClass = accuracyPercent < 70 ? 'low-accuracy' : '';
+            }
+            metaHtml = `<div class="law-meta"><span class="${accuracyClass}">正確率 ${accuracyText}</span><span>（${law.attempt_count} 次）</span></div>`;
+        }
+        
+        return `
+            <li class="law-item" data-law-id="${law._id || law.article_number}">
+                <div class="law-header">
+                    <div class="law-article-number">${law.article_number}</div>
+                    <div class="law-star ${starClass}" data-law-id="${law._id || law.article_number}">
+                        ${starIcon}
+                    </div>
+                </div>
+                <div class="law-content">
+                    <div class="law-text">${formattedContent}</div>
+                    ${metaHtml}
+                </div>
+            </li>
+        `;
+    }
+
+    // Update pagination controls
+    function updatePaginationControls() {
+        prevBtn.disabled = currentPage === 1;
+        nextBtn.disabled = currentPage === totalPages;
+        pageInfo.textContent = `第 ${currentPage} / ${totalPages} 頁`;
+    }
+
+    // Attach event listeners to law items
+    function attachEventListeners() {
+        // Star toggle buttons
+        document.querySelectorAll('.law-star').forEach(star => {
+            star.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const lawId = star.getAttribute('data-law-id');
+                await toggleStar(lawId, star);
+            });
+        });
+        
+        // Law item click (view details)
+        document.querySelectorAll('.law-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                if (!e.target.classList.contains('law-star')) {
+                    const lawId = item.getAttribute('data-law-id');
+                    viewLawDetails(lawId);
+                }
+            });
+        });
+    }
+
+    // Toggle star status
+    async function toggleStar(lawId, starElement) {
+        try {
+            const response = await fetch(`/api/laws/${lawId}/star`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            
+            if (!response.ok) throw new Error('Failed to toggle star');
+            
+            const data = await response.json();
+            const isStarred = data.is_starred;
+            
+            // Update UI only (no need to update local data cache)
+            starElement.textContent = isStarred ? '⭐' : '☆';
+            starElement.classList.toggle('starred', isStarred);
+        } catch (error) {
+            console.error('Error toggling star:', error);
+            alert('收藏失敗，請稍後再試');
+        }
+    }
+
+    // View law details (placeholder for future implementation)
+    function viewLawDetails(lawId) {
+        console.log('View law details:', lawId);
+        window.location.href = `/laws/${lawId}`;
+    }
+
+    // Search functionality (backend search with debouncing)
+    function filterLaws(searchTerm) {
+        currentSearchTerm = searchTerm.trim();
+        
+        // Show/hide clear button
+        if (currentSearchTerm) {
+            clearSearchBtn.classList.remove('hidden');
+        } else {
+            clearSearchBtn.classList.add('hidden');
+        }
+        
+        // Reset to page 1 and fetch with search term
+        currentPage = 1;
+        fetchLaws(1);
+    }
+
+    // Clear search
+    function clearSearch() {
+        searchInput.value = '';
+        currentSearchTerm = '';
+        clearSearchBtn.classList.add('hidden');
+        // Fetch all laws again
+        fetchLaws(1);
+    }
+    
+    // Helper function to show toast
+    function showToast(message, type) {
+        if (window.appUtils && window.appUtils.showToast) {
+            window.appUtils.showToast(message, type);
+        }
+    }
+
+    // Toggle chapter selector visibility
+    function toggleChapterSelector() {
+        chapterSelectorWrapper.classList.toggle('collapsed');
+        const isCollapsed = chapterSelectorWrapper.classList.contains('collapsed');
+        chapterToggleBtn.textContent = isCollapsed ? '▶' : '▼';
+        chapterToggleBtn.setAttribute('aria-expanded', !isCollapsed);
+    }
+
+    // Debounce function for search
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    // Event listeners
+    searchInput.addEventListener('input', debounce((e) => {
+        filterLaws(e.target.value);
+    }, 300));
+
+    clearSearchBtn.addEventListener('click', () => {
+        clearSearch();
+    });
+
+    chapterToggleBtn.addEventListener('click', () => {
+        toggleChapterSelector();
+    });
+
+    prevBtn.addEventListener('click', () => {
+        if (currentPage > 1) {
+            fetchLaws(currentPage - 1);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    });
+
+    nextBtn.addEventListener('click', () => {
+        if (currentPage < totalPages) {
+            fetchLaws(currentPage + 1);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    });
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', async () => {
+        await fetchChapters();
+        await fetchLaws(1);
+    });
+</script>
+{% endblock %}

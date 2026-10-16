@@ -1,0 +1,416 @@
+# Requirements: 法律 AI 刷題助手
+
+## Project Overview
+**法律 AI 刷題助手** — A multi-user mobile-first web app for Taiwan legal exam preparation, supporting multiple law types.
+Core loop: AI dynamically generates exam questions bound to specific law articles, grades short-answer responses, and tracks mastery per article for each user. The system now supports multiple law types (e.g., Patent Law, Trademark Law, Copyright Law) with complete data isolation.
+
+## User Persona
+- Multiple users preparing for the Taiwan Patent Law exam within a small team or organization
+- Each user needs independent progress tracking and personalized study experience
+- Users are pre-configured by administrators (no self-registration)
+
+## User Stories & Scenarios
+
+### 1. Dashboard & Navigation
+- **Story:** As a user, I want to see my overall progress from the homepage so I know how I'm doing.
+- **Scenario:** Viewing the home dashboard shows current streak, count of starred law articles, and buttons to start a quiz or browse laws.
+
+### 2. Quiz Configuration
+- **Story:** As a user, I want to configure my practice session so I can focus on new or reviewed questions.
+- **Scenario:** Opening quiz config allows selecting question type (MCQ, Short Answer, Mixed), session mode (New, Review, Mixed), and question count (1-50).
+
+### 2.1 Quiz Configuration - Insufficient Questions Warning
+
+- **Story:** As a user, I want to be notified when there are not enough questions available for my selected configuration, so I can contact an admin to generate more.
+- **Scenario:**
+  - User selects "複習" mode and requests 10 questions, but only 2 review questions are available.
+  - System blocks the session and shows an error: "題目數量不足，請聯繫管理員生成更多題目。"
+  - User cannot start the session until an admin generates more questions via admin scripts.
+
+### 3. Quiz Session
+
+- **Story:** As a user, I want to start a quiz session immediately when there are enough questions available.
+- **Scenario:** If there are enough questions in the DB (>= requested count), the quiz starts immediately. If not, the system blocks the session and prompts the user to contact an admin.
+
+### 4. Answering & Immediate Feedback
+- **Story:** As a user, I want to answer a question and get immediate grading and feedback.
+- **Scenario:** 
+  - MCQ: User taps an option, gets instantly told if correct. 
+  - Short Answer: User submits a text response, UI shows a loader, then LLM returns a score (0, 0.5, 1) and explanation.
+
+### 5. Scoring & Mastery Tracking
+- **Story:** As a user, I want the system to track my mastery per question.
+- **Scenario:** 
+  - Getting a score of 1 increments the correct streak (3 streaks = mastered). 
+  - Getting < 1 resets the streak and marks the question for review.
+  - User can appeal a score to undo the penalty, or permanently delete a bad question.
+
+### 6. Law Article Reference
+- **Story:** As a user, I want to browse law articles directly when needed.
+- **Scenario:** User can browse a paginated list of all Patent Law articles, view single article details, view history of questions on that article, and star (★) the article for reference.
+
+### 6.1 Law Article Search
+- **Story:** As a user, I want to search for law articles by content or article number, so I can quickly find relevant legal provisions.
+- **Scenario:**
+  - User enters search term in the search bar on laws page
+  - System searches by article_number (exact/partial match) or content (text contains)
+  - Results are displayed in real-time with pagination maintained
+  - Search works across current language (zh-TW or EN)
+  - Search can be combined with chapter filter
+  - Clear button allows user to reset search and return to full list
+  - Empty state is shown when no results are found with helpful message
+
+### 6.2 Law Article Ignore (NEW)
+- **Story:** As a user, I want to be able to mark a law article as "ignored" so that I don't get any questions generated from it.
+- **Scenario:**
+  - When viewing a law article, user sees an "ignore" button alongside the "star" button.
+  - If marked as ignored, the AI and system will not generate or fetch any questions for this specific law article for this user.
+  - User can toggle the ignore status at any time.
+  - Ignored articles are visibly different (e.g., greyed out or with a specific icon) in the law browser.
+
+### 7. Multilingual Support (i18n)
+- **Story:** As a user, I want to view patent law articles and practice questions in both Traditional Chinese (zh-TW) and English, so I can prepare for the exam in both languages.
+- **Scenario:**
+  - Law articles are available in both zh-TW and EN (same article_number, different lang field)
+  - When viewing a law article detail, both language versions are available
+  - Questions can be generated/viewed in both zh-TW and EN
+  - UI language remains in Traditional Chinese (buttons, labels, navigation)
+  - Content-only i18n: Only laws and question content are multilingual; UI stays in Chinese
+
+### 7.1 Question Translation & Consistency
+- **Story:** As a user, I want translated questions to be accurate and consistent between languages.
+- **Scenario:**
+  - For existing questions (data migration): Questions are translated into EN using an LLM agent (one-time)
+  - For new questions: Questions are generated in both zh-TW and EN simultaneously with identical meaning
+  - Both language versions of a question share the same `question_id`, tracked via `lang` field
+  - Grading is language-agnostic: scoring a zh-TW question also updates user_progress for both language versions
+
+### 8. Multi-User Support (NEW)
+- **Story:** As a team member, I want to have my own independent account so my progress is separate from other users.
+- **Scenario:**
+ - Each user has a unique `username` and `display_name`
+ - Users are pre-created by administrators directly in the database
+ - No self-registration UI is needed
+ 
+### 8.1 User Login
+- **Story:** As a user, I want to log in with just my username so I can access my personal study data.
+- **Scenario:**
+ - User visits the app and sees a login page
+ - User enters their `username` (e.g., "alice" or "bob")
+ - System validates the username exists in the database
+ - If valid, user is logged in and redirected to their dashboard
+ - If invalid, system shows error: "用戶名稱不存在"
+ - Session is maintained in Flask session for subsequent requests
+
+### 8.2 Personal Progress Isolation
+- **Story:** As a user, I want my progress data to be completely separate from other users.
+- **Scenario:**
+ - User A's starred laws are independent from User B's starred laws
+ - User A's question progress (correct_streak, needs_review) is separate from User B's
+ - User A's quiz sessions and scores don't affect User B's statistics
+ - Each user sees only their own data on the dashboard
+
+### 8.3 Shared Question Pool
+- **Story:** As a user, I want to benefit from questions generated by the system for all users.
+- **Scenario:**
+ - Questions are shared across all users (not user-specific)
+ - When any user completes a quiz, questions are available for all users
+ - This reduces duplicate AI generation and improves system efficiency
+ - However, each user's progress on each question is tracked independently
+
+### 8.4 User Management (Admin)
+- **Story:** As an administrator, I want to manage users directly in the database.
+- **Scenario:**
+ - Admin uses MongoDB client or script to add new users
+ - Required fields: `username` (unique), `display_name`
+ - Optional fields: `created_at`, `last_login`
+ - Example: `db.users.insertOne({username: "alice", display_name: "Alice Chen"})`
+
+## 9. Multi-Law Support (NEW)
+
+### 9.1 Law Type System
+- **Story:** As a user, I want to study different types of laws (Patent Law, Trademark Law, etc.) within the same system.
+- **Scenario:**
+  - System supports multiple law types identified by `type` field (e.g., "patent-act", "trademark-act", "copyright-act")
+  - All law articles, questions, and user progress are tagged with their law type
+  - Users can switch between different law types seamlessly
+  - Each law type maintains independent content, questions, and statistics
+
+### 9.2 Law Type Selection
+- **Story:** As a user, I want to select which law I'm studying so I can focus on relevant content.
+- **Scenario:**
+  - User can see a list of available law types on the dashboard or navigation menu
+  - When selecting a law type, the system filters all content (laws, questions, statistics) by that type
+  - User's current law selection is saved in session for convenience
+  - Dashboard shows progress statistics specific to the selected law type
+
+### 9.3 Law Type Isolation
+- **Story:** As a user, I want my study data for different laws to be completely separated.
+- **Scenario:**
+  - Questions generated for Patent Law don't appear when studying Trademark Law
+  - User's mastery progress in Patent Law is independent from Trademark Law
+  - Statistics (total score, attempt count) are calculated separately per law type
+  - Starred articles are filtered by law type
+
+### 9.4 Default Law Type (Patent Law)
+- **Story:** As an existing user, I want the system to continue working with Patent Law by default after the migration.
+- **Scenario:**
+  - All existing law articles are migrated with `type = "patent-act"`
+  - All existing questions are linked to Patent Law articles
+  - New law types can be added without affecting existing data
+  - System defaults to Patent Law if no law type is explicitly selected
+
+### 9.5 Data Migration Requirements
+- **Story:** As a system administrator, I want to safely migrate existing data to support multiple law types.
+- **Scenario:**
+  - Migration script adds `type = "patent-act"` to all existing law articles
+  - All existing questions remain linked to their Patent Law articles via `law_id`
+  - User progress records are automatically associated with Patent Law through question relationships
+  - Migration is idempotent (can be run multiple times safely)
+  - Rollback procedure is documented in case of issues
+
+### 9.6 Adding New Law Types
+- **Story:** As an administrator, I want to add new law types to expand the system's coverage.
+- **Scenario:**
+  - Admin can run initialization scripts to add new law types (e.g., Trademark Law)
+  - Each new law type requires:
+    - Law articles with `type` field set (e.g., "trademark-act")
+    - Properly formatted law content (markdown or JSON)
+    - Language support (zh-TW and EN versions)
+  - System automatically creates necessary indexes for new law types
+  - Questions can be generated for new law types using the same AI pipeline
+
+### 9.7 Law Type Filtering in UI
+- **Story:** As a user, I want to see only content relevant to my selected law type.
+- **Scenario:**
+  - Law browser page shows only articles from the selected law type
+  - Quiz configuration automatically filters questions by law type
+  - Search functionality respects law type filter
+  - Law detail page shows related questions from the same law type only
+  - Dashboard statistics aggregate data for the selected law type
+
+### 9.8 Patent Examination Guidelines Support (NEW)
+- **Story:** As a user preparing for patent examiner certification, I want to study Patent Examination Guidelines alongside Patent Law.
+- **Scenario:**
+  - System supports Patent Examination Guidelines as a separate law type: `"patent-examination"`
+  - Examination guidelines are structured similarly to patent law articles with chapter hierarchy
+  - Users can switch between Patent Law and Examination Guidelines
+  - Each guideline article can have associated practice questions
+  - Progress tracking is independent between Patent Law and Examination Guidelines
+  - Search and filtering work across examination guidelines content
+
+### 9.9 Examination Guidelines Data Structure
+- **Story:** As an administrator, I want examination guidelines data to be properly structured for easy management.
+- **Scenario:**
+  - Examination guideline articles stored in `knowledge/examination/` directory
+  - Organized by chapters (01-06) in JSON format
+  - Each article contains:
+    - `article_number`: Section identifier (e.g., "1.1 文件")
+    - `article_number_int`: Integer for sorting (e.g., 1102)
+    - `chapter`: Full chapter hierarchy (e.g., "第一篇程序審查及專利權管理 第一章...")
+    - `content`: Full text content
+    - `lang`: Language tag (zh-TW)
+    - `type`: Set to "patent-examination"
+  - Initialization script imports all examination guideline articles into database
+  - Same database schema as patent law articles (uses `LawModel`)
+
+### 9.10 訴願法支持 (Administrative Appeal Act Support)
+
+- **Story:** As a user preparing for administrative law exams, I want to study the Administrative Appeal Act alongside other laws.
+
+- **Scenario:**
+  - System supports Administrative Appeal Act as a separate law type: `"administrative-appeal"`
+  - Administrative Appeal Act is structured with 5 main chapters and 101 articles
+  - Users can switch between different law types including Administrative Appeal Act
+  - Each article can have associated practice questions
+  - Progress tracking is independent between all law types
+  - Search and filtering work across Administrative Appeal Act content
+
+### 9.11 訴願法資料結構 (Administrative Appeal Data Structure)
+
+- **Story:** As an administrator, I want Administrative Appeal Act data to be properly structured for easy management.
+
+- **Scenario:**
+  - Administrative Appeal articles stored as markdown file in `knowledge/administrative_appeal_zh.md`
+  - Organized with 5 chapters (總則、訴願審議委員會、訴願程序、再審程序、附則) and 101 articles
+  - Each article contains:
+    - `article_number`: Article identifier (e.g., "第 1 條", "第 2 條")
+    - `article_number_int`: Integer for sorting (e.g., 1, 2, 3, ..., 101)
+    - `chapter`: Full chapter hierarchy including sections (e.g., "第一章 總則 / 第一節 訴願事件")
+    - `content`: Full text content (may have multiple paragraphs)
+    - `lang`: Language tag (zh-TW)
+    - `type`: Set to "administrative-appeal"
+  - Parsing script extracts structured data from markdown format
+  - Initialization script imports all Administrative Appeal articles into database
+  - Same database schema as patent law articles (uses `LawModel`)
+
+### 9.12 行政訴訟法支持 (Administrative Litigation Act Support)
+
+- **Story:** As a user preparing for administrative law exams, I want to study the Administrative Litigation Act alongside other laws.
+
+- **Scenario:**
+  - System supports Administrative Litigation Act as a separate law type: `"administrative-litigation"`
+  - Administrative Litigation Act is structured with 9 editions (編) and approximately 308 articles
+  - Users can switch between different law types including Administrative Litigation Act
+  - Each article can have associated practice questions
+  - Progress tracking is independent between all law types
+  - Search and filtering work across Administrative Litigation Act content
+
+### 9.13 行政訴訟法資料結構 (Administrative Litigation Data Structure)
+
+- **Story:** As an administrator, I want Administrative Litigation Act data to be properly structured for easy management.
+
+- **Scenario:**
+  - Administrative Litigation articles stored as markdown file in `knowledge/administrative_litigation_zh.md`
+  - Organized with 9 editions (總則、第一審程序、上訴審程序、抗告程序、再審程序、重新審理、保全程序、強制執行、附則) and approximately 308 articles
+  - Each article contains:
+    - `article_number`: Article identifier (e.g., "第 1 條", "第 3-1 條", "第 307-1 條")
+    - `article_number_int`: Integer for sorting (e.g., 1, 3, 307, etc.)
+    - `chapter`: Full chapter hierarchy including editions, chapters, and sections (e.g., "第一編 總則 / 第一章 行政訴訟事件")
+    - `content`: Full text content (may have multiple paragraphs)
+    - `lang`: Language tag (zh-TW)
+    - `type`: Set to "administrative-litigation"
+  - Parsing script extracts structured data from markdown format with support for compound article numbers (e.g., "3-1", "307-1")
+  - Initialization script imports all Administrative Litigation articles into database
+  - Same database schema as other law types (uses `LawModel`)
+
+## 10. Question Bank Browser (REQ-010)
+
+### REQ-010-001: View All Questions in Question Bank
+- **Story:** As a user, I want to browse the entire question bank so I can study all available questions, not just the ones I've already answered.
+- **Scenario:**
+  - User navigates to the "題庫" page via the navigation bar
+  - System displays all non-deleted questions for the currently selected law type
+  - Questions show the associated law article number, question type (MCQ/問答), and user's starred status
+  - If the user has previously answered the question, their last score is shown; otherwise "未作答" is shown
+  - Questions are filterable by type (全部 / 選擇題 / 問答題)
+  - Questions are paginated (5 per page)
+  - Language toggle respects the current app language setting (zh-TW or en)
+
+### REQ-010-002: Question Bank Respects Law Type Filter
+- **Story:** As a user, I want the question bank to only show questions for the law type I am currently studying.
+- **Scenario:**
+  - When the user changes the law type from the header dropdown, the question bank updates to show only questions for that law type
+  - The question count and pagination reflect only the current law type
+
+### REQ-010-003: Star Questions from Question Bank
+- **Story:** As a user, I want to star/unstar questions directly from the question bank.
+- **Scenario:**
+  - Each question card shows a star button (⭐ if starred, ☆ if not)
+  - Clicking it toggles the star status and shows a toast confirmation
+  - The star state persists when navigating away and back
+
+### REQ-010-004: Law Article Link from Question Bank
+- **Story:** As a user, I want to navigate to the source law article from a question in the question bank.
+- **Scenario:**
+  - Each question card shows the law article number as a clickable link
+  - Clicking it navigates to the law detail page for that article
+
+## 11. Mobile Header Responsive Layout (REQ-011)
+
+### REQ-010-001: Mobile Header Two-Row Layout
+
+- **Story:** As a user on a mobile device, I want the header to be organized and easy to use so I don't have to scroll horizontally or struggle with cramped controls.
+
+- **Acceptance Criteria:**
+  - On screens 640px wide or narrower, the header reorganizes into two rows
+  - Row 1 contains: logo on the left, logout icon button on the right
+  - Row 2 contains: nav links (首頁, 法條瀏覽) on the left, law-type-select dropdown on the right
+  - The header never causes horizontal overflow on any device 320px wide or wider
+  - All tap targets in the mobile header are at minimum 44x44px (WCAG 2.5.5 guideline)
+
+### REQ-010-002: Mobile Header Hidden Elements
+
+- **Story:** As a user on mobile, I want the header to surface only the most essential controls so the interface stays clean.
+
+- **Acceptance Criteria:**
+  - On screens 640px wide or narrower:
+    - The username text (`.user-name` span) is hidden
+    - The language toggle (`.lang-toggle`) is hidden
+  - The law-type-select dropdown remains visible and full-width in row 2
+  - The logout icon button remains visible in row 1
+
+### REQ-010-003: Desktop Header Unchanged
+
+- **Story:** As a user on desktop, I want the header to continue working exactly as it does today.
+
+- **Acceptance Criteria:**
+  - On screens wider than 640px, all existing header elements remain visible and laid out in a single row
+  - No visual regression on desktop layouts at 641px and wider
+  - Username text, lang-toggle, law-type-select, nav links, and logout button all appear in their current positions on desktop
+
+### REQ-010-004: Smooth Breakpoint Transition
+
+- **Story:** As a user who resizes the browser window, I want the header to switch cleanly between its mobile and desktop layouts without any flash or broken intermediate state.
+
+- **Acceptance Criteria:**
+  - The layout switches at exactly 640px using a CSS media query
+  - No layout jump or content overflow occurs at the breakpoint boundary
+  - The header height adjusts naturally to accommodate two rows on mobile
+
+---
+
+## 12. Personal Progress Page — 我的進度 (REQ-012)
+
+### REQ-012-001: Personal Progress Page Accessible from Navbar
+
+- **Story:** As a user, I want a dedicated "我的進度" page accessible from the navigation bar so I can review my overall study performance at any time.
+- **Acceptance Criteria:**
+  - A "我的進度" link appears in the top navigation bar on all pages (via `base.html`)
+  - Clicking the link navigates to `/progress`
+  - The page requires authentication; unauthenticated users are redirected to the login page
+  - The active nav state is applied to the link when on the `/progress` route
+
+### REQ-012-002: Time Range Selector
+
+- **Story:** As a user, I want to choose a time range (7 days / 30 days / All time) so I can view my progress over the period that is most meaningful to me.
+- **Acceptance Criteria:**
+  - Three selector options are displayed: "最近 7 天", "最近 30 天", "全部時間"
+  - Selecting a range immediately updates all metrics and charts on the page without a full page reload (or via query param re-render)
+  - The currently selected range is visually highlighted
+  - Default selection on first visit is "最近 7 天"
+
+### REQ-012-003: Five Summary Metrics
+
+- **Story:** As a user, I want to see five key study metrics on my progress page so I can quickly assess my study health.
+- **Acceptance Criteria (all metrics are scoped to the selected time range except streak, which is always calculated from today backward):**
+  - **連續練習天數 (Streak):** Displays the count of consecutive calendar days (ending today) on which the user submitted at least one answer. Computed at read time from daily records. Always reflects "as of today", regardless of selected range.
+  - **作答題數 (Questions Answered):** Total number of answers submitted within the selected time range.
+  - **掌握題數 (Mastered Questions):** Count of distinct questions where the user's current `correct_streak >= 3` (a snapshot of the user's all-time mastered count — not range-limited, because mastery is a cumulative state).
+  - **平均得分率 (Avg Score Rate):** `sum(total_score) / questions_answered` across all daily records within the selected range, expressed as a percentage (0–100%).
+  - **覆蓋法條數 (Law Articles Covered):** Count of distinct law article IDs the user answered questions on within the selected time range.
+- **Edge Cases:**
+  - If the user has no data in the selected range, all metrics display `0` (or `0%` for score rate); no error is shown.
+  - "All time" range uses all available `user_daily_stats` records for the user.
+
+### REQ-012-004: Daily-Aggregated Trend Charts
+
+- **Story:** As a user, I want to see a chart of my daily practice volume and score trend over time so I can identify progress patterns and slumps.
+- **Acceptance Criteria:**
+  - At least one line/bar chart shows daily `questions_answered` values over the selected date range
+  - A second chart (or overlaid line) shows daily `avg_score_rate` (score / questions_answered per day) as a percentage
+  - Charts are rendered client-side using an embedded JSON data payload in the HTML (no separate AJAX call after page load)
+  - X-axis represents calendar dates; Y-axis represents the metric value
+  - Days with no activity are shown as 0, not omitted, to preserve continuity of the x-axis
+  - Charts are responsive and readable on mobile (min 320px viewport width)
+
+### REQ-012-005: Daily Stats Record Created/Updated on Answer Submission
+
+- **Story:** As a user answering questions, I want the system to automatically record my daily activity so my progress page stays up to date without any manual action.
+- **Acceptance Criteria:**
+  - Every time a quiz answer is submitted via `POST /api/quiz/session/:id/answer`, the system upserts a `user_daily_stats` record for `(user_id, today's date in YYYY-MM-DD)`
+  - The record increments `questions_answered` by 1 and adds the answer's `score` to `total_score`
+  - The record updates `laws_covered` to include the `law_id` of the answered question (stored as a list, deduplicated)
+  - The record updates `mastered_count` to reflect the user's current total mastered question count (questions where `correct_streak >= 3`) as a snapshot at the time of the answer
+  - Records are scoped per user; one user's records never affect another user's stats
+
+### REQ-012-006: Law Type Scope for Progress
+
+- **Story:** As a user studying multiple law types, I want the progress page to show stats across all law types I have practiced, so I get a holistic view of my study activity.
+- **Acceptance Criteria:**
+  - The progress page aggregates data across all law types (not filtered by the current session law type)
+  - The "覆蓋法條數" metric counts distinct law articles across all law types within the time range
+
+### Change Log
+
+- 2026-05-22: Added REQ-012 (Personal Progress Page — 我的進度) including five metrics, time range selector, trend charts, and new `user_daily_stats` collection requirement.

@@ -1,0 +1,12 @@
+# ── Production ───────────────────────────────────────────────────────────────
+Flask==3.0.3
+pymongo==4.7.1
+gunicorn==22.0.0
+python-dotenv==1.0.1
+requests==2.31.0
+pydantic==2.10.6
+
+# ── Testing & Linting (also installed in CI) ─────────────────────────────────
+pytest==8.2.2
+pytest-flask==1.3.0
+flake8==7.1.0

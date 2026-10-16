@@ -1,0 +1,121 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project
+
+A Flask + MongoDB + OpenRouter quiz app for Taiwan law exams, deployed on
+Heroku. The project intro is pending its own ticket. Until then,
+[README.md](README.md) is the overview.
+
+## Workflow
+
+Ticket first. Every non-trivial change starts as an `LP-XXXX` ticket and lands
+with its docs in sync.
+
+| Stage | Home | Required |
+| --- | --- | --- |
+| 1. Ticket | [docs/issues/](docs/issues/): `LP-XXXX` | All but trivial changes |
+| 2. Artifact | `artifacts/LP-XXXX-<slug>/` | Only when a screen has a visual choice to make |
+| 3. Code | `routes/` `services/` `db/` `templates/` `static/` `tests/` | Always |
+| 4. Doc sync | `docs/modules/` and `docs/changelog/` | When behavior or a product rule changes |
+
+Rules that make the flow hold:
+
+- **No ticket, no code.** Before editing code, name the `LP-XXXX` you are
+  working under. Trivial changes skip the ticket: typos, dependency bumps,
+  lint fixes, and one-line obvious bugs. Anything touching behavior, data,
+  prompts, or schema is not trivial. If unsure, ask.
+- **Tickets come from the [`ticket-system`](.claude/skills/ticket-system/SKILL.md) skill.**
+  The user writes the requirement. Claude grounds it in the code, drafts the
+  ticket, and asks only about gaps that change its shape. Everything else goes
+  under `## Open Questions`.
+- **Open Questions are cleared before code.** A ticket moves to `in_progress`
+  only when its `## Open Questions` reads `- None.`. The generator refuses
+  otherwise. Never answer a question on the user's behalf.
+- **Status drives filing.** Change the `status` field and run
+  `python3 .claude/skills/ticket-system/scripts/generate_issues_index.py`.
+  Never move ticket files by hand.
+- **Commits** go on `main`, and the message starts with `LP-XXXX: `. Trivial
+  un-ticketed commits carry no prefix.
+- **Keep the chain in sync.** Code that diverges from its ticket or module doc
+  is a defect in both. Fix both in the same turn, or say plainly which one you
+  left behind. A ticket that turns out to be wrong gets refined, not silently
+  overridden in code.
+
+### Done gate
+
+A ticket resolves only when all four hold:
+
+1. **`pytest` green.** A behavior or data change adds or updates a test in
+   `tests/`. OpenRouter is mocked, never called live.
+2. **`flake8` clean**, using the repo's [.flake8](.flake8).
+3. **Seen working in the app.** Run `python app.py` with a `.env` copied from
+   [.env.example](.env.example) and a reachable MongoDB, then exercise the
+   change in a browser using Playwright MCP. If the app cannot run, say so.
+   Never claim it was seen.
+4. **Docs synced.** Update the owning module doc and write a changelog entry,
+   or have the ticket state why none applies.
+
+Then check every acceptance box, or rewrite it with a note. Write a 2–3 line
+`## Resolution` that links the changelog entry, fill in `resolved:`, and run
+the generator. `docs/issues/closure-debt.md` must gain no row.
+
+### Artifacts (conditional)
+
+There is no designer, so when a ticket turns on what a screen should look like,
+the user picks by looking. Every ticket makes the call either way. A ticket
+without an artifact carries `No artifact — <reason>.` in Details.
+
+The test is not "does this touch the frontend". It is **"is there a choice here
+the user should make by looking?"**
+
+- Build **two or three** standalone `.html` variants in
+  `artifacts/LP-XXXX-<slug>/`. No build step and no Flask. Use hardcoded stand-in
+  data, and link `../../static/css/design-tokens.css` for the real tokens.
+- Variants must differ on the question being asked. Say what each one trades
+  away.
+- Screenshot each variant with Playwright MCP at **phone 390x844** and
+  **desktop 1440x900** into `shots/<variant>-<viewport>.png`. The app is
+  mobile-first, so the phone shot is the primary one.
+- Record the pick in `DECISION.md`: the winner and why, what was rejected, what
+  the real implementation must keep, and **who decided and on what evidence**.
+- Nothing in `artifacts/` ships verbatim. The winner is rebuilt in `templates/`
+  against real data, and the decision is folded into the module doc.
+
+### Docs
+
+One doc tree, with no promotion layer. Both kinds of doc record decisions
+rather than restating code.
+
+```
+docs/
+├── issues/                     # tickets, generator-managed
+├── modules/
+│   ├── index.md                # owner map: module → what it owns
+│   └── <module>/index.md       # current truth for one area
+└── changelog/
+    ├── index.md                # file → LP ids + one line
+    └── YYYY-MM-DD-<slug>.md    # one entry per landing
+```
+
+- **Module docs** describe current behavior. Product rules come first: what
+  the quiz, inventory, grading, or auth must do, and why. A short `## Code`
+  section follows, naming the files that own it. Create a module doc the first
+  time a ticket changes that area, and update `modules/index.md` in the same
+  change.
+- **Changelog entries** are the product iteration log. Write one per landing,
+  and one entry may cover several LP ids. Include a Was / Now table for
+  behavior changes and a "Deliberately not done" list. Add a row to
+  `changelog/index.md`. The ticket's Resolution links here instead of repeating
+  it.
+- When a folder has an `index.md`, read it first and update it in the same
+  change.
+- `docs/requirements.md`, `docs/design.md`, and `docs/tasks.md` are a retired
+  SDD flow, pending removal under a ticket. Read them for context only. Never
+  update them, and never treat them as current truth.
+
+## Conventions
+
+- English for tickets, docs, and changelog. Quote Chinese UI copy and law text
+  verbatim.
