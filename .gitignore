@@ -222,3 +222,4 @@ backup-20260508/
 .roomodes
 # Playwright MCP snapshots and console logs
 .playwright-mcp/
+.vscode/

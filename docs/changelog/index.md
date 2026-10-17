@@ -4,6 +4,7 @@ One entry per landing, newest first.
 
 | File | LP ids | Summary |
 | --- | --- | --- |
+| [2026-10-17-ci-and-heroku-app.md](2026-10-17-ci-and-heroku-app.md) | LP-0003 | GitHub Actions runs `flake8` and `pytest` on every push and PR; the new `law-pass` Heroku app auto-deploys `main` after CI passes; config vars split to LP-0008. |
 | [2026-10-17-site-capture-and-neta-design.md](2026-10-17-site-capture-and-neta-design.md) | LP-0004-01, LP-0004-02 | `site-capture` records external reference sites in `docs/references/`; `neta-design` replaces `design-variants`, adds a token contract and capture-derived directions, and shoots at phone, tablet, and desktop. |
 | [2026-10-17-account-chooser-after-logout.md](2026-10-17-account-chooser-after-logout.md) | LP-0006 | The first sign-in after a logout shows Google's account chooser (`prompt=select_account`), so learners can switch accounts. |
 | [2026-10-16-google-sign-in.md](2026-10-16-google-sign-in.md) | LP-0002-01 | Google sign-in replaces username login; a first sign-in with a verified email creates the account (random `learner-…` name); `users.email` is unique; username-only users are deleted at cutover. |

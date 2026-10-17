@@ -2,7 +2,7 @@
 id: LP-0002-01
 title: Google sign-in with self-signup
 type: story
-status: pending
+status: in_progress
 priority: high
 created: 2026-10-16
 resolved:
@@ -95,21 +95,23 @@ account may sign themselves up on their first sign-in.
       `username` and `display_name`, and it gets a session. Signing in again creates no second doc.
 - [x] No username-only user remains in `users` after cutover. Moved to
       `LP-0007`, which runs the production cutover.
-- [ ] An unverified Google account is refused, and no `users` doc is created.
+- [x] An unverified Google account is refused, and no `users` doc is created.
+      Covered by tests only (`tests/test_auth.py`): a real Google account
+      cannot be unverified.
 - [x] Posting a bare username to `/auth/login` no longer creates a session,
       in any environment.
 - [x] A Google login leaves `users.display_name` unchanged.
-- [ ] `scripts/add_user.py` and its test are deleted, and `users.email` is
+- [x] `scripts/add_user.py` and its test are deleted, and `users.email` is
       unique.
-- [ ] `schema-check` passed. `data-model.md` lists `users.email`, `email_1`,
+- [x] `schema-check` passed. `data-model.md` lists `users.email`, `email_1`,
       and the callback as the only `users` insert writer. Its Change Log row's
       production `Ran` cell is filled by `LP-0007`.
-- [ ] `pytest` green — covered by `tests/test_auth.py` and
+- [x] `pytest` green — covered by `tests/test_auth.py` and
       `tests/test_migrations.py`, with the Google token exchange mocked.
-- [ ] `flake8` clean.
-- [ ] Seen working in the running app: two test Google accounts sign
+- [x] `flake8` clean.
+- [x] Seen working in the running app: two test Google accounts sign
       themselves up, against a local MongoDB.
-- [ ] Docs synced: `docs/modules/auth/index.md` (new),
+- [x] Docs synced: `docs/modules/auth/index.md` (new),
       `docs/modules/index.md`, `docs/modules/db/data-model.md` (through
       `schema-check`), and `.claude/skills/prd-report/SKILL.md` step 1, plus a
       changelog entry.

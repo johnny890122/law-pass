@@ -7,11 +7,9 @@ and sign ID tokens with a local key, so Authlib's real verification runs.
 Comments name the LP-0005 case each test covers.
 """
 import html
-import importlib.util
 import os
 import re
 import time
-from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 os.environ.setdefault("MONGO_URI", "mongodb://localhost:27017/patent_act_test")
@@ -235,19 +233,6 @@ def test_google_redirect_is_https_behind_heroku(client, google):
     assert params["redirect_uri"][0].startswith("https://")
     assert params["scope"] == ["openid email"]
     assert params["state"] and params["nonce"]
-
-
-def test_add_user_lowercases_email_and_refuses_duplicates(users):
-    script = Path(__file__).resolve().parent.parent / "scripts" / "add_user.py"
-    spec = importlib.util.spec_from_file_location("add_user", script)
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-
-    assert module.add_user("  Bob@Example.COM ", "bob", "Bob Wu")
-    assert users.find_one({"username": "bob"})["email"] == "bob@example.com"
-    assert not module.add_user("bob@example.com", "bob2", "Bob Two")
-    assert not module.add_user("not-an-email", "carol", "Carol")
-    assert users.count_documents({}) == 1
 
 
 # ── A. Sign-in outcomes ─────────────────────────────────────────────────────

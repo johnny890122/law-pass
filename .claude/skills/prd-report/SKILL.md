@@ -57,12 +57,13 @@ that needs the user (step 4) and sign-off (step 5).
   client, whose redirect URIs include
   `http://localhost:5000/auth/google/callback`. The app will not start
   without them.
-- Sign-in is Google only, with no bypass. Use the two dedicated test Google
-  accounts. Create one ahead of time with
-  `python scripts/add_user.py <test email> <name> "<display>"`, using a
-  made-up username and display name. The other signs itself up on its first
-  sign-in. Delete its `users` doc from the report database to make it new
-  again. No real personal data appears on screen.
+- Sign-in is Google only, with no bypass, and accounts exist only through
+  self-signup. There is no console account creation. Use the two dedicated
+  test Google accounts. Each signs itself up on its first sign-in to the
+  report database, with a random `learner-…` name. Delete their `users` docs
+  from the report database to make them new again. No real personal data
+  appears on the app's screens. Never shoot Google's own pages, which show
+  the account's email.
 - Open the app at `http://localhost:<port>`, never `127.0.0.1`, or Google
   answers `redirect_uri_mismatch`.
 - Signing in to Google happens by hand. Pause at Google's account screen and
@@ -83,7 +84,7 @@ For each step of the PRD's happy path, one step per user action:
 
 1. `browser_resize` to 390x844, then act as the user would.
 2. `browser_console_messages` must show no errors, as in the
-   `design-variants` Verify step. Fix the cause. Do not hide it.
+   `neta-design` Verify step. Fix the cause. Do not hide it.
 3. `browser_take_screenshot` to `shots/NN-<step>-phone.png`, numbered in
    journey order. Then read the saved PNG and look at it. Re-shoot anything
    wrong before using it.

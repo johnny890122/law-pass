@@ -99,7 +99,7 @@ Convention:
 - Dry-run by default: it prints how many documents match. It writes only with
   `--apply`.
 - It gets its DB through the `db.models` singleton (`MONGO_URI`), as
-  `scripts/add_user.py` does.
+  `scripts/migrations/20261016_remove_username_only_users.py` does.
 - Run it by hand, locally first and then with
   `heroku run -a <app> python scripts/migrations/<file>.py --apply`. There is
   no runner and no tracking collection.

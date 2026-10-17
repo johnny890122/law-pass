@@ -1,9 +1,9 @@
 ---
 ticket: LP-0002-01
-status: draft
+status: approved
 created: 2026-10-16
-approved:
-reviewer:
+approved: 2026-10-17
+reviewer: Johnny Chang
 ---
 
 # PRD: Google sign-in with self-signup
@@ -88,7 +88,9 @@ is superseded.
 - **Response:** 302 to Google's `authorization_endpoint` with
   `response_type=code`, `client_id`, `scope=openid email`, `state`, `nonce`,
   and `redirect_uri` set to `url_for('auth.google_callback', _external=True)`.
-  The session gains Authlib's state entry and `login_next`.
+  After an intentional logout, it also carries `prompt=select_account`, once,
+  so Google shows its account chooser (`LP-0006`, decided by the user on
+  2026-10-17). The session gains Authlib's state entry and `login_next`.
 - **Errors:** none at request time. Missing config fails startup (BR-7).
 
 ### `GET /auth/google/callback` (new)
@@ -111,7 +113,8 @@ is superseded.
 
 ### `GET /auth/logout`, `GET /auth/current`
 
-- Unchanged.
+- `GET /auth/logout` also leaves a one-time `choose_account` flag in the
+  cleared session (`LP-0006`). `GET /auth/current` is unchanged.
 
 ## Data Changes
 

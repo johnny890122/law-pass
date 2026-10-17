@@ -33,7 +33,7 @@ LAW_TYPES = {
 
 @dataclass
 class UserModel:
-    """User account, provisioned from the console (scripts/add_user.py)"""
+    """User account, created on a first Google sign-in (services/auth.py find_or_create_user)"""
     email: str             # Google sign-in identifier, stored lowercased. Unique.
     username: str          # Unique stored label (e.g., "alice"), not a login credential
     display_name: str      # Display name (e.g., "Alice Chen"). Console-set only.

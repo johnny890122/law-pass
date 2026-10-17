@@ -8,9 +8,9 @@ every non-trivial change starts as a ticket here.
 
 ## Status Overviews
 
-- [In Progress](./in-progress.md) — 3
-- [Pending](./pending.md) — 10
-- [Done](./done.md) — 6 (resolved 6, won't-fix 0)
+- [In Progress](./in-progress.md) — 4
+- [Pending](./pending.md) — 9
+- [Done](./done.md) — 7 (resolved 7, won't-fix 0)
 - [Closure Debt](./closure-debt.md) — 0 completed ticket(s) not fully closed
 
 ## Folder Layout

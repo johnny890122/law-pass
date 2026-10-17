@@ -14,8 +14,8 @@ reviewer:
 - **Changelog:** [YYYY-MM-DD-&lt;slug&gt;](../../changelog/YYYY-MM-DD-<slug>.md)
 - **Verified at:** commit `abc1234`.
 - **Environment:** the app run locally with `python app.py`, database
-  `lp_report_<id>` on a local MongoDB, provisioned test Google account
-  `<name>` added with `scripts/add_user.py`. Seed data (stand-in): what was added and why the
+  `lp_report_<id>` on a local MongoDB, test Google accounts that signed
+  themselves up as `learner-…`. Seed data (stand-in): what was added and why the
   journey needs it.
 - **Prepared by:** Claude, YYYY-MM-DD.
 

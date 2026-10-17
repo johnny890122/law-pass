@@ -3,8 +3,8 @@
 **作者:** Johnny Chang  
 **日期:** 2026-05-22  
 **狀態:** 開發中 (In Progress)  
-**GitHub URL:** https://github.com/johnny890122/patent_act  
-**生產環境 URL:** https://patent-act-15774ac83829.herokuapp.com/
+**GitHub URL:** https://github.com/johnny890122/law-pass  
+**生產環境 URL:** https://law-pass-5ae90190d253.herokuapp.com/
 
 ---
 
@@ -156,10 +156,10 @@ erDiagram
 
 ## 7. 基礎設施與部署策略 (Infrastructure & Deployment Strategy)
 
-*   **託管服務 (Hosting):** 部署於 Heroku 平台（底層使用 `gunicorn` 作為 WSGI HTTP Server）。線上實際網站: https://patent-act-15774ac83829.herokuapp.com/
+*   **託管服務 (Hosting):** 部署於 Heroku 平台（底層使用 `gunicorn` 作為 WSGI HTTP Server）。線上實際網站: https://law-pass-5ae90190d253.herokuapp.com/
 *   **資料庫 (Database):** MongoDB Atlas (雲端託管的 NoSQL 叢集)。
 *   **LLM API:** OpenRouter 提供呼叫具推論能力的高階模型（產生題目）與快速反應模型（負責批改）。
-*   **CI/CD:** 藉由整合套件 (`pytest`, `flake8`)，未來可進行持續測試與程式碼檢查。
+*   **CI/CD:** GitHub Actions 在每次 push 與 PR 執行 `flake8` 與 `pytest`；`main` 通過 CI 後由 Heroku 自動部署（見 `docs/modules/deploy/index.md`）。
 
 ---
 

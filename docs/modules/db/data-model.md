@@ -147,13 +147,13 @@ Writers: `unknown writer`. Nothing in this repo writes it.
 ## `users`
 
 Accounts, keyed by Google-verified `email` (LP-0002-01). A first Google
-sign-in creates the account (self-signup). The console can also create one
-ahead of time.
+sign-in creates the account (self-signup), the only way an account is made.
+Admins view and edit users in Atlas.
 
 Dataclass: `UserModel`
 
-Writers: `scripts/add_user.py` (insert), `services/auth.py`
-`find_or_create_user` (insert on a first Google sign-in), and
+Writers: `services/auth.py` `find_or_create_user` (the only insert, on a
+first Google sign-in), and
 `services/auth.py` `create_session` (`last_login` on sign-in). Deleted by
 `scripts/migrations/20261016_remove_username_only_users.py`.
 
@@ -162,8 +162,8 @@ Writers: `scripts/add_user.py` (insert), `services/auth.py`
 | Field | Type | Required | References | Notes |
 | --- | --- | --- | --- | --- |
 | `email` | str | yes | — | Sign-in identifier, matched against Google's verified email. Stored stripped and lowercased. Unique. |
-| `username` | str | yes | — | Stored label, not a login credential. Unique. Console-chosen, or `learner-` plus 6 hex characters for a self-signup. |
-| `display_name` | str | yes | — | Console-chosen, or the same random name as `username` for a self-signup until onboarding (LP-0002-02) changes it. Google profile data is never stored. |
+| `username` | str | yes | — | Stored label, not a login credential. Unique. `learner-` plus 6 hex characters, set at signup. |
+| `display_name` | str | yes | — | The same random name as `username` at signup, until onboarding (LP-0002-02) changes it. Google profile data is never stored. |
 | `created_at` | datetime | yes | — | UTC. |
 | `last_login` | datetime or null | yes | — | Null until first sign-in. |
 
@@ -382,4 +382,4 @@ and the owning ticket cannot resolve until that cell is filled.
 | Date | LP | Change | Migration | Ran | Changelog |
 | --- | --- | --- | --- | --- | --- |
 | 2026-10-16 | LP-0001-01 | Baseline seeded from write sites. `init_db()` now raises when `laws.article_number_lang_type_unique` or `user_daily_stats.user_id_date_law_type_unique` cannot be built. | none | local: fresh DB passes. pending: heroku. The production check for duplicates on both keys and for a same-key index under another name has not run. | [2026-10-16-schema-check](../../changelog/2026-10-16-schema-check.md) |
-| 2026-10-16 | LP-0002-01 | `users.email` added (str, required, lowercased) with unique index `email_1`; `username` becomes a stored label. `find_or_create_user` inserts users on a first Google sign-in (self-signup). Username-only users and their documents in the six per-user collections are deleted, not backfilled. | `scripts/migrations/20261016_remove_username_only_users.py` | local: `patent_act` has 0 users, so the migration and the `email` preflight are no-ops; fresh DB builds `email_1`. pending: heroku. Neither the production migration (`--apply`) nor the `email` duplicate preflight has run. | [2026-10-16-google-sign-in](../../changelog/2026-10-16-google-sign-in.md) |
+| 2026-10-16 | LP-0002-01 | `users.email` added (str, required, lowercased) with unique index `email_1`; `username` becomes a stored label. `find_or_create_user` inserts users on a first Google sign-in (self-signup), and `scripts/add_user.py` is deleted. Username-only users and their documents in the six per-user collections are deleted, not backfilled. | `scripts/migrations/20261016_remove_username_only_users.py` | local: `patent_act` has 0 users, so the migration and the `email` preflight are no-ops; fresh DB builds `email_1`. pending: heroku, owned by LP-0007. Neither the production migration (`--apply`) nor the `email` duplicate preflight has run. | [2026-10-16-google-sign-in](../../changelog/2026-10-16-google-sign-in.md) |
