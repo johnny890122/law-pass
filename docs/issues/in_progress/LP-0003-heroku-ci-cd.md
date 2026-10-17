@@ -49,10 +49,11 @@ production hostname and a pipeline that ships `main` only when `pytest` and
     database on the `law-pass` Atlas cluster (project `johnny-personal`).
     The old production database is unreachable, so users, progress, laws,
     and questions do not carry over.
-  - `main` is production once auto-deploy is on. It takes `488a21b`
-    (LP-0001, with the lint fixes) and the LP-0003 commit. `3c1dcd8`
-    (LP-0002-01 Google sign-in) stays on `infra` until `LP-0007` step 7,
-    because self-signup must wait for the `LP-0002-05` grading cap.
+  - `main` is production once auto-deploy is on. It took `488a21b`
+    (LP-0001, with the lint fixes) and the LP-0003 commits. On 2026-10-17
+    the user also had `infra` (LP-0002-01 Google sign-in) merged to `main`
+    for a production test, ahead of `LP-0007` and the `LP-0002-05` grading
+    cap.
   - Heroku's GitHub integration connects `johnny890122/law-pass` and
     auto-deploys `main` with "Wait for CI to pass" on.
   - The README's GitHub URL and production URL point at the new repo and app.
@@ -69,21 +70,26 @@ production hostname and a pipeline that ships `main` only when `pytest` and
 
 ## Acceptance Criteria
 
-- [ ] Every push and PR runs `.github/workflows/ci.yml`, and a commit with a
-      `flake8` error fails it (shown on a throwaway branch).
-- [ ] The new Heroku app exists on a Basic dyno. Its config vars and the
+- [x] Every push and PR runs `.github/workflows/ci.yml`, and a commit with a
+      `flake8` error fails it (shown on a throwaway branch). Run
+      `39003127707` on `ci-flake8-check` failed on `F401`, and the branch was
+      deleted.
+- [x] The new Heroku app exists on a Basic dyno. Its config vars and the
       `MONGO_URI` that reaches the new Atlas database are `LP-0008`'s.
-- [ ] A push to `main` deploys to the new app only after CI passes, and
-      Heroku's activity feed ties the build to that commit.
-- [ ] `GET /health` on the new hostname returns 200 after the first
-      auto-deploy, which needs `LP-0008` landed.
-- [ ] `pytest` green in CI and locally — no new test. The workflow runs the
-      existing suite.
-- [ ] `flake8` clean.
+- [x] A push to `main` deploys to the new app only after CI passes, and
+      Heroku's activity feed ties the build to that commit. `540710a` was
+      pushed at 05:07:56Z, CI passed at 05:08:26Z, the build started at
+      05:08:41Z, and the release is v4 「Deploy 540710a2」.
+- [x] `GET /health` on the new hostname returns 200 after the first
+      auto-deploy, which needs `LP-0008` landed. 200 on 2026-10-17, after
+      `init_db()` built every index on the empty `law_pass` database.
+- [x] `pytest` green in CI and locally — no new test. The workflow runs the
+      existing suite: 27 passed on `main`, on Python 3.11.15.
+- [x] `flake8` clean.
 - [ ] Seen working in the running app: open the new hostname with Playwright
-      MCP, and see the login page load and a user sign in. The database
-      starts empty, so the user is created first with
-      `heroku run python scripts/add_user.py`.
+      MCP, and see the login page load and a user sign in. Google sign-in
+      is on `main` now, so a Google account signs itself up over `https://`
+      (`scripts/add_user.py` is gone).
 - [ ] Docs synced: `docs/modules/deploy/index.md` (new),
       `docs/modules/index.md`, the README URLs, and a changelog entry.
 
@@ -122,8 +128,10 @@ production hostname and a pipeline that ships `main` only when `pytest` and
   `moblab-research`, at `https://law-pass-5ae90190d253.herokuapp.com`.
   Decided by the user on 2026-10-17.
 - Config vars move to `LP-0008`. Decided by the user on 2026-10-17.
-- `main` takes `488a21b` plus the LP-0003 commit, and Google sign-in stays
-  off `main` until `LP-0007`. Decided by the user on 2026-10-17.
+- ~~`main` takes `488a21b` plus the LP-0003 commit, and Google sign-in
+  stays off `main` until `LP-0007`. Decided by the user on 2026-10-17.~~
+  Superseded the same day: `infra`, with Google sign-in, merges to `main`
+  for a production test. Decided by the user on 2026-10-17.
 - Basic dyno, so the app never sleeps. Decided by the user on 2026-10-16.
 
 ### Behavior Details
@@ -131,10 +139,11 @@ production hostname and a pipeline that ships `main` only when `pytest` and
 - The dashboard steps are the user's: the GitHub OAuth connection in the
   Heroku dashboard, and enabling auto-deploy of `main` with "Wait for CI to
   pass". The CLI login `b07303058@ntu.edu.tw` is a `finder-experiment` admin.
-- Heroku's "Wait for CI" waits on GitHub commit statuses, and its docs never
-  mention GitHub Actions, which reports check runs. The first auto-deploy
-  must show the build starting only after CI finished. If it starts sooner,
-  CI has to post a commit status, which this ticket then adds.
+- Heroku's "Wait for CI" docs speak only of commit statuses, but it also
+  waits for the GitHub Actions check run. Shown on `540710a` (2026-10-17):
+  the build started 15 s after CI passed, so CI posts no commit status.
+- Heroku builds with the 3.11.15 in `.python-version`. Its patch-update
+  warning (3.11.17) is advisory, so the pin stays.
 - If the buildpack does not offer `3.11.15`, pin `.python-version` to `3.11`
   rather than diverging CI from Heroku.
 - CI keeps the default `patent_act_test` database, so the `_test` guard in

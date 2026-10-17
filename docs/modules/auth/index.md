@@ -37,9 +37,10 @@ Who may use the app, and how they prove it. Current truth since
   variable, when `GOOGLE_CLIENT_ID` or `GOOGLE_CLIENT_SECRET` is unset.
 - **Behind Heroku**, `ProxyFix(x_proto=1)` trusts the router's
   `X-Forwarded-Proto`, so the OAuth `redirect_uri` is `https://`.
-- **Production waits for the grading cap.** Self-signup lets anyone spend
-  OpenRouter credit through short-answer grading, so this deploys only after
-  LP-0002-05's per-user daily cap lands.
+- **Production went live before the grading cap.** Self-signup lets anyone
+  spend OpenRouter credit through short-answer grading, and LP-0002-05's
+  per-user daily cap is not built yet. The user deployed it anyway on
+  2026-10-17 for a production test (LP-0003).
 - **No other door into the same data.** The old `patent-act-15774ac83829`
   app still has username login, but its database is not the new app's:
   `law-pass` started on an empty database on its own Atlas cluster

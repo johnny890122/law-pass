@@ -8,7 +8,8 @@ Where law-pass runs and how code reaches it. Current truth since
 - **`main` is production.** Heroku's GitHub integration deploys every push
   to `main` of `johnny890122/law-pass` to the `law-pass` app, and only after
   CI passes ("Wait for CI to pass"). A merge to `main` is a release. GitHub
-  holds no Heroku API key.
+  holds no Heroku API key. Heroku waits for the GitHub Actions check run
+  itself, so CI posts no commit status (shown 2026-10-17).
 - **CI gates every push and pull request.** `.github/workflows/ci.yml` runs
   `flake8`, then `pytest`, on the Python in `.python-version`, against a
   MongoDB 7 service container on `localhost:27017`. It needs no secrets.
@@ -22,10 +23,11 @@ Where law-pass runs and how code reaches it. Current truth since
 - **Indexes build at boot.** `create_app()` runs `init_db()`, so a blocked
   unique index crashes the dyno after the release, not the build. Read
   `heroku logs` after every deploy.
-- **Google sign-in waits for its cutover.** `3c1dcd8` on `infra`
-  (LP-0002-01) merges to `main` only at LP-0007 step 7. Self-signup lets
-  anyone spend OpenRouter credit, so the grading cap (LP-0002-05) lands
-  first.
+- **Google sign-in is live ahead of its cutover.** The user had `infra`
+  (LP-0002-01) merged to `main` on 2026-10-17 for a production test, before
+  LP-0007 and the LP-0002-05 grading cap. Self-signup lets anyone spend
+  OpenRouter credit once `OPENROUTER_API_KEY` is set, and nothing caps it
+  until LP-0002-05 lands.
 - **The database started empty.** The old production database is
   unreachable, so `law-pass` began on a new database with no users,
   progress, laws, or questions (2026-10-17). The repo has no loader for real
@@ -53,7 +55,7 @@ Names and sources only. Values are never committed.
 | `OPENROUTER_API_KEY`, `OPENROUTER_MODEL` | OpenRouter | LP-0008 |
 | `OPENROUTER_GRADING_MODEL` | OpenRouter. Required: the code default `anthropic/claude-3.5-haiku` is no longer listed. | LP-0008 |
 | `FLASK_ENV` | `production`, which makes the session cookie Secure | LP-0008 |
-| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | The Google OAuth client. `create_app()` refuses to start without them once Google sign-in deploys. | LP-0007 step 2 |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | The Google OAuth client. `create_app()` refuses to start without them once Google sign-in deploys. | Set 2026-10-17, ahead of LP-0007 step 2. Unused until Google sign-in deploys. |
 
 ## Operations
 

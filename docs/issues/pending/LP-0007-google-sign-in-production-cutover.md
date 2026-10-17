@@ -43,6 +43,9 @@ tickets, so it runs here, separate from the code ticket.
   the ones `scripts/add_user.py` creates before the cutover, and the old app
   does not share it. Steps 3–6 were written for a shared production
   database with real users.
+- Ran early on 2026-10-17, at the user's request: step 2 (the user set the
+  Google vars) and step 7 (`infra` merged to `main` and deployed). Both
+  came before `LP-0002-05`.
 - Prerequisites: `LP-0003` (the new Heroku app and CI) and `LP-0002-05` (the
   per-user daily grading cap) have landed, and `LP-0002-01` is resolved.
 - Steps 3–5, 7, and 8 are destructive or outward-facing. Each runs only on

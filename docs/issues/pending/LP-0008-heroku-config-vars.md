@@ -44,9 +44,9 @@ user's request on 2026-10-17, because the values live outside this checkout.
     `anthropic/claude-3.5-haiku` is no longer listed on OpenRouter
     (checked 2026-10-17), so grading fails without it.
   - `FLASK_ENV=production`, so `app.py` marks the session cookie Secure.
-- `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are not set here. They
-  belong to `LP-0007` step 2, because the code deployed by `LP-0003` still
-  uses username login.
+- `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` belong to `LP-0007` step
+  2, but the user set them on 2026-10-17. `main`'s code still uses username
+  login and ignores them.
 - No artifact — no screen changes.
 - No PRD — ops setup with no code change.
 - Out of scope: the old app's config, rotating any Atlas user (`LP-0007`
