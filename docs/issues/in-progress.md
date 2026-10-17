@@ -4,5 +4,6 @@
 
 | ID | Type | Priority | Area | Parent | Title | Created | Resolved |
 | --- | --- | --- | --- | --- | --- | --- | --- |
+| LP-0003 | [IMPROVEMENT] | High | deploy | - | [CI on GitHub Actions and auto-deploy to a new law-pass Heroku app](./in_progress/LP-0003-heroku-ci-cd.md) | 2026-10-16 | - |
 | LP-0001 | [EPIC] | Medium | docs | - | [Infra skills for schema changes, design variants, PRDs, and PRD reports](./in_progress/LP-0001-infra-skills.md) | 2026-10-16 | - |
 | LP-0001-01 | [STORY] | Medium | db | [LP-0001](./in_progress/LP-0001-infra-skills.md) | [Schema-check skill with data-model.md as the source of truth](./in_progress/LP-0001-infra-skills/LP-0001-01-schema-check-skill.md) | 2026-10-16 | - |

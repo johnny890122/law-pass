@@ -6,4 +6,5 @@ same change.
 
 | Module | Doc | Owns |
 | --- | --- | --- |
+| deploy | [deploy/index.md](deploy/index.md) | CI on GitHub Actions, the `law-pass` Heroku app, auto-deploy of `main`, and the config var inventory. |
 | db | [db/data-model.md](db/data-model.md) | MongoDB collections, fields, indexes, `LAW_TYPES`, `init_db()`, and migrations. The schema's single source of truth, written only through the `schema-check` skill. |
