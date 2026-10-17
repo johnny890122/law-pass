@@ -28,17 +28,21 @@ user's request on 2026-10-17, because the values live outside this checkout.
   - Without `MONGO_URI`, `db/models.py` falls back to
     `mongodb://localhost:27017/patent_act`, so `init_db()` times out and the
     dyno crashes at boot.
-  - The production `MONGO_URI` is only in the old
-    `patent-act-15774ac83829` app and in Atlas. The CLI login
-    (`b07303058@ntu.edu.tw`) cannot see the old app, and the local `.env`
-    points at a local MongoDB.
-- Desired: the app boots against the production Atlas database with these
-  vars set, and none committed:
-  - `MONGO_URI`: the same Atlas database production uses today (`LP-0003`
-    settled decision).
+  - The old production database is unreachable. The new `law-pass` Atlas
+    cluster (project `johnny-personal`) holds only Atlas's `sample_mflix`.
+- Desired: the app boots against a new, empty database with these vars
+  set, and none committed:
+  - `MONGO_URI`: the `law-pass` cluster's SRV string as Atlas user
+    `law-pass-heroku`, with the database name in the path
+    (`…mongodb.net/<db>?retryWrites=true&w=majority`). Atlas's Connect
+    string ends in `/`, and PyMongo's `get_database()` in `db/models.py`
+    then raises `ConfigurationError: No default database defined`. The
+    name must not end in `_test`, which the tests reserve.
   - `SECRET_KEY`: a fresh random value, never the old app's.
-  - `OPENROUTER_API_KEY` and `OPENROUTER_MODEL`. `OPENROUTER_GRADING_MODEL`
-    is optional, because `services/llm_client.py` holds the defaults.
+  - `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`, and `OPENROUTER_GRADING_MODEL`.
+    The grading var is required: the code default
+    `anthropic/claude-3.5-haiku` is no longer listed on OpenRouter
+    (checked 2026-10-17), so grading fails without it.
   - `FLASK_ENV=production`, so `app.py` marks the session cookie Secure.
 - `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are not set here. They
   belong to `LP-0007` step 2, because the code deployed by `LP-0003` still
@@ -55,7 +59,6 @@ user's request on 2026-10-17, because the values live outside this checkout.
       value appears in git.
 - [ ] The boot log shows no `ServerSelectionTimeoutError`, and
       `GET /health` returns 200.
-- [ ] The old `patent-act-15774ac83829` app still serves.
 - [ ] `pytest` and `flake8`: none — no code change.
 - [ ] Seen working in the running app: the login page loads at the new
       hostname. The existing-user sign-in check stays with `LP-0003`.
@@ -65,16 +68,10 @@ user's request on 2026-10-17, because the values live outside this checkout.
 
 ## Open Questions
 
-- Which Atlas database user does the new `MONGO_URI` use? A new user
-  dedicated to law-pass lets `LP-0007` step 5 rotate the old app's user
-  without cutting off the new app. Reusing the old app's URI as-is makes
-  step 5 create that user first.
-- Who sets each value, and from where? The production `MONGO_URI` is
-  reachable only through the old app's dashboard or Atlas. Is
-  `OPENROUTER_API_KEY` the old app's key or the local `.env` key?
-- `OPENROUTER_MODEL` (and the grading model): the values production runs
-  today, or the code defaults (`anthropic/claude-sonnet-4.5` and
-  `anthropic/claude-3.5-haiku`)?
+- Which models: `OPENROUTER_MODEL` (the default
+  `anthropic/claude-sonnet-4.5` is still listed) and
+  `OPENROUTER_GRADING_MODEL` (the default is gone)? Answered by the values
+  the user sets.
 
 ## Related Files
 
@@ -88,10 +85,21 @@ user's request on 2026-10-17, because the values live outside this checkout.
 
 ## Handoff Appendix
 
+### Settled Decisions
+
+- The new app's `MONGO_URI` uses a new Atlas database user dedicated to
+  law-pass, `law-pass-heroku`, with `readWrite` on its database only.
+  Decided by the user on 2026-10-17.
+- The database starts empty on the new `law-pass` cluster, because the old
+  one is unreachable. Decided by the user on 2026-10-17.
+- The user sets every value in the Heroku dashboard, from sources they
+  hold. Claude guides and verifies key names, never values. Decided by the
+  user on 2026-10-17.
+
 ### Behavior Details
 
 - `heroku config:set` is outward-facing, so confirm before running it.
   Setting vars restarts the dyno.
-- Atlas must admit Heroku's dynamic IPs. The old Heroku app already reaches
-  the cluster, so its IP access list likely allows it. A
-  `ServerSelectionTimeoutError` at boot points here first.
+- Atlas must admit Heroku's dynamic IPs: the `johnny-personal` project's
+  Network Access needs `0.0.0.0/0`. A new project lists only its creator's
+  IP. A `ServerSelectionTimeoutError` at boot points here first.

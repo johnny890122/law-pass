@@ -23,16 +23,21 @@ Where law-pass runs and how code reaches it. Current truth since
   unique index crashes the dyno after the release, not the build. Read
   `heroku logs` after every deploy.
 - **Google sign-in waits for its cutover.** `3c1dcd8` on `infra`
-  (LP-0002-01) merges to `main` only at LP-0007 step 7. Before the
-  migration, `email_1` cannot build over production users that have no
-  email, and the grading cap (LP-0002-05) must land first.
+  (LP-0002-01) merges to `main` only at LP-0007 step 7. Self-signup lets
+  anyone spend OpenRouter credit, so the grading cap (LP-0002-05) lands
+  first.
+- **The database started empty.** The old production database is
+  unreachable, so `law-pass` began on a new database with no users,
+  progress, laws, or questions (2026-10-17). The repo has no loader for real
+  law text: `POST /api/admin/init-laws` reads a missing mock file. Until
+  laws are loaded, the quiz has nothing to serve.
 
 ## Apps
 
 | App | Team | URL | Deploys from | Status |
 | --- | --- | --- | --- | --- |
 | `law-pass` | `finder-experiment` | <https://law-pass-5ae90190d253.herokuapp.com> | `johnny890122/law-pass` `main`, automatic | Production. Basic dyno. |
-| `patent-act-15774ac83829` | Not visible to the CLI login | <https://patent-act-15774ac83829.herokuapp.com> | `johnny890122/patent_act` | Old. Left running until LP-0007 cuts it off. |
+| `patent-act-15774ac83829` | Not visible to the CLI login | <https://patent-act-15774ac83829.herokuapp.com> | `johnny890122/patent_act` | Old. Left running and untouched. Its database is unreachable and shares nothing with `law-pass`. |
 
 Google OAuth redirect URI for this app, registered at LP-0007 step 1:
 `https://law-pass-5ae90190d253.herokuapp.com/auth/google/callback`.
@@ -43,9 +48,10 @@ Names and sources only. Values are never committed.
 
 | Var | Value comes from | Set by |
 | --- | --- | --- |
-| `MONGO_URI` | The production Atlas database, the same one the old app uses | LP-0008 |
+| `MONGO_URI` | A new database on the `law-pass` Atlas cluster (project `johnny-personal`), as Atlas user `law-pass-heroku` with `readWrite` on that database only. The name goes in the URI path. | LP-0008 |
 | `SECRET_KEY` | A fresh random value. Rotating it ends every session. | LP-0008. Rotated at LP-0007 step 8. |
-| `OPENROUTER_API_KEY`, `OPENROUTER_MODEL` | OpenRouter. `OPENROUTER_GRADING_MODEL` is optional. | LP-0008 |
+| `OPENROUTER_API_KEY`, `OPENROUTER_MODEL` | OpenRouter | LP-0008 |
+| `OPENROUTER_GRADING_MODEL` | OpenRouter. Required: the code default `anthropic/claude-3.5-haiku` is no longer listed. | LP-0008 |
 | `FLASK_ENV` | `production`, which makes the session cookie Secure | LP-0008 |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | The Google OAuth client. `create_app()` refuses to start without them once Google sign-in deploys. | LP-0007 step 2 |
 
@@ -54,8 +60,8 @@ Names and sources only. Values are never committed.
 - Dashboard → `law-pass` → Deploy → GitHub: connect
   `johnny890122/law-pass`, enable automatic deploys from `main`, and check
   "Wait for CI to pass".
-- Dyno type: `heroku ps:type web=basic -a law-pass`, once the first build
-  creates the `web` process.
+- Dyno type: Basic, the `finder-experiment` team default. Check it with
+  `heroku ps -a law-pass`.
 - Logs: `heroku logs --tail -a law-pass`. Rollback:
   `heroku releases:rollback -a law-pass`.
 

@@ -45,13 +45,14 @@ production hostname and a pipeline that ships `main` only when `pytest` and
     recorded in `docs/modules/deploy/index.md`, and that is the redirect URI
     `LP-0002-01` registers.
   - Config vars are set under `LP-0008`, split out on 2026-10-17 at the
-    user's request. `MONGO_URI` points at the same Atlas database that
-    production uses today, and none are committed.
+    user's request. None are committed. `MONGO_URI` points at a new, empty
+    database on the `law-pass` Atlas cluster (project `johnny-personal`).
+    The old production database is unreachable, so users, progress, laws,
+    and questions do not carry over.
   - `main` is production once auto-deploy is on. It takes `488a21b`
     (LP-0001, with the lint fixes) and the LP-0003 commit. `3c1dcd8`
-    (LP-0002-01 Google sign-in) stays on `infra` until `LP-0007` step 7.
-    `init_db()` would otherwise build the unique `email_1` index over
-    production users without an email, and the app would fail to boot.
+    (LP-0002-01 Google sign-in) stays on `infra` until `LP-0007` step 7,
+    because self-signup must wait for the `LP-0002-05` grading cap.
   - Heroku's GitHub integration connects `johnny890122/law-pass` and
     auto-deploys `main` with "Wait for CI to pass" on.
   - The README's GitHub URL and production URL point at the new repo and app.
@@ -71,7 +72,7 @@ production hostname and a pipeline that ships `main` only when `pytest` and
 - [ ] Every push and PR runs `.github/workflows/ci.yml`, and a commit with a
       `flake8` error fails it (shown on a throwaway branch).
 - [ ] The new Heroku app exists on a Basic dyno. Its config vars and the
-      `MONGO_URI` that reaches production Atlas are `LP-0008`'s.
+      `MONGO_URI` that reaches the new Atlas database are `LP-0008`'s.
 - [ ] A push to `main` deploys to the new app only after CI passes, and
       Heroku's activity feed ties the build to that commit.
 - [ ] `GET /health` on the new hostname returns 200 after the first
@@ -80,7 +81,9 @@ production hostname and a pipeline that ships `main` only when `pytest` and
       existing suite.
 - [ ] `flake8` clean.
 - [ ] Seen working in the running app: open the new hostname with Playwright
-      MCP, and see the login page load and an existing user sign in.
+      MCP, and see the login page load and a user sign in. The database
+      starts empty, so the user is created first with
+      `heroku run python scripts/add_user.py`.
 - [ ] Docs synced: `docs/modules/deploy/index.md` (new),
       `docs/modules/index.md`, the README URLs, and a changelog entry.
 
@@ -110,8 +113,10 @@ production hostname and a pipeline that ships `main` only when `pytest` and
 - Heroku's GitHub integration auto-deploys `main` with "Wait for CI to
   pass". GitHub Actions does CI only, and GitHub holds no Heroku API key.
   Decided by the user on 2026-10-16.
-- `MONGO_URI` points at the same Atlas database as today, so nothing is
-  copied. Decided by the user on 2026-10-16.
+- ~~`MONGO_URI` points at the same Atlas database as today, so nothing is
+  copied. Decided by the user on 2026-10-16.~~ Superseded: the old database
+  is unreachable, so the new app starts on an empty database on the new
+  `law-pass` Atlas cluster. Decided by the user on 2026-10-17.
 - The old app is left alone. Decided by the user on 2026-10-16.
 - The app is `law-pass` in the `finder-experiment` Heroku team, not
   `moblab-research`, at `https://law-pass-5ae90190d253.herokuapp.com`.
