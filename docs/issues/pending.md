@@ -4,7 +4,7 @@
 
 | ID | Type | Priority | Area | Parent | Title | Created | Resolved |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| LP-0002 | [EPIC] | High | auth | - | [Beta user stories](./pending/LP-0002-invite-only-beta.md) | 2026-10-16 | - |
+| LP-0002 | [EPIC] | High | auth | - | [Invite-only beta user stories](./pending/LP-0002-invite-only-beta.md) | 2026-10-16 | - |
 | LP-0002-03 | [STORY] | High | admin | [LP-0002](./pending/LP-0002-invite-only-beta.md) | [Admin role, guarded admin endpoints, admin-only generation](./pending/LP-0002-invite-only-beta/LP-0002-03-admin-only-generation.md) | 2026-10-16 | - |
 | LP-0002-04 | [STORY] | High | admin | [LP-0002](./pending/LP-0002-invite-only-beta.md) | [In-app feedback to the admin, and 📢 reports instead of deleting](./pending/LP-0002-invite-only-beta/LP-0002-04-feedback-to-admin.md) | 2026-10-16 | - |
 | LP-0002-05 | [STORY] | High | grading | [LP-0002](./pending/LP-0002-invite-only-beta.md) | [Per-user daily cap on LLM grading](./pending/LP-0002-invite-only-beta/LP-0002-05-grading-daily-cap.md) | 2026-10-17 | - |
