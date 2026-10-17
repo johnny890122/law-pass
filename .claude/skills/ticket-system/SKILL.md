@@ -69,7 +69,7 @@ Never answer a question on the user's behalf. A blocked ticket closes as
 
 Stage 2 (artifacts) is conditional, and the ticket makes the call either way.
 This skill only makes the call. Stage 2 itself is built by the
-[`design-variants`](../design-variants/SKILL.md) skill.
+[`neta-design`](../neta-design/SKILL.md) skill.
 
 - **Required** when the ticket turns on what a screen should look like: a
   choice the user should make by looking. There is no designer, so the
@@ -86,7 +86,7 @@ An artifact-backed ticket:
 - Records which visual decisions are **not** open. Every variant must respect
   those.
 - Adds an Acceptance Criteria box:
-  `Variants in artifacts/LP-XXXX-<slug>/ screenshot at phone (390x844) and desktop (1440x900), reviewed with the user; choice recorded in DECISION.md.`
+  `Variants in artifacts/LP-XXXX-<slug>/ screenshot at phone (390x844), tablet (768x1024), and desktop (1440x900), reviewed with the user; choice recorded in DECISION.md.`
 - Lists `artifacts/LP-XXXX-<slug>/` in Related Files.
 - Implements the picked variant in `templates/` in the same ticket when the
   change is small, or as a follow-up story otherwise.
@@ -108,6 +108,9 @@ written by the [`prd-creator`](../prd-creator/SKILL.md) skill.
 A ticket whose PRD call is required moves to `in_progress` only once that PRD
 has `status: approved`, in addition to the Open Questions gate. The generator
 does not check this, so check the PRD by hand before changing `status`.
+`approved` means the user reviewed it. Never request it inline while
+implementing (`CLAUDE.md`, "A PRD is implemented only after the user has
+reviewed it").
 Questions the PRD raises land in this ticket's `## Open Questions`, and the
 usual gate applies.
 

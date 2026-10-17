@@ -33,8 +33,15 @@ Rules that make the flow hold:
   under `## Open Questions`.
 - **Open Questions are cleared before code.** A ticket moves to `in_progress`
   only when its `## Open Questions` reads `- None.`. The generator refuses
-  otherwise. Never answer a question on the user's behalf. A ticket that
-  calls for a PRD also waits for that PRD to be `approved`.
+  otherwise. Never answer a question on the user's behalf.
+- **A PRD is implemented only after the user has reviewed it.** Asked to
+  implement a ticket whose PRD is not `approved`, stop before any code or
+  status change. Give the PRD path, a summary of five lines or fewer, and its
+  proposed copy and assumptions, then end the turn. Never ask for approval
+  inline, as a step of the implement request. Approval is the user's own
+  review, recorded as [`prd-creator`](.claude/skills/prd-creator/SKILL.md)
+  describes, and it never starts code by itself. Implementation begins only
+  when the user asks for it once the PRD is `approved`.
 - **Schema changes run [`schema-check`](.claude/skills/schema-check/SKILL.md).**
   A field, index, collection, or `LAW_TYPES` key change goes through it
   before code lands. [docs/modules/db/data-model.md](docs/modules/db/data-model.md)
@@ -101,14 +108,17 @@ without an artifact carries `No artifact — <reason>.` in Details.
 The test is not "does this touch the frontend". It is **"is there a choice here
 the user should make by looking?"**
 
-Build them with the [`design-variants`](.claude/skills/design-variants/SKILL.md)
-skill, which covers alignment, grounding, tokens, and verification. The
-contract below is what every artifact folder must satisfy.
+Build them with the [`neta-design`](.claude/skills/neta-design/SKILL.md)
+skill, which covers alignment, grounding, tokens, and verification. It also
+builds the design-system directions, whose token values come from a
+reference site captured with [`site-capture`](.claude/skills/site-capture/SKILL.md).
+The contract below is what every artifact folder must satisfy.
 
 - **Two or three** standalone `.html` variants in `artifacts/LP-XXXX-<slug>/`,
   with no build step and no Flask.
-- Screenshot each variant with Playwright MCP at **phone 390x844** and
-  **desktop 1440x900** into `shots/<variant>-<viewport>.png`. The app is
+- Screenshot each variant with Playwright MCP at **phone 390x844**, **tablet
+  768x1024**, and **desktop 1440x900** into `shots/<variant>-<viewport>.png`,
+  where `<viewport>` is `phone`, `tablet`, or `desktop`. The app is
   mobile-first, so the phone shot is the primary one.
 - Record the pick in `DECISION.md`: the winner and why, what was rejected, what
   the real implementation must keep, and **who decided and on what evidence**.
@@ -127,6 +137,8 @@ docs/
 │   └── <ticket-id>-<slug>.md   # implementation spec, when a ticket calls for one
 ├── reports/
 │   └── <ticket-id>-<slug>/     # audit report of an implemented PRD, with shots/
+├── references/
+│   └── <site-slug>/            # external reference site: spec.md, tokens.md, shots/
 ├── modules/
 │   ├── index.md                # owner map: module → what it owns
 │   ├── <module>/index.md       # current truth for one area
@@ -146,6 +158,11 @@ docs/
   behavior changes and a "Deliberately not done" list. Add a row to
   `changelog/index.md`. The ticket's Resolution links here instead of repeating
   it.
+- **Reference captures** in `docs/references/<site-slug>/` are written by the
+  [`site-capture`](.claude/skills/site-capture/SKILL.md) skill. Each is a
+  dated, descriptive record of an external site that `neta-design` derives
+  tokens from. It is never a record of law_pass. Re-capture a reference
+  rather than patching it.
 - When a folder has an `index.md`, read it first and update it in the same
   change.
 - `docs/requirements.md`, `docs/design.md`, and `docs/tasks.md` are a retired

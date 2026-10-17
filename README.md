@@ -74,7 +74,8 @@ erDiagram
 
 | 欄位 (Field) | 型別 (Type) | 描述 (Description) |
 | --- | --- | --- |
-| `username` | `str` | 唯一的登入識別碼 |
+| `email` | `str` | Google 登入識別碼，小寫儲存，唯一 |
+| `username` | `str` | 唯一的使用者標籤（非登入憑證） |
 | `display_name` | `str` | 畫面顯示名稱 |
 | `created_at` | `datetime` | 帳號建立時間 |
 | `last_login` | `datetime` | 最後登入時間 (選填) |

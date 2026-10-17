@@ -1,10 +1,24 @@
 """Authentication service for multi-user support."""
 
+import secrets
+from dataclasses import asdict
 from functools import wraps
+from authlib.integrations.flask_client import OAuth
 from flask import session, redirect, url_for, request
+from pymongo.errors import DuplicateKeyError
 from typing import Optional, Dict, List
-from db.models import users_collection, laws_collection, LAW_TYPES
+from db.models import users_collection, laws_collection, LAW_TYPES, UserModel
 from datetime import datetime
+
+
+# Google OIDC client (LP-0002-01). Authlib reads GOOGLE_CLIENT_ID and
+# GOOGLE_CLIENT_SECRET from app.config once create_app() calls oauth.init_app().
+oauth = OAuth()
+oauth.register(
+    'google',
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+    client_kwargs={'scope': 'openid email'},  # no profile: Google profile data is never stored
+)
 
 
 def get_current_user() -> Optional[str]:
@@ -56,18 +70,45 @@ def login_required(f):
     return decorated_function
 
 
-def validate_user(username: str) -> Optional[Dict]:
+def new_username() -> str:
+    """Random name a self-signup starts with, as both username and display_name."""
+    return f"learner-{secrets.token_hex(3)}"
+
+
+def find_or_create_user(claims: Dict) -> Optional[Dict]:
     """
-    Validate username exists in database.
+    Return the user for verified Google ID-token claims, signing them up on first sign-in.
+    An unverified or missing email gets None, and nothing is written.
     
     Args:
-        username: Username to validate
+        claims: ID-token claims (Authlib's token['userinfo'])
         
     Returns:
-        dict: User document if valid, None if not found
+        dict: Existing or newly created user document, None if the email is not verified
     """
-    user = users_collection.find_one({'username': username})
-    return user
+    if claims.get('email_verified') is not True:
+        return None
+    email = (claims.get('email') or '').strip().lower()
+    if not email:
+        return None
+
+    user = users_collection.find_one({'email': email})
+    if user:
+        return user
+
+    # ponytail: 5 tries in a 16.7M-name space; a 6th clash surfaces as a 500
+    for _ in range(5):
+        name = new_username()
+        user = asdict(UserModel(email=email, username=name, display_name=name))
+        try:
+            users_collection.insert_one(user)  # adds user['_id']
+            return user
+        except DuplicateKeyError as e:
+            if 'email' in (e.details or {}).get('keyPattern', {}):
+                # Lost a same-email race: use the account that won
+                return users_collection.find_one({'email': email})
+            # username clash: draw another name
+    raise RuntimeError("No free random username after 5 tries")
 
 
 def create_session(user: Dict) -> None:

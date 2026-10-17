@@ -1,8 +1,10 @@
 """Authentication routes for multi-user support."""
 
 from urllib.parse import urlparse, urljoin
-from flask import Blueprint, render_template, request, redirect, url_for, jsonify, flash
-from services.auth import validate_user, create_session, clear_session, get_current_user_info
+from authlib.common.errors import AuthlibBaseError
+from flask import Blueprint, render_template, request, redirect, url_for, jsonify, flash, session
+from joserfc.errors import JoseError
+from services.auth import oauth, find_or_create_user, create_session, clear_session, get_current_user_info
 
 
 def _is_safe_redirect_url(target: str) -> bool:
@@ -10,6 +12,11 @@ def _is_safe_redirect_url(target: str) -> bool:
     ref_url = urlparse(request.host_url)
     test_url = urlparse(urljoin(request.host_url, target))
     return test_url.scheme in ('http', 'https') and ref_url.netloc == test_url.netloc
+
+
+def _safe_next(target: str) -> str:
+    """Return target if it is a same-host URL, else the dashboard (prevents open redirect)."""
+    return target if target and _is_safe_redirect_url(target) else url_for('frontend.dashboard')
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -21,44 +28,49 @@ def login():
     if get_current_user_info():
         return redirect(url_for('frontend.dashboard'))
     
-    # Get the 'next' parameter to redirect after login (validate to prevent open redirect)
-    next_param = request.args.get('next', '')
-    next_url = next_param if next_param and _is_safe_redirect_url(next_param) else url_for('frontend.dashboard')
-    return render_template('login.html', next_url=next_url)
+    return render_template('login.html', next_url=_safe_next(request.args.get('next', '')))
 
 
-@auth_bp.route('/login', methods=['POST'])
-def login_post():
+@auth_bp.route('/google', methods=['GET'])
+def google_login():
+    """Start Google sign-in: remember the validated 'next', then redirect to Google."""
+    if get_current_user_info():
+        return redirect(url_for('frontend.dashboard'))
+    session['login_next'] = _safe_next(request.args.get('next', ''))
+    # After an intentional logout, let the learner pick any Google account; otherwise Google may sign in silently
+    prompt = {'prompt': 'select_account'} if session.pop('choose_account', False) else {}
+    return oauth.google.authorize_redirect(url_for('auth.google_callback', _external=True), **prompt)
+
+
+@auth_bp.route('/google/callback', methods=['GET'])
+def google_callback():
     """
-    Handle login form submission.
-    Validates username and creates session if valid.
+    Finish Google sign-in. Authlib checks state, exchanges the code, and verifies
+    the ID token. Any verified email gets a session, and a first sign-in creates the account.
+    A refusal writes nothing.
     """
-    username = request.form.get('username', '').strip()
-    next_param = request.form.get('next', '')
-    next_url = next_param if next_param and _is_safe_redirect_url(next_param) else url_for('frontend.dashboard')
-    
-    if not username:
-        flash('請輸入用戶名稱', 'error')
-        return redirect(url_for('auth.login', next=next_url))
-    
-    # Validate username
-    user = validate_user(username)
-    
+    next_url = _safe_next(session.pop('login_next', ''))
+    try:
+        token = oauth.google.authorize_access_token()
+    except (AuthlibBaseError, JoseError):
+        # Cancel (?error=), missing or replayed state, token exchange or ID-token verification failure
+        flash('登入失敗，請重試', 'error')
+        return redirect(url_for('auth.login'))
+
+    user = find_or_create_user(token.get('userinfo') or {})
     if not user:
-        flash('用戶名稱不存在，請聯繫管理員', 'error')
-        return redirect(url_for('auth.login', next=next_url))
-    
-    # Create session
+        flash('此 Google 帳號的電子郵件尚未驗證，無法登入', 'error')
+        return redirect(url_for('auth.login'))
+
     create_session(user)
-    
-    # Redirect to original URL or dashboard
     return redirect(next_url)
 
 
 @auth_bp.route('/logout', methods=['POST', 'GET'])
 def logout():
-    """Clear session and redirect to login page."""
+    """Clear session and redirect to login page. The next sign-in shows Google's account chooser."""
     clear_session()
+    session['choose_account'] = True  # one-time flag, popped by google_login (LP-0006)
     flash('已登出', 'success')
     return redirect(url_for('auth.login'))
 

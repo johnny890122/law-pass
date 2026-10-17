@@ -33,9 +33,10 @@ LAW_TYPES = {
 
 @dataclass
 class UserModel:
-    """User account for multi-user support"""
-    username: str          # Unique login identifier (e.g., "alice")
-    display_name: str      # Display name (e.g., "Alice Chen")
+    """User account, provisioned from the console (scripts/add_user.py)"""
+    email: str             # Google sign-in identifier, stored lowercased. Unique.
+    username: str          # Unique stored label (e.g., "alice"), not a login credential
+    display_name: str      # Display name (e.g., "Alice Chen"). Console-set only.
     created_at: datetime = field(default_factory=datetime.utcnow)
     last_login: Optional[datetime] = None
 
@@ -173,6 +174,9 @@ class Database:
         
         # Users indexes (NEW)
         self.users_collection.create_index('username', unique=True)
+        # Not wrapped: users without an email (pre-LP-0002-01) must fail startup until
+        # scripts/migrations/20261016_remove_username_only_users.py has run.
+        self.users_collection.create_index('email', unique=True)
         
         # User progress indexes (UPDATED for multi-user)
         # Drop old single-user index if exists

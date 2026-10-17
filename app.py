@@ -3,6 +3,7 @@ import os
 import secrets
 from datetime import timedelta
 from dotenv import load_dotenv
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 # Load .env before any module that reads os.environ (e.g. db/models.py).
 # In production (Heroku) .env is absent; config vars are injected directly.
@@ -15,9 +16,14 @@ from routes.laws import laws_bp, questions_bp
 from routes.law_types import law_types_bp
 from routes.frontend import frontend_bp
 from routes.auth import auth_bp
+from services.auth import oauth
+
+GOOGLE_CONFIG = ('GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET')
 
 def create_app():
     app = Flask(__name__)
+    # Heroku's router terminates TLS; trust its X-Forwarded-Proto so the OAuth redirect_uri is https.
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1)
     
     # Configure secret key for session management
     # Use environment variable or generate a random key for development
@@ -29,6 +35,13 @@ def create_app():
     app.config['SESSION_COOKIE_SECURE'] = os.environ.get('FLASK_ENV') == 'production'  # HTTPS only in production
     app.config['SESSION_COOKIE_HTTPONLY'] = True  # Prevent JavaScript access to session cookie
     app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # CSRF protection
+
+    # Google sign-in is the only login (LP-0002-01), so missing credentials fail startup.
+    missing = [name for name in GOOGLE_CONFIG if not os.environ.get(name)]
+    if missing:
+        raise RuntimeError(f"Missing required environment variable(s): {', '.join(missing)}")
+    app.config.update({name: os.environ[name] for name in GOOGLE_CONFIG})
+    oauth.init_app(app)
     
     # Initialize DB indexes
     db = Database()

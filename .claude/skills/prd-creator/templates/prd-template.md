@@ -3,6 +3,7 @@ ticket: LP-XXXX-YY
 status: draft
 created: YYYY-MM-DD
 approved:
+reviewer:
 ---
 
 # PRD: Short ticket title

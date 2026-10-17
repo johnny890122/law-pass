@@ -4,6 +4,9 @@ One entry per landing, newest first.
 
 | File | LP ids | Summary |
 | --- | --- | --- |
+| [2026-10-17-site-capture-and-neta-design.md](2026-10-17-site-capture-and-neta-design.md) | LP-0004-01, LP-0004-02 | `site-capture` records external reference sites in `docs/references/`; `neta-design` replaces `design-variants`, adds a token contract and capture-derived directions, and shoots at phone, tablet, and desktop. |
+| [2026-10-17-account-chooser-after-logout.md](2026-10-17-account-chooser-after-logout.md) | LP-0006 | The first sign-in after a logout shows Google's account chooser (`prompt=select_account`), so learners can switch accounts. |
+| [2026-10-16-google-sign-in.md](2026-10-16-google-sign-in.md) | LP-0002-01 | Google sign-in replaces username login; a first sign-in with a verified email creates the account (random `learner-…` name); `users.email` is unique; username-only users are deleted at cutover. |
 | [2026-10-16-prd-report-skill.md](2026-10-16-prd-report-skill.md) | LP-0001-04 | `prd-report` skill writes a plain-language audit report with screenshots to `docs/reports/`; the user's sign-off on it is the closing gate of a PRD-backed ticket. |
 | [2026-10-16-schema-check.md](2026-10-16-schema-check.md) | LP-0001-01 | `schema-check` skill gates schema changes; `docs/modules/db/data-model.md` is the schema's source of truth, enforced by `tests/test_schema_drift.py`; `init_db()` fails loudly on a blocked unique index. |
 | [2026-10-16-prd-creator-skill.md](2026-10-16-prd-creator-skill.md) | LP-0001-03 | `prd-creator` skill writes implementation PRDs to `docs/prd/` for big stories; conditional stage 1b and PRD Call wired into `CLAUDE.md` and `ticket-system`. |

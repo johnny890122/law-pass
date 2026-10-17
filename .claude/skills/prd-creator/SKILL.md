@@ -99,8 +99,15 @@ and assumptions, and ask for review.
 ### 3. Review
 
 Revise in rounds. Keep the user's earlier decisions unless they reopen them.
-When the user approves, set `status: approved` and fill `approved:`. Never
-approve on the user's behalf.
+
+Approval is the user's review, and it is the gate between a PRD and its code:
+
+- The user reads the PRD and approves it in their own words. Ask in plain
+  text and end the turn. Never put approval behind a multiple-choice prompt,
+  and never approve on the user's behalf.
+- On approval, set `status: approved`, `approved: YYYY-MM-DD`, and
+  `reviewer:` to the user's name, then end the turn. Approval never starts
+  code. Implementation begins only when the user asks for it.
 
 A ticket that needs a PRD moves to `in_progress` only once its PRD is
 `approved` and its Open Questions read `- None.`
@@ -125,5 +132,5 @@ approval, end with:
 - The PRD path and the ticket it implements.
 - Open Questions added to the ticket, if any.
 - The data changes waiting on `schema-check`.
-- A reminder that this skill writes the spec only, and implementation happens
-  separately.
+- A reminder that this skill writes the spec only. Implementation starts
+  only when the user asks for it.

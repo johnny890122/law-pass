@@ -6,4 +6,5 @@ same change.
 
 | Module | Doc | Owns |
 | --- | --- | --- |
+| auth | [auth/index.md](auth/index.md) | Who may sign in and how: Google OIDC against console-provisioned `users.email`, the login page, sessions, `login_required`, and `scripts/add_user.py`. |
 | db | [db/data-model.md](db/data-model.md) | MongoDB collections, fields, indexes, `LAW_TYPES`, `init_db()`, and migrations. The schema's single source of truth, written only through the `schema-check` skill. |

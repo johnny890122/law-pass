@@ -5,6 +5,7 @@ gunicorn==22.0.0
 python-dotenv==1.0.1
 requests==2.31.0
 pydantic==2.10.6
+Authlib==1.9.1
 
 # ── Testing & Linting (also installed in CI) ─────────────────────────────────
 pytest==8.2.2

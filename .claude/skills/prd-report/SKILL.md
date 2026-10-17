@@ -53,8 +53,22 @@ that needs the user (step 4) and sign-off (step 5).
   `.env.example`. Point `MONGO_URI` at a local MongoDB and a database made
   for the report, such as `mongodb://localhost:27017/lp_report_<id>`. Check
   the host is `localhost` before starting. Never use production data.
-- Make a test account with `python scripts/add_user.py <name> "<display>"`.
-  Use a made-up name. No real personal data appears on screen.
+  Set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` to the real OAuth
+  client, whose redirect URIs include
+  `http://localhost:5000/auth/google/callback`. The app will not start
+  without them.
+- Sign-in is Google only, with no bypass. Use the two dedicated test Google
+  accounts. Create one ahead of time with
+  `python scripts/add_user.py <test email> <name> "<display>"`, using a
+  made-up username and display name. The other signs itself up on its first
+  sign-in. Delete its `users` doc from the report database to make it new
+  again. No real personal data appears on screen.
+- Open the app at `http://localhost:<port>`, never `127.0.0.1`, or Google
+  answers `redirect_uri_mismatch`.
+- Signing in to Google happens by hand. Pause at Google's account screen and
+  ask the user to sign in, in the Playwright browser, with the account the
+  step needs. Never type a Google password. Shoot the app's screens before
+  and after Google, not Google's own pages.
 - Seed only the data the journey needs, and mark it as stand-in in the
   Header. Never copy it from production.
 - Record the commit with `git rev-parse --short HEAD`, adding
