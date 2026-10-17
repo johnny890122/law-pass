@@ -2,10 +2,10 @@
 id: LP-0003
 title: CI on GitHub Actions and auto-deploy to a new law-pass Heroku app
 type: improvement
-status: in_progress
+status: resolved
 priority: high
 created: 2026-10-16
-resolved:
+resolved: 2026-10-17
 area: deploy
 tags:
   - ci
@@ -86,16 +86,27 @@ production hostname and a pipeline that ships `main` only when `pytest` and
 - [x] `pytest` green in CI and locally — no new test. The workflow runs the
       existing suite: 27 passed on `main`, on Python 3.11.15.
 - [x] `flake8` clean.
-- [ ] Seen working in the running app: open the new hostname with Playwright
+- [x] Seen working in the running app: open the new hostname with Playwright
       MCP, and see the login page load and a user sign in. Google sign-in
       is on `main` now, so a Google account signs itself up over `https://`
-      (`scripts/add_user.py` is gone).
-- [ ] Docs synced: `docs/modules/deploy/index.md` (new),
+      (`scripts/add_user.py` is gone). On release v10 (`766b495`), a Google
+      account signed itself up as `learner-9feaac` at phone size. Logout
+      showed 「已登出」, and the next sign-in showed Google's account chooser
+      and reused the same account (`users` count 1).
+- [x] Docs synced: `docs/modules/deploy/index.md` (new),
       `docs/modules/index.md`, the README URLs, and a changelog entry.
 
 ## Open Questions
 
 - None.
+
+## Resolution
+
+GitHub Actions now runs `flake8` and `pytest` on every push and PR, and the
+new `law-pass` app auto-deploys `main` once that check passes, on an empty
+`law_pass` database. Config vars went to `LP-0008`, and Google sign-in went
+live early at the user's request. See the
+[changelog](../../changelog/2026-10-17-ci-and-heroku-app.md).
 
 ## Related Files
 

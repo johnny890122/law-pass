@@ -41,7 +41,8 @@ Where law-pass runs and how code reaches it. Current truth since
 | `law-pass` | `finder-experiment` | <https://law-pass-5ae90190d253.herokuapp.com> | `johnny890122/law-pass` `main`, automatic | Production. Basic dyno. |
 | `patent-act-15774ac83829` | Not visible to the CLI login | <https://patent-act-15774ac83829.herokuapp.com> | `johnny890122/patent_act` | Old. Left running and untouched. Its database is unreachable and shares nothing with `law-pass`. |
 
-Google OAuth redirect URI for this app, registered at LP-0007 step 1:
+Google OAuth redirect URI for this app, registered by the user on
+2026-10-17 (LP-0007 step 1, run early):
 `https://law-pass-5ae90190d253.herokuapp.com/auth/google/callback`.
 
 ## Config vars
