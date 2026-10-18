@@ -4,7 +4,9 @@ from urllib.parse import urlparse, urljoin
 from authlib.common.errors import AuthlibBaseError
 from flask import Blueprint, render_template, request, redirect, url_for, jsonify, flash, session
 from joserfc.errors import JoseError
-from services.auth import oauth, find_or_create_user, create_session, clear_session, get_current_user_info
+from services.auth import (
+    oauth, find_or_create_user, find_or_create_line_user, create_session, clear_session, get_current_user_info,
+)
 
 
 def _is_safe_redirect_url(target: str) -> bool:
@@ -66,11 +68,45 @@ def google_callback():
     return redirect(next_url)
 
 
+@auth_bp.route('/line', methods=['GET'])
+def line_login():
+    """Start LINE sign-in: remember the validated 'next', then redirect to LINE."""
+    if get_current_user_info():
+        return redirect(url_for('frontend.dashboard'))
+    session['login_next'] = _safe_next(request.args.get('next', ''))
+    # After an intentional logout, make LINE show its login screen instead of signing in silently
+    params = {'disable_auto_login': 'true'} if session.pop('choose_account', False) else {}
+    return oauth.line.authorize_redirect(url_for('auth.line_callback', _external=True), **params)
+
+
+@auth_bp.route('/line/callback', methods=['GET'])
+def line_callback():
+    """
+    Finish LINE sign-in. Authlib checks state, exchanges the code, and verifies the HS256
+    ID token. Any `sub` gets a session, and a first sign-in creates the account.
+    A refusal writes nothing.
+    """
+    next_url = _safe_next(session.pop('login_next', ''))
+    try:
+        token = oauth.line.authorize_access_token()
+    except (AuthlibBaseError, JoseError):
+        # Cancel (?error=), missing or replayed state, token exchange or ID-token verification failure
+        token = {}
+
+    user = find_or_create_line_user(token.get('userinfo') or {})
+    if not user:
+        flash('登入失敗，請重試', 'error')
+        return redirect(url_for('auth.login'))
+
+    create_session(user)
+    return redirect(next_url)
+
+
 @auth_bp.route('/logout', methods=['POST', 'GET'])
 def logout():
-    """Clear session and redirect to login page. The next sign-in shows Google's account chooser."""
+    """Clear session and redirect to login page. The next sign-in shows Google's chooser or LINE's login screen."""
     clear_session()
-    session['choose_account'] = True  # one-time flag, popped by google_login (LP-0006)
+    session['choose_account'] = True  # one-time flag, popped by google_login or line_login (LP-0006, LP-0009)
     flash('已登出', 'success')
     return redirect(url_for('auth.login'))
 

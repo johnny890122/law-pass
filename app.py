@@ -3,6 +3,7 @@ import os
 import secrets
 from datetime import timedelta
 from dotenv import load_dotenv
+from joserfc.jwk import OctKey
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 # Load .env before any module that reads os.environ (e.g. db/models.py).
@@ -18,7 +19,7 @@ from routes.frontend import frontend_bp
 from routes.auth import auth_bp
 from services.auth import oauth
 
-GOOGLE_CONFIG = ('GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET')
+OAUTH_CONFIG = ('GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET', 'LINE_CLIENT_ID', 'LINE_CLIENT_SECRET')
 
 def create_app():
     app = Flask(__name__)
@@ -36,12 +37,14 @@ def create_app():
     app.config['SESSION_COOKIE_HTTPONLY'] = True  # Prevent JavaScript access to session cookie
     app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # CSRF protection
 
-    # Google sign-in is the only login (LP-0002-01), so missing credentials fail startup.
-    missing = [name for name in GOOGLE_CONFIG if not os.environ.get(name)]
+    # Google and LINE sign-in are the only logins (LP-0002-01, LP-0009), so missing credentials fail startup.
+    missing = [name for name in OAUTH_CONFIG if not os.environ.get(name)]
     if missing:
         raise RuntimeError(f"Missing required environment variable(s): {', '.join(missing)}")
-    app.config.update({name: os.environ[name] for name in GOOGLE_CONFIG})
+    app.config.update({name: os.environ[name] for name in OAUTH_CONFIG})
     oauth.init_app(app)
+    # LINE web-login ID tokens are HS256, keyed by the channel secret (LP-0009 BR-1)
+    oauth.line.server_metadata['jwks'] = {'keys': [OctKey.import_key(app.config['LINE_CLIENT_SECRET']).as_dict()]}
     
     # Initialize DB indexes
     db = Database()

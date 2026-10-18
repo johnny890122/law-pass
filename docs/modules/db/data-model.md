@@ -146,33 +146,45 @@ Writers: `unknown writer`. Nothing in this repo writes it.
 
 ## `users`
 
-Accounts, keyed by Google-verified `email` (LP-0002-01). A first Google
-sign-in creates the account (self-signup), the only way an account is made.
-Admins view and edit users in Atlas.
+Accounts. Each has exactly one identity: a Google-verified `email`
+(LP-0002-01) or a LINE user ID in `line_user_id` (LP-0009). A first sign-in
+with either provider creates the account (self-signup), the only way an
+account is made. There is no linking: one person who uses both providers has
+two accounts. Admins view and edit users in Atlas.
 
 Dataclass: `UserModel`
 
-Writers: `services/auth.py` `find_or_create_user` (the only insert, on a
-first Google sign-in), and
-`services/auth.py` `create_session` (`last_login` on sign-in). Deleted by
-`scripts/migrations/20261016_remove_username_only_users.py`.
+Writers: two inserts, both through `services/auth.py` `_find_or_create`:
+`find_or_create_user` on a first Google sign-in and
+`find_or_create_line_user` on a first LINE sign-in. `services/auth.py`
+`create_session` sets `last_login` on sign-in. Deleted by
+`scripts/migrations/20261016_remove_username_only_users.py`, which matches
+only users with neither a string `email` nor a string `line_user_id`.
 
 ### Fields
 
 | Field | Type | Required | References | Notes |
 | --- | --- | --- | --- | --- |
-| `email` | str | yes | — | Sign-in identifier, matched against Google's verified email. Stored stripped and lowercased. Unique. |
 | `username` | str | yes | — | Stored label, not a login credential. Unique. `learner-` plus 6 hex characters, set at signup. |
-| `display_name` | str | yes | — | The same random name as `username` at signup, until onboarding (LP-0002-02) changes it. Google profile data is never stored. |
+| `display_name` | str | yes | — | The same random name as `username` at signup, until onboarding (LP-0002-02) changes it. Google and LINE profile data are never stored. |
+| `email` | str or null | no | — | Google accounts only: matched against Google's verified email, stored stripped and lowercased. Null on LINE accounts. Unique among strings. |
+| `line_user_id` | str or null | no | — | LINE accounts only: the LINE ID token's `sub`, stored as sent (case-sensitive). It belongs to the LINE provider that owns the channel. Null on Google accounts made since LP-0009, and missing on older ones. Unique among strings. |
 | `created_at` | datetime | yes | — | UTC. |
 | `last_login` | datetime or null | yes | — | Null until first sign-in. |
 
 ### Indexes
 
-| Name | Keys | Unique |
-| --- | --- | --- |
-| `username_1` | `[("username", 1)]` | yes |
-| `email_1` | `[("email", 1)]` | yes |
+`email_1` and `line_user_id_1` are partial: they index and enforce
+uniqueness only where the field is a string, so null and missing values
+never clash. The drift test checks keys and uniqueness, not the filter.
+`init_db()` drops a pre-LP-0009 `email_1` that has no filter, once, and
+rebuilds it partial.
+
+| Name | Keys | Unique | Partial filter |
+| --- | --- | --- | --- |
+| `username_1` | `[("username", 1)]` | yes | — |
+| `email_1` | `[("email", 1)]` | yes | `{"email": {"$type": "string"}}` |
+| `line_user_id_1` | `[("line_user_id", 1)]` | yes | `{"line_user_id": {"$type": "string"}}` |
 
 ## `user_progress`
 
@@ -381,5 +393,6 @@ and the owning ticket cannot resolve until that cell is filled.
 
 | Date | LP | Change | Migration | Ran | Changelog |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-16 | LP-0001-01 | Baseline seeded from write sites. `init_db()` now raises when `laws.article_number_lang_type_unique` or `user_daily_stats.user_id_date_law_type_unique` cannot be built. | none | local: fresh DB passes. pending: heroku. The production check for duplicates on both keys and for a same-key index under another name has not run. | [2026-10-16-schema-check](../../changelog/2026-10-16-schema-check.md) |
+| 2026-10-16 | LP-0001-01 | Baseline seeded from write sites. `init_db()` now raises when `laws.article_number_lang_type_unique` or `user_daily_stats.user_id_date_law_type_unique` cannot be built. | none | local: fresh DB passes. heroku: the duplicate and same-key-name query never ran, and is moot. Production moved to a new, empty `law_pass` database (LP-0003), where `init_db()` built both indexes at boot on release v4 and `GET /health` returned 200 on 2026-10-17. | [2026-10-16-schema-check](../../changelog/2026-10-16-schema-check.md) |
 | 2026-10-16 | LP-0002-01 | `users.email` added (str, required, lowercased) with unique index `email_1`; `username` becomes a stored label. `find_or_create_user` inserts users on a first Google sign-in (self-signup), and `scripts/add_user.py` is deleted. Username-only users and their documents in the six per-user collections are deleted, not backfilled. | `scripts/migrations/20261016_remove_username_only_users.py` | local: `patent_act` has 0 users, so the migration and the `email` preflight are no-ops; fresh DB builds `email_1`. pending: heroku, owned by LP-0007. Neither the production migration (`--apply`) nor the `email` duplicate preflight has run. | [2026-10-16-google-sign-in](../../changelog/2026-10-16-google-sign-in.md) |
+| 2026-10-18 | LP-0009 | `users.line_user_id` added (str or null) with unique partial index `line_user_id_1`. `users.email` becomes optional (null on LINE accounts), and `email_1` becomes unique partial over strings: `init_db()` drops the unfiltered `email_1` once and rebuilds it. A second insert writer, `find_or_create_line_user`, shares `_find_or_create` with Google. The LP-0002-01 cleanup is narrowed to users with neither identity, so it never deletes LINE accounts. | none (`init_db()` rebuilds `email_1`); `scripts/migrations/20261016_remove_username_only_users.py` edited | local: `law_pass` holds the unfiltered `email_1` and 0 users, `lp_report_0002_01` 1 user with a string email; no duplicate string emails and no `line_user_id` anywhere. `tests/test_migrations.py` shows the rebuild and that a second `init_db()` is a no-op. Booting the app on `law_pass` rebuilt `email_1` partial and built `line_user_id_1`, and a real LINE signup then wrote one doc with `email: None` (2026-10-18). pending: heroku. The production preflight (distinct string emails, and `email_1` the real name of the unfiltered index) and the boot-time rebuild have not run. | [2026-10-18-line-login](../../changelog/2026-10-18-line-login.md) |

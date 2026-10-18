@@ -1,9 +1,11 @@
-"""Google sign-in with self-signup (LP-0002-01) and its full test list (LP-0005).
+"""Google sign-in with self-signup (LP-0002-01) and its full test list (LP-0005),
+plus LINE sign-in (LP-0009).
 
-Google is never called. Discovery and the token exchange are stubbed on
-oauth.google; the state and ?error= tests use real Authlib, which refuses
-before any network call. The id_token tests stub only the HTTP token exchange
-and sign ID tokens with a local key, so Authlib's real verification runs.
+Google and LINE are never called. Discovery and the token exchange are stubbed
+on oauth.google and oauth.line; the state and ?error= tests use real Authlib,
+which refuses before any network call. The id_token tests stub only the HTTP
+token exchange and sign ID tokens locally (RS256 for Google, HS256 with the
+channel secret for LINE), so Authlib's real verification runs.
 Comments name the LP-0005 case each test covers.
 """
 import html
@@ -16,11 +18,13 @@ os.environ.setdefault("MONGO_URI", "mongodb://localhost:27017/patent_act_test")
 os.environ.setdefault("SECRET_KEY", "ci-test-secret-not-for-production")
 os.environ.setdefault("GOOGLE_CLIENT_ID", "test-client-id")
 os.environ.setdefault("GOOGLE_CLIENT_SECRET", "test-client-secret")
+os.environ.setdefault("LINE_CLIENT_ID", "1234567890")
+os.environ.setdefault("LINE_CLIENT_SECRET", "test-line-channel-secret")  # >= 14 bytes: no joserfc key-size warning
 
 import pytest  # noqa: E402
 from authlib.integrations.flask_client import OAuthError  # noqa: E402
 from joserfc import jwt  # noqa: E402
-from joserfc.jwk import RSAKey  # noqa: E402
+from joserfc.jwk import OctKey, RSAKey  # noqa: E402
 
 from app import app as flask_app, create_app  # noqa: E402
 from db.models import users_collection  # noqa: E402
@@ -365,8 +369,8 @@ def test_session_cookie_flags(client, google, monkeypatch):  # C28
 
 # ── D. Config ───────────────────────────────────────────────────────────────
 
-@pytest.mark.parametrize("missing", ["GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET"])
-def test_startup_fails_without_google_config(monkeypatch, missing):  # D29
+@pytest.mark.parametrize("missing", ["GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET", "LINE_CLIENT_ID", "LINE_CLIENT_SECRET"])
+def test_startup_fails_without_oauth_config(monkeypatch, missing):  # D29, LP-0009 BR-7
     monkeypatch.delenv(missing)
 
     with pytest.raises(RuntimeError, match=missing):
@@ -456,3 +460,221 @@ def test_first_sign_in_after_logout_shows_the_account_chooser_once(client, alice
 
 def test_sign_in_without_a_logout_lets_google_decide(client, google):
     assert _prompt(client.get("/auth/google")) is None
+
+
+# ── LP-0009. LINE sign-in ───────────────────────────────────────────────────
+
+LINE_CALLBACK = "/auth/line/callback?code=test-code&state=test-state"
+
+
+@pytest.fixture
+def line(monkeypatch):
+    """Stub LINE's token exchange; call the result with the ID-token claims the callback should see."""
+    def returns_claims(**claims):
+        monkeypatch.setattr(oauth.line, "authorize_access_token", lambda **kwargs: {"userinfo": claims})
+
+    return returns_claims
+
+
+@pytest.fixture
+def line_token(monkeypatch):
+    """Real HS256 ID-token verification. Call the result with the /auth/line response and overrides; None drops a claim."""
+    def finish(client, started, secret=None, alg="HS256", **overrides):
+        params = parse_qs(urlparse(started.location).query)
+        now = int(time.time())
+        claims = {
+            "iss": "https://access.line.me", "aud": flask_app.config["LINE_CLIENT_ID"], "sub": "U-line-1",
+            "nonce": params["nonce"][0], "iat": now, "exp": now + 600, **overrides,
+        }
+        key = OctKey.import_key(secret or flask_app.config["LINE_CLIENT_SECRET"])
+        signed = jwt.encode({"alg": alg}, {k: v for k, v in claims.items() if v is not None}, key, algorithms=[alg])
+        token = {"access_token": "test-access-token", "token_type": "Bearer", "id_token": signed}
+        monkeypatch.setattr(oauth.line, "fetch_access_token", lambda **kwargs: token)
+        return client.get(f"/auth/line/callback?code=test-code&state={params['state'][0]}")
+
+    return finish
+
+
+def _auto_login(response):
+    return parse_qs(urlparse(response.location).query).get("disable_auto_login")
+
+
+def test_new_line_sub_signs_itself_up_once(client, users, line):
+    line(sub="U-new", name="LINE Name", picture="https://profile.line-scdn.net/x", email="line@example.com")
+
+    response = client.get(LINE_CALLBACK)
+
+    assert response.location == "/"
+    user = users.find_one({"line_user_id": "U-new"})
+    assert user["email"] is None
+    assert re.fullmatch(r"learner-[0-9a-f]{6}", user["username"])
+    assert user["display_name"] == user["username"]
+    assert user["last_login"] is not None
+    # BR-4: no LINE profile data or email is stored
+    assert set(user) == {"_id", "username", "display_name", "email", "line_user_id", "created_at", "last_login"}
+    assert _session(client)["user_id"] == str(user["_id"])
+
+    client.get("/auth/logout")
+    client.get(LINE_CALLBACK)
+
+    assert _session(client)["user_id"] == str(user["_id"])
+    assert users.count_documents({}) == 1
+
+
+def test_existing_line_user_keeps_its_name(client, users, line):
+    _id = users.insert_one({
+        "line_user_id": "U-bob", "email": None, "username": "bob", "display_name": "Bob Lin", "last_login": None,
+    }).inserted_id
+    line(sub="U-bob", name="LINE Profile Name")
+
+    client.get(LINE_CALLBACK)
+
+    stored = users.find_one({"_id": _id})
+    assert _session(client)["user_id"] == str(_id)
+    assert stored["last_login"] is not None
+    assert stored["display_name"] == "Bob Lin"
+
+
+def test_line_and_google_accounts_stay_separate(client, alice, line):
+    line(sub="U-alice", email="alice@example.com")
+
+    client.get(LINE_CALLBACK)
+
+    assert users_collection.count_documents({}) == 2
+    assert users_collection.find_one({"_id": alice["_id"]}) == alice
+    assert _session(client)["user_id"] == str(users_collection.find_one({"line_user_id": "U-alice"})["_id"])
+
+
+def test_null_identities_never_clash(client, users, line, google):
+    for sub in ("U-1", "U-2"):
+        line(sub=sub)
+        client.get(LINE_CALLBACK)
+    google(email="bob@example.com", email_verified=True)
+    client.get(CALLBACK)
+
+    assert users.count_documents({}) == 3
+    assert users.find_one({"email": "bob@example.com"})["line_user_id"] is None
+
+
+def test_same_sub_race_uses_the_winning_account(client, users, line, monkeypatch):
+    existing = users.insert_one({
+        "line_user_id": "U-race", "email": None, "username": "learner-aaaaaa", "display_name": "learner-aaaaaa",
+    }).inserted_id
+    real_find_one = users_collection.find_one
+    calls = []
+
+    def find_one_missing_once(*args, **kwargs):
+        calls.append(args)
+        return None if len(calls) == 1 else real_find_one(*args, **kwargs)
+
+    monkeypatch.setattr(users_collection, "find_one", find_one_missing_once)
+    line(sub="U-race")
+
+    client.get(LINE_CALLBACK)
+
+    assert _session(client)["user_id"] == str(existing)
+    assert users.count_documents({}) == 1
+
+
+@pytest.mark.parametrize("claims", [{}, {"sub": ""}, {"sub": 12345}])
+def test_line_claims_without_a_string_sub_are_refused(client, users, line, claims):
+    line(**claims)
+
+    response = client.get(LINE_CALLBACK, follow_redirects=True)
+
+    assert FAILED in response.get_data(as_text=True)
+    assert "user_id" not in _session(client)
+    assert users.count_documents({}) == 0
+
+
+def test_signed_line_id_token_signs_in(client, users, line_token):
+    response = line_token(client, client.get("/auth/line"))
+
+    assert response.location == "/"
+    assert _session(client)["user_id"] == str(users.find_one({"line_user_id": "U-line-1"})["_id"])
+
+
+@pytest.mark.parametrize("overrides", [
+    {"secret": "another-channel-secret"},
+    {"aud": "9999999999"},
+    {"iss": "https://evil.example"},
+    {"iat": int(time.time()) - 1000, "exp": int(time.time()) - 200},  # past the 120 s leeway
+    {"nonce": "not-the-nonce-we-sent"},
+    {"alg": "HS384"},  # only HS256 is allowed
+    {"sub": None},
+    {"sub": ""},
+])
+def test_bad_line_id_token_is_refused(client, users, line_token, overrides):
+    response = line_token(client, client.get("/auth/line"), **overrides)
+
+    assert response.location == "/auth/login"
+    assert FAILED in client.get("/auth/login").get_data(as_text=True)
+    assert "user_id" not in _session(client)
+    assert users.count_documents({}) == 0
+
+
+@pytest.mark.parametrize("callback", [
+    LINE_CALLBACK,  # state Authlib never issued: forged or replayed
+    "/auth/line/callback?error=access_denied&error_description=user+cancelled&state=test-state",  # E-1
+])
+def test_line_oauth_failure_is_refused(client, users, callback):
+    response = client.get(callback, follow_redirects=True)
+
+    assert response.request.path == "/auth/login"
+    assert FAILED in response.get_data(as_text=True)
+    assert "user_id" not in _session(client)
+    assert users.count_documents({}) == 0
+
+
+def test_line_redirect_is_https_behind_heroku(client):
+    response = client.get("/auth/line", headers={"X-Forwarded-Proto": "https"})
+
+    location = urlparse(response.location)
+    params = parse_qs(location.query)
+    assert location.netloc == "access.line.me"
+    assert params["client_id"] == [flask_app.config["LINE_CLIENT_ID"]]
+    assert params["scope"] == ["openid"]
+    assert params["state"] and params["nonce"]
+    assert params["redirect_uri"][0].startswith("https://")
+    assert params["redirect_uri"][0].endswith("/auth/line/callback")
+    assert "disable_auto_login" not in params
+
+
+def test_first_line_sign_in_after_logout_shows_line_login_once(client):
+    client.get("/auth/logout")
+
+    assert _auto_login(client.get("/auth/line")) == ["true"]
+    assert _auto_login(client.get("/auth/line")) is None
+
+
+def test_logout_flag_goes_to_the_first_button_clicked(client, google):
+    client.get("/auth/logout")
+
+    assert _prompt(client.get("/auth/google")) == ["select_account"]
+    assert _auto_login(client.get("/auth/line")) is None
+
+
+@pytest.mark.parametrize("next_param, landing", [
+    ("https://evil.example", "/"),
+    ("/laws", "/laws"),
+])
+def test_line_next_is_validated_through_the_round_trip(client, users, line, next_param, landing):
+    client.get("/auth/line", query_string={"next": next_param})
+    line(sub="U-next")
+
+    assert client.get(LINE_CALLBACK).location == landing
+    assert "login_next" not in _session(client)
+
+
+def test_signed_in_user_skips_line(client, alice, google):
+    _sign_in(client, google)
+
+    assert client.get("/auth/line").location == "/"
+
+
+def test_login_page_offers_google_then_line(client):
+    page = client.get("/auth/login", query_string={"next": "/laws"}).get_data(as_text=True)
+
+    assert page.index('href="/auth/google?next=') < page.index('href="/auth/line?next=')
+    assert "請使用 Google 或 LINE 帳號登入" in page
+    assert "使用 LINE 帳號登入" in page

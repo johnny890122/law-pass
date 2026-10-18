@@ -11,13 +11,25 @@ from db.models import users_collection, laws_collection, LAW_TYPES, UserModel
 from datetime import datetime
 
 
-# Google OIDC client (LP-0002-01). Authlib reads GOOGLE_CLIENT_ID and
-# GOOGLE_CLIENT_SECRET from app.config once create_app() calls oauth.init_app().
+# OIDC clients. Authlib reads <NAME>_CLIENT_ID and <NAME>_CLIENT_SECRET from app.config
+# once create_app() calls oauth.init_app().
+# Google (LP-0002-01), from GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET.
 oauth = OAuth()
 oauth.register(
     'google',
     server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
     client_kwargs={'scope': 'openid email'},  # no profile: Google profile data is never stored
+)
+# LINE Login (LP-0009), from LINE_CLIENT_ID and LINE_CLIENT_SECRET. No discovery: LINE's
+# advertises ES256, but web-login ID tokens are HS256 keyed by the channel secret,
+# which create_app() installs as the only key. Scope openid alone: no profile, no email.
+oauth.register(
+    'line',
+    authorize_url='https://access.line.me/oauth2/v2.1/authorize',
+    access_token_url='https://api.line.me/oauth2/v2.1/token',
+    issuer='https://access.line.me',
+    id_token_signing_alg_values_supported=['HS256'],
+    client_kwargs={'scope': 'openid'},
 )
 
 
@@ -91,22 +103,37 @@ def find_or_create_user(claims: Dict) -> Optional[Dict]:
     email = (claims.get('email') or '').strip().lower()
     if not email:
         return None
+    return _find_or_create('email', email)
 
-    user = users_collection.find_one({'email': email})
+
+def find_or_create_line_user(claims: Dict) -> Optional[Dict]:
+    """
+    Return the user for verified LINE ID-token claims, keyed by `sub`, signing them up on first sign-in.
+    A missing or empty `sub` gets None, and nothing is written. Profile claims are ignored.
+    """
+    sub = claims.get('sub')
+    if not isinstance(sub, str) or not sub:
+        return None
+    return _find_or_create('line_user_id', sub)
+
+
+def _find_or_create(field: str, value: str) -> Dict:
+    """Find the user whose identity `field` equals `value`, or insert one with a fresh random name."""
+    user = users_collection.find_one({field: value})
     if user:
         return user
 
     # ponytail: 5 tries in a 16.7M-name space; a 6th clash surfaces as a 500
     for _ in range(5):
         name = new_username()
-        user = asdict(UserModel(email=email, username=name, display_name=name))
+        user = asdict(UserModel(username=name, display_name=name, **{field: value}))
         try:
             users_collection.insert_one(user)  # adds user['_id']
             return user
         except DuplicateKeyError as e:
-            if 'email' in (e.details or {}).get('keyPattern', {}):
-                # Lost a same-email race: use the account that won
-                return users_collection.find_one({'email': email})
+            if field in (e.details or {}).get('keyPattern', {}):
+                # Lost a same-identity race: use the account that won
+                return users_collection.find_one({field: value})
             # username clash: draw another name
     raise RuntimeError("No free random username after 5 tries")
 

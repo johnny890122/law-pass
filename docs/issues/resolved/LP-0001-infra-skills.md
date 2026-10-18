@@ -2,10 +2,10 @@
 id: LP-0001
 title: Infra skills for schema changes, design variants, PRDs, and PRD reports
 type: epic
-status: in_progress
+status: resolved
 priority: medium
 created: 2026-10-16
-resolved:
+resolved: 2026-10-17
 area: docs
 tags:
   - skills
@@ -50,16 +50,30 @@ report that closes a PRD-backed ticket.
 
 ## Acceptance Criteria
 
-- [ ] All child stories are `resolved` or `wont_fix`.
+- [x] All child stories are `resolved` or `wont_fix`. All four are
+      `resolved`.
 - [x] `CLAUDE.md` names all four skills where the workflow invokes them.
-- [ ] `pytest` green: covered by the child stories.
-- [ ] `flake8` clean: covered by the child stories.
-- [ ] Seen working: covered by each child story's smoke run.
-- [ ] Docs synced: covered by the child stories' changelog entries.
+- [x] `pytest` green: covered by the child stories. 70 passed on
+      2026-10-17.
+- [x] `flake8` clean: covered by the child stories. Clean on 2026-10-17.
+- [x] Seen working: covered by each child story's smoke run.
+- [x] Docs synced: covered by the child stories' changelog entries.
 
 ## Open Questions
 
 - None.
+
+## Resolution
+
+Four skills now sit at the risky points of the workflow. `schema-check`
+gates schema changes, `prd-creator` writes implementation PRDs, and
+`prd-report` writes the closing audit. The stage 2 artifact skill was
+`design-variants`, and LP-0004-02 has since replaced it with `neta-design`.
+See the changelog entries:
+[schema-check](../../changelog/2026-10-16-schema-check.md),
+[design-variants](../../changelog/2026-10-16-design-variants-skill.md),
+[prd-creator](../../changelog/2026-10-16-prd-creator-skill.md), and
+[prd-report](../../changelog/2026-10-16-prd-report-skill.md).
 
 ## Related Files
 
