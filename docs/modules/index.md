@@ -6,6 +6,6 @@ same change.
 
 | Module | Doc | Owns |
 | --- | --- | --- |
-| auth | [auth/index.md](auth/index.md) | Who may sign in and how: Google OIDC with self-signup keyed by `users.email`, the login page, logout, sessions, and `login_required`. |
+| auth | [auth/index.md](auth/index.md) | Who may sign in and how: Google and LINE OIDC with self-signup, keyed by `users.email` and `users.line_user_id` and never linked, the login page, logout, sessions, and `login_required`. |
 | deploy | [deploy/index.md](deploy/index.md) | CI on GitHub Actions, the `law-pass` Heroku app, auto-deploy of `main`, and the config var inventory. |
 | db | [db/data-model.md](db/data-model.md) | MongoDB collections, fields, indexes, `LAW_TYPES`, `init_db()`, and migrations. The schema's single source of truth, written only through the `schema-check` skill. |

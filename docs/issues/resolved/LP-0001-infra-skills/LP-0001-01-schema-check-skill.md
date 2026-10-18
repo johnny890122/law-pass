@@ -2,10 +2,10 @@
 id: LP-0001-01
 title: Schema-check skill with data-model.md as the source of truth
 type: story
-status: in_progress
+status: resolved
 priority: medium
 created: 2026-10-16
-resolved:
+resolved: 2026-10-17
 area: db
 parent: LP-0001
 tags:
@@ -132,8 +132,12 @@ confirming a change is safe. Every schema change is then checked and logged.
       indexes cannot be created. A test inserts duplicates into a test
       collection with the index dropped, calls `init_db()`, and expects the
       error.
-- [ ] Production was checked for duplicates and same-key name conflicts
+- [x] Production was checked for duplicates and same-key name conflicts
       before deploy, and the result is in the baseline Change Log row.
+      Moot, not run: production moved to a new, empty `law_pass` database
+      (LP-0003), so it held no documents or indexes. `init_db()` built both
+      indexes at boot on release v4, and `/health` returned 200. The
+      baseline row says so.
 - [x] `CLAUDE.md` Workflow states that a schema change runs `schema-check`
       and that `data-model.md` is the schema's source of truth.
 - [x] `pytest` green: covered by `tests/test_schema_drift.py` and
@@ -153,6 +157,11 @@ confirming a change is safe. Every schema change is then checked and logged.
 ## Open Questions
 
 - None.
+
+## Resolution
+
+`data-model.md` is now the schema's single source of truth, and `tests/test_schema_drift.py` enforces it. `schema-check` gates every change to it, and `init_db()` fails loudly on a blocked unique index. The production duplicate check was never run because LP-0003 started production on an empty database. The unused dataclasses and the other `init_db()` swallows stay deferred. See the
+[changelog](../../../changelog/2026-10-16-schema-check.md).
 
 ## Related Files
 

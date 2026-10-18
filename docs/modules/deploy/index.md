@@ -28,6 +28,10 @@ Where law-pass runs and how code reaches it. Current truth since
   LP-0007 and the LP-0002-05 grading cap. Self-signup lets anyone spend
   OpenRouter credit once `OPENROUTER_API_KEY` is set, and nothing caps it
   until LP-0002-05 lands.
+- **No OpenRouter key until grading is capped.** The OpenRouter vars stay
+  unset on `law-pass` until LP-0002-05 is deployed (LP-0008, decided by the
+  user on 2026-10-17). Until then, grading and generation fail on Heroku.
+  LP-0007 step 10 sets them.
 - **The database started empty.** The old production database is
   unreachable, so `law-pass` began on a new database with no users,
   progress, laws, or questions (2026-10-17). The repo has no loader for real
@@ -53,10 +57,11 @@ Names and sources only. Values are never committed.
 | --- | --- | --- |
 | `MONGO_URI` | A new database on the `law-pass` Atlas cluster (project `johnny-personal`), as Atlas user `law-pass-heroku` with `readWrite` on that database only. The name goes in the URI path. | LP-0008 |
 | `SECRET_KEY` | A fresh random value. Rotating it ends every session. | LP-0008. Rotated at LP-0007 step 8. |
-| `OPENROUTER_API_KEY`, `OPENROUTER_MODEL` | OpenRouter | LP-0008 |
-| `OPENROUTER_GRADING_MODEL` | OpenRouter. Required: the code default `anthropic/claude-3.5-haiku` is no longer listed. | LP-0008 |
+| `OPENROUTER_API_KEY`, `OPENROUTER_MODEL` | OpenRouter | Unset. LP-0007 step 10, after LP-0002-05 is deployed. |
+| `OPENROUTER_GRADING_MODEL` | OpenRouter. Required: the code default `anthropic/claude-3.5-haiku` is no longer listed. | Unset. LP-0007 step 10, after LP-0002-05 is deployed. |
 | `FLASK_ENV` | `production`, which makes the session cookie Secure | LP-0008 |
-| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | The Google OAuth client. `create_app()` refuses to start without them once Google sign-in deploys. | Set 2026-10-17, ahead of LP-0007 step 2. Unused until Google sign-in deploys. |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | The Google OAuth client. `create_app()` refuses to start without them. | Set 2026-10-17, ahead of LP-0007 step 2. In use: Google sign-in is deployed. |
+| `LINE_CLIENT_ID`, `LINE_CLIENT_SECRET` | The LINE Login channel's numeric "Channel ID" and its "Channel secret" (LINE Developers Console). `create_app()` refuses to start without them, so they must be set **before** LP-0009 reaches `main`, or the new release crash-loops. | Unset. LP-0009 rollout step 4. |
 
 ## Operations
 

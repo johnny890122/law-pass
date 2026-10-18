@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""LP-0002-01: delete users without an email, and every per-user document keyed on them.
+"""LP-0002-01: delete users with neither an email nor a LINE ID, and every per-user document keyed on them.
 
 Dry-run by default (prints counts); deletes only with --apply. Idempotent.
 
@@ -12,7 +12,11 @@ import argparse
 import os
 import sys
 
-FILTER = {'email': {'$exists': False}}
+# LP-0009: LINE accounts have email None, so match on neither identity being a string.
+FILTER = {
+    'email': {'$not': {'$type': 'string'}},
+    'line_user_id': {'$not': {'$type': 'string'}},
+}
 PER_USER = ['user_progress', 'user_law_stars', 'user_law_stats', 'user_question_stars', 'user_daily_stats', 'sessions']
 
 

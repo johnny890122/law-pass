@@ -24,6 +24,10 @@ production is checked for duplicates on both unique keys and for a same-key
 index under another name. A duplicate would crash-loop the dyno on boot, so
 the check runs before this deploys.
 
+Update 2026-10-17: the check is moot. Production moved to a new, empty
+`law_pass` database under LP-0003, where `init_db()` built both indexes at
+boot. The baseline row records this.
+
 ## Deliberately not done
 
 - Mongo `$jsonSchema` validators.

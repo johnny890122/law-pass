@@ -33,10 +33,11 @@ LAW_TYPES = {
 
 @dataclass
 class UserModel:
-    """User account, created on a first Google sign-in (services/auth.py find_or_create_user)"""
-    email: str             # Google sign-in identifier, stored lowercased. Unique.
+    """User account, created on a first Google or LINE sign-in (services/auth.py _find_or_create)"""
     username: str          # Unique stored label (e.g., "alice"), not a login credential
     display_name: str      # Display name (e.g., "Alice Chen"). Console-set only.
+    email: Optional[str] = None         # Google sign-in identifier, stored lowercased. Unique when set.
+    line_user_id: Optional[str] = None  # LINE ID-token `sub`. Unique when set.
     created_at: datetime = field(default_factory=datetime.utcnow)
     last_login: Optional[datetime] = None
 
@@ -174,9 +175,18 @@ class Database:
         
         # Users indexes (NEW)
         self.users_collection.create_index('username', unique=True)
-        # Not wrapped: users without an email (pre-LP-0002-01) must fail startup until
-        # scripts/migrations/20261016_remove_username_only_users.py has run.
-        self.users_collection.create_index('email', unique=True)
+        # Identity indexes are unique over strings only, so null emails (LINE) and null
+        # line_user_ids (Google) never clash (LP-0009). Not wrapped: a duplicate must fail startup.
+        # The pre-LP-0009 email_1 had no filter; drop it once so the partial one can take its name.
+        email_index = self.users_collection.index_information().get('email_1')
+        if email_index and 'partialFilterExpression' not in email_index:
+            self.users_collection.drop_index('email_1')
+        self.users_collection.create_index(
+            'email', unique=True, partialFilterExpression={'email': {'$type': 'string'}}
+        )
+        self.users_collection.create_index(
+            'line_user_id', unique=True, partialFilterExpression={'line_user_id': {'$type': 'string'}}
+        )
         
         # User progress indexes (UPDATED for multi-user)
         # Drop old single-user index if exists
