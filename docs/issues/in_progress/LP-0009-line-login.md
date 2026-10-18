@@ -110,7 +110,7 @@ self-signup flow Google uses.
 - [x] Startup fails, naming the variable, when `LINE_CLIENT_ID` or
       `LINE_CLIENT_SECRET` is missing.
 - [x] Google sign-in behaves as before, and its existing tests pass unchanged.
-- [ ] `schema-check` passed. `data-model.md` lists:
+- [x] `schema-check` passed. `data-model.md` lists:
       - `users.line_user_id` and `line_user_id_1`;
       - `email` as optional, with `email_1` partial;
       - both insert writers;

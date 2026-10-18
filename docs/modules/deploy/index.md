@@ -61,7 +61,7 @@ Names and sources only. Values are never committed.
 | `OPENROUTER_GRADING_MODEL` | OpenRouter. Required: the code default `anthropic/claude-3.5-haiku` is no longer listed. | Unset. LP-0007 step 10, after LP-0002-05 is deployed. |
 | `FLASK_ENV` | `production`, which makes the session cookie Secure | LP-0008 |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | The Google OAuth client. `create_app()` refuses to start without them. | Set 2026-10-17, ahead of LP-0007 step 2. In use: Google sign-in is deployed. |
-| `LINE_CLIENT_ID`, `LINE_CLIENT_SECRET` | The LINE Login channel's numeric "Channel ID" and its "Channel secret" (LINE Developers Console). `create_app()` refuses to start without them, so they must be set **before** LP-0009 reaches `main`, or the new release crash-loops. | Unset. LP-0009 rollout step 4. |
+| `LINE_CLIENT_ID`, `LINE_CLIENT_SECRET` | The LINE Login channel's numeric "Channel ID" and its "Channel secret" (LINE Developers Console). `create_app()` refuses to start without them, so they must be set **before** LP-0009 reaches `main`, or the new release crash-loops. | Set 2026-10-18, before the LP-0009 merge (LP-0009 rollout step 4). In use since release v13. |
 
 ## Operations
 
