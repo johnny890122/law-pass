@@ -11,4 +11,5 @@
 | LP-0002-02 | [STORY] | Medium | laws | [LP-0002](./pending/LP-0002-invite-only-beta.md) | [First-login onboarding to set your name and pick the laws you study](./pending/LP-0002-invite-only-beta/LP-0002-02-law-onboarding.md) | 2026-10-16 | - |
 | LP-0007 | [TODO] | High | deploy | - | [Production cutover for Google sign-in](./pending/LP-0007-google-sign-in-production-cutover.md) | 2026-10-17 | - |
 | LP-0004 | [EPIC] | Medium | ui | - | [Design system from captured reference sites, with RWD on every page](./pending/LP-0004-design-system.md) | 2026-10-17 | - |
-| LP-0004-03 | [STORY] | Medium | ui | [LP-0004](./pending/LP-0004-design-system.md) | [Every page holds at phone, tablet, and desktop](./pending/LP-0004-design-system/LP-0004-03-rwd-all-pages.md) | 2026-10-17 | - |
+| LP-0004-04 | [STORY] | Medium | docs | [LP-0004](./pending/LP-0004-design-system.md) | [Capture dotnet.microsoft.com as the design system's reference site](./pending/LP-0004-design-system/LP-0004-04-capture-dotnet.md) | 2026-10-18 | - |
+| LP-0004-05 | [STORY] | Medium | ui | [LP-0004](./pending/LP-0004-design-system.md) | [Three design-system directions from the dotnet capture, picked by looking](./pending/LP-0004-design-system/LP-0004-05-design-directions.md) | 2026-10-18 | - |

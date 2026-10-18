@@ -89,7 +89,7 @@
 
   const commonOptions = {
     responsive: true,
-    maintainAspectRatio: true,
+    maintainAspectRatio: false,  // .chart-container sets the 2:1 box, capped at 260px (LP-0004-03)
     plugins: { legend: { display: false } },
     scales: {
       x: { ticks: { maxTicksLimit: 10, maxRotation: 45 } },

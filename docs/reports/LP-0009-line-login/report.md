@@ -1,10 +1,10 @@
 ---
 ticket: LP-0009
 prd: docs/prd/LP-0009-line-login.md
-status: draft
+status: approved
 created: 2026-10-18
-approved:
-reviewer:
+approved: 2026-10-18
+reviewer: Johnny Chang
 ---
 
 # Report: LINE Login with self-signup

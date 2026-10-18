@@ -2,10 +2,10 @@
 id: LP-0009
 title: LINE Login with self-signup
 type: feature
-status: in_progress
+status: resolved
 priority: medium
 created: 2026-10-17
-resolved:
+resolved: 2026-10-18
 area: auth
 tags:
   - sso
@@ -124,19 +124,33 @@ self-signup flow Google uses.
       against a local MongoDB, and the header shows `learner-…`. After logout,
       LINE shows its login screen. Signing in again leaves the database with
       one account for it.
-- [ ] Production: the Heroku config vars are set before the merge to `main`,
+- [x] Production: the Heroku config vars are set before the merge to `main`,
       and the channel is published. The LINE test account signs itself up
       through the `https://` callback on the `law-pass` app, and
-      `init_db()` rebuilds `email_1` at boot.
+      `init_db()` rebuilds `email_1` at boot. Release v13 (`db9dbbc`),
+      2026-10-18: the test account signed up at 07:13 UTC (Heroku logs), and
+      the user confirmed the channel is published. The first boot crashed
+      once, because two gunicorn workers both ran the one-time `email_1` drop.
+      The restart booted cleanly (see the `data-model.md` Change Log).
 - [x] Docs synced: `docs/modules/auth/index.md` (rules, LINE flow, operations,
       manual checks), `docs/modules/db/data-model.md` (through
       `schema-check`), and `docs/modules/deploy/index.md` (config vars), plus
       a changelog entry.
-- [ ] Report at `docs/reports/LP-0009-line-login/report.md` is approved.
+- [x] Report at `docs/reports/LP-0009-line-login/report.md` is approved.
 
 ## Open Questions
 
 - None.
+
+## Resolution
+
+Learners sign up and sign in with LINE below the Google button. Accounts are
+keyed by the LINE `sub` in `users.line_user_id`, `email` is optional behind
+partial unique indexes, and the feature is live on `law-pass` v13. Account
+linking, LINE profile data, and a fix for the one-time worker race at first
+boot were deliberately left out. See the
+[changelog](../../changelog/2026-10-18-line-login.md) and the
+[report](../../reports/LP-0009-line-login/report.md).
 
 ## Related Files
 

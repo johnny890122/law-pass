@@ -2,10 +2,10 @@
 id: LP-0002-01
 title: Google sign-in with self-signup
 type: story
-status: in_progress
+status: resolved
 priority: high
 created: 2026-10-16
-resolved:
+resolved: 2026-10-18
 area: auth
 parent: LP-0002
 tags:
@@ -115,7 +115,7 @@ account may sign themselves up on their first sign-in.
       `docs/modules/index.md`, `docs/modules/db/data-model.md` (through
       `schema-check`), and `.claude/skills/prd-report/SKILL.md` step 1, plus a
       changelog entry.
-- [ ] Report at `docs/reports/LP-0002-01-google-sign-in/report.md` is
+- [x] Report at `docs/reports/LP-0002-01-google-sign-in/report.md` is
       approved.
 
 ## Open Questions
@@ -129,6 +129,15 @@ account may sign themselves up on their first sign-in.
   sign-ins reused the same accounts (local `patent_act` and `law_pass`
   databases).
 - A console-created account no longer applies (2026-10-17).
+
+## Resolution
+
+Google sign-in replaced username login, and a first sign-in with a verified
+email creates the account under a random `learner-…` name. Console account
+creation is gone. The production cutover, including deleting username-only
+users, was deliberately left to `LP-0007`. See the
+[changelog](../../../changelog/2026-10-16-google-sign-in.md) and the
+[report](../../../reports/LP-0002-01-google-sign-in/report.md).
 
 ## Related Files
 

@@ -2,10 +2,10 @@
 id: LP-0004-03
 title: Every page holds at phone, tablet, and desktop
 type: story
-status: pending
+status: resolved
 priority: medium
 created: 2026-10-17
-resolved:
+resolved: 2026-10-18
 area: ui
 parent: LP-0004
 tags:
@@ -55,26 +55,60 @@ CSS, before the design system lands.
 
 ## Acceptance Criteria
 
-- [ ] Every page × three viewports shows no page scroll and no overflowing
+- [x] Every page × three viewports shows no page scroll and no overflowing
       element, recorded as a table in `## Resolution` or a linked note.
-- [ ] `style.css` uses only `min-width: 768px` and `min-width: 1024px`
+- [x] `style.css` uses only `min-width: 768px` and `min-width: 1024px`
       media queries.
-- [ ] Every inline `style=` the audit flagged as breaking layout now lives
-      in `style.css`.
-- [ ] The `CLAUDE.md` done gate names the three viewports for template and
+- [x] Every inline `style=` the audit flagged as breaking layout now lives
+      in `style.css`. Only the pager row in `question_bank.html` and
+      `my_questions.html` was flagged; it is now `.pager`.
+- [x] The `CLAUDE.md` done gate names the three viewports for template and
       CSS changes.
-- [ ] `pytest` green: template and CSS only, so no new test. The existing
+- [x] `pytest` green: template and CSS only, so no new test. The existing
       page-render tests in `tests/test_app.py` confirm nothing regressed.
-- [ ] `flake8` clean.
-- [ ] Seen working: every page opened in the running app with Playwright
-      at 390x844, 768x1024, and 1440x900 and checked by eye.
-- [ ] Docs synced: create `docs/modules/ui/index.md` with the breakpoint
+      101 passed.
+- [x] `flake8` clean.
+- [x] Seen working: every page opened in the running app with Playwright
+      at 390x844, 768x1024, and 1440x900 and checked by eye. A local
+      learner was signed in by session cookie on a throwaway local DB seeded
+      with the 168 patent-act articles and 12 fixture questions.
+- [x] Docs synced: create `docs/modules/ui/index.md` with the breakpoint
       rule and viewport set, add its row to `docs/modules/index.md`, and
       write a changelog entry.
 
 ## Open Questions
 
 - None.
+
+## Resolution
+
+`style.css` is mobile-first with only `min-width: 768px` and `1024px`. The
+tablet nav no longer wraps, the progress charts fill their cards, and the
+pager is a shared class. See
+[2026-10-18-rwd-all-pages.md](../../../changelog/2026-10-18-rwd-all-pages.md).
+
+Audit after the fix. ✓ means no page scroll, no overflowing element, and no
+wrapped or clipped nav, plus a look at the screenshot:
+
+| Page / state | Phone 390x844 | Tablet 768x1024 | Desktop 1440x900 |
+| --- | --- | --- | --- |
+| `login` | ✓ | ✓ | ✓ |
+| `dashboard` | ✓ | ✓ | ✓ |
+| `laws` | ✓ | ✓ | ✓ |
+| `law_detail` (第 90 條, answered question) | ✓ | ✓ | ✓ |
+| `question_bank` | ✓ | ✓ | ✓ |
+| `my_questions` (starred tab) | ✓ | ✓ | ✓ |
+| `quiz_config` | ✓ | ✓ | ✓ |
+| `quiz_session`, MCQ question | ✓ | ✓ | ✓ |
+| `quiz_session`, MCQ graded feedback | ✓ | ✓ | ✓ |
+| `quiz_session`, short-answer question | ✓ | ✓ | ✓ |
+| `progress` (charts) | ✓ | ✓ | ✓ |
+
+Before the fix, the scripted check also passed everywhere. The defects
+showed only in the screenshots: the tablet nav wrapped, the charts were
+drawn 520px wide at tablet and desktop, and the phone pager buttons wrapped.
+Short-answer graded feedback was not audited because OpenRouter is unset
+locally.
 
 ## Related Files
 
