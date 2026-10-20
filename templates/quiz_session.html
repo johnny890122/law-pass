@@ -2,171 +2,157 @@
 
 {% block title %}測驗進行中 - 專利法 AI 刷題助手{% endblock %}
 
+{% block main_class %}narrow{% endblock %}
+
 {% block content %}
-<div class="container quiz-container">
-    <!-- Progress Bar -->
-    <div class="quiz-progress">
-        <div class="progress-info">
-            <span class="progress-text">題目進度</span>
-            <span class="progress-count" id="progress-count">1 / 10</span>
-        </div>
-        <div class="progress-bar">
-            <div class="progress-fill" id="progress-fill" style="width: 10%"></div>
+<!-- Progress Bar -->
+<div class="quiz-progress">
+    <span class="progress-text">題目進度</span>
+    <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill" style="width: 10%"></div>
+    </div>
+    <span class="progress-count" id="progress-count">1 / 10</span>
+</div>
+
+<!-- Question Card -->
+<section class="card question-card" id="question-card">
+    <div class="question-header">
+        <span class="badge question-type-badge badge-mcq" id="question-type">選擇題</span>
+        <span class="question-number" id="question-number">第 1 題</span>
+    </div>
+
+    <div class="question-content" id="question-content">
+        <!-- Question text will be inserted here -->
+    </div>
+
+    <!-- MCQ Options Container -->
+    <div class="mcq-options" id="mcq-options" style="display: none;">
+        <!-- Options will be inserted here dynamically -->
+    </div>
+
+    <!-- Short Answer Input Container -->
+    <div class="short-answer-container" id="short-answer-container" style="display: none;">
+        <textarea
+            id="short-answer-input"
+            class="short-answer-input"
+            placeholder="請輸入您的答案..."
+            rows="6"
+        ></textarea>
+        <div class="char-count">
+            <span id="char-count">0</span> 字
         </div>
     </div>
 
-    <!-- Question Card -->
-    <div class="card question-card" id="question-card">
-        <div class="question-header">
-            <span class="question-type-badge" id="question-type">選擇題</span>
-            <span class="question-number" id="question-number">第 1 題</span>
+    <!-- Submit Button -->
+    <button
+        type="button"
+        class="btn btn-primary btn-block btn-lg"
+        id="submit-answer-btn"
+        style="display: none;"
+    >
+        提交答案
+    </button>
+</section>
+
+<!-- Result Card (Initially Hidden) -->
+<section class="card result-card" id="result-card" style="display: none;">
+    <div class="result-top">
+        <div class="score-badge" id="score-badge">
+            <!-- Score will be inserted here -->
         </div>
-        
-        <div class="question-content" id="question-content">
-            <!-- Question text will be inserted here -->
-        </div>
-        
-        <!-- MCQ Options Container -->
-        <div class="mcq-options" id="mcq-options" style="display: none;">
-            <!-- Options will be inserted here dynamically -->
-        </div>
-        
-        <!-- Short Answer Input Container -->
-        <div class="short-answer-container" id="short-answer-container" style="display: none;">
-            <textarea 
-                id="short-answer-input" 
-                class="short-answer-input" 
-                placeholder="請輸入您的答案..."
-                rows="6"
-            ></textarea>
-            <div class="char-count">
-                <span id="char-count">0</span> 字
-            </div>
-        </div>
-        
-        <!-- Submit Button -->
-        <button 
-            type="button" 
-            class="btn btn-primary btn-block btn-lg" 
-            id="submit-answer-btn"
-            style="display: none;"
+    </div>
+
+    <div class="result-content" id="result-content">
+        <!-- Content will be dynamically generated based on score -->
+    </div>
+
+    <!-- Action Buttons: star, report, then 下一題 taking the remaining width -->
+    <div class="result-actions">
+        <button
+            type="button"
+            class="btn btn-outline btn-star btn-icon"
+            id="star-question-btn"
+            title="收藏題目"
         >
-            提交答案
+            <span class="star-icon">☆</span>
         </button>
-    </div>
-
-    <!-- Result Card (Initially Hidden) -->
-    <div class="card result-card" id="result-card" style="display: none;">
-        <div class="result-header">
-            <div class="score-badge" id="score-badge">
-                <!-- Score will be inserted here -->
-            </div>
-        </div>
-        
-        <div class="result-content" id="result-content">
-            <!-- Content will be dynamically generated based on score -->
-        </div>
-        
-        <!-- Action Buttons -->
-        <div class="result-actions">
-            <button
-                type="button"
-                class="btn btn-outline btn-star btn-icon"
-                id="star-question-btn"
-                title="收藏題目"
-            >
-                <span class="star-icon">☆</span>
-            </button>
-            <button
-                type="button"
-                class="btn btn-outline btn-danger btn-icon"
-                id="delete-question-btn"
-                title="回報題目問題"
-            >
-                📢
-            </button>
-        </div>
-        
-        <!-- Next Question Button -->
-        <button 
-            type="button" 
-            class="btn btn-primary btn-block btn-lg" 
+        <button
+            type="button"
+            class="btn btn-outline btn-danger btn-icon"
+            id="delete-question-btn"
+            title="回報題目問題"
+        >
+            📢
+        </button>
+        <button
+            type="button"
+            class="btn btn-primary"
             id="next-question-btn"
         >
             下一題
         </button>
     </div>
+</section>
 
-    <!-- Session Complete Card (Initially Hidden) -->
-    <div class="card session-summary-card" id="session-summary-card" style="display: none;">
-        <div class="summary-header">
-            <h1 class="summary-title">🎉 測驗完成！</h1>
-            <p class="summary-subtitle">恭喜您完成本次測驗</p>
-        </div>
-        
-        <div class="summary-stats">
-            <div class="summary-stat">
-                <div class="stat-value" id="total-questions">0</div>
-                <div class="stat-label">總題數</div>
-            </div>
-            <div class="summary-stat">
-                <div class="stat-value" id="correct-count">0</div>
-                <div class="stat-label">答對</div>
-            </div>
-            <div class="summary-stat">
-                <div class="stat-value" id="accuracy-rate">0%</div>
-                <div class="stat-label">正確率</div>
-            </div>
-            <div class="summary-stat">
-                <div class="stat-value" id="avg-score">0.0</div>
-                <div class="stat-label">平均分</div>
-            </div>
-        </div>
-        
-        <div class="summary-actions">
-            <a href="/quiz/config" class="btn btn-primary btn-block">
-                再來一次
-            </a>
-            <a href="/" class="btn btn-secondary btn-block">
-                返回首頁
-            </a>
-        </div>
+<!-- Session Complete Card (Initially Hidden) -->
+<section class="card session-summary-card" id="session-summary-card" style="display: none;">
+    <div class="summary-header">
+        <h1 class="summary-title">🎉 測驗完成！</h1>
+        <p class="summary-subtitle">恭喜您完成本次測驗</p>
     </div>
 
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loading-overlay" style="display: none;">
+    <div class="metrics">
+        <div class="metric"><span class="metric-value" id="total-questions">0</span><span class="metric-label">總題數</span></div>
+        <div class="metric"><span class="metric-value" id="correct-count">0</span><span class="metric-label">答對</span></div>
+        <div class="metric"><span class="metric-value" id="accuracy-rate">0%</span><span class="metric-label">正確率</span></div>
+        <div class="metric"><span class="metric-value" id="avg-score">0.0</span><span class="metric-label">平均分</span></div>
+    </div>
+
+    <div class="summary-actions">
+        <a href="/quiz/config" class="btn btn-primary btn-block">
+            再來一次
+        </a>
+        <a href="/" class="btn btn-secondary btn-block">
+            返回首頁
+        </a>
+    </div>
+</section>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loading-overlay" style="display: none;">
+    <div class="loading-box">
         <div class="spinner"></div>
         <p class="loading-text">AI 正在評分中...</p>
     </div>
-    
-    <!-- Delete Question Modal -->
-    <div class="modal-overlay" id="delete-modal" style="display: none;">
-        <div class="modal-dialog">
-            <div class="modal-header">
-                <h2 class="modal-title">📢 回報題目問題</h2>
-                <button class="modal-close" id="modal-close-btn">&times;</button>
+</div>
+
+<!-- Delete Question Modal -->
+<div class="modal-overlay" id="delete-modal" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-header">
+            <h2 class="modal-title">📢 回報題目問題</h2>
+            <button class="icon-btn modal-close" id="modal-close-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p class="modal-description">
+                確定要刪除此題目嗎？
+            </p>
+            <ul class="modal-list">
+                <li>✓ 從題庫中<strong>永久刪除</strong>此題</li>
+                <li>✓ <strong>撤銷</strong>此題的評分影響（不計分）</li>
+                <li>✓ 自動繼續下一題</li>
+            </ul>
+            <div class="modal-warning">
+                ⚠️ 此操作無法復原
             </div>
-            <div class="modal-body">
-                <p class="modal-description">
-                    確定要刪除此題目嗎？
-                </p>
-                <ul class="modal-list">
-                    <li>✓ 從題庫中<strong>永久刪除</strong>此題</li>
-                    <li>✓ <strong>撤銷</strong>此題的評分影響（不計分）</li>
-                    <li>✓ 自動繼續下一題</li>
-                </ul>
-                <div class="modal-warning">
-                    ⚠️ 此操作無法復原
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" id="modal-cancel-btn">
-                    取消
-                </button>
-                <button class="btn btn-danger" id="modal-confirm-btn">
-                    確認刪除
-                </button>
-            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" id="modal-cancel-btn">
+                取消
+            </button>
+            <button class="btn btn-danger" id="modal-confirm-btn">
+                確認刪除
+            </button>
         </div>
     </div>
 </div>
@@ -283,7 +269,7 @@
             // Update question header
             document.getElementById('question-number').textContent = `第 ${current} 題`;
             document.getElementById('question-type').textContent = question.type === 'MCQ' ? '選擇題' : '簡答題';
-            document.getElementById('question-type').className = `question-type-badge ${question.type === 'MCQ' ? 'badge-mcq' : 'badge-short'}`;
+            document.getElementById('question-type').className = `badge question-type-badge ${question.type === 'MCQ' ? 'badge-mcq' : 'badge-short'}`;
             
             // Update question content
             document.getElementById('question-content').textContent = question.content;
@@ -296,7 +282,7 @@
             }
             
             // Show question card, hide result card
-            document.getElementById('question-card').style.display = 'block';
+            document.getElementById('question-card').style.display = '';
             document.getElementById('result-card').style.display = 'none';
             
             // Scroll to top
@@ -306,7 +292,7 @@
         showMCQOptions(options) {
             const container = document.getElementById('mcq-options');
             container.innerHTML = '';
-            container.style.display = 'block';
+            container.style.display = '';
             document.getElementById('short-answer-container').style.display = 'none';
             document.getElementById('submit-answer-btn').style.display = 'none';
             
@@ -335,8 +321,8 @@
         
         showShortAnswerInput() {
             document.getElementById('mcq-options').style.display = 'none';
-            document.getElementById('short-answer-container').style.display = 'block';
-            document.getElementById('submit-answer-btn').style.display = 'block';
+            document.getElementById('short-answer-container').style.display = '';
+            document.getElementById('submit-answer-btn').style.display = '';
             
             // Clear previous input
             const textarea = document.getElementById('short-answer-input');
@@ -403,7 +389,7 @@
         showResult(userAnswer, result) {
             // Hide question card, show result card
             document.getElementById('question-card').style.display = 'none';
-            document.getElementById('result-card').style.display = 'block';
+            document.getElementById('result-card').style.display = '';
             
             // Update score badge
             const scoreBadge = document.getElementById('score-badge');
@@ -514,7 +500,7 @@
                 // AI explanation - always highlighted for wrong answers
                 htmlContent += `
                     <div class="result-section highlight">
-                        <h3 class="result-label">💡 AI 解析（重點）</h3>
+                        <h3 class="result-label">AI 解析（重點）</h3>
                         <p class="result-text">${this.escapeHtml(result.ai_explanation)}</p>
                     </div>
                 `;
@@ -573,10 +559,10 @@
                 
                 if (isCorrect) {
                     className += ' correct';
-                    indicator = '<span class="option-indicator correct-indicator">✓ 正確答案</span>';
+                    indicator = '<span class="badge badge-success">✓ 正確答案</span>';
                 } else if (isUserChoice) {
                     className += ' wrong';
-                    indicator = '<span class="option-indicator wrong-indicator">✗ 您的選擇</span>';
+                    indicator = '<span class="badge badge-danger">✗ 您的選擇</span>';
                 }
                 
                 return `
@@ -638,7 +624,7 @@
             document.getElementById('avg-score').textContent = avgScore;
             
             // Show summary card
-            document.getElementById('session-summary-card').style.display = 'block';
+            document.getElementById('session-summary-card').style.display = '';
             
             // Clear localStorage
             window.appUtils.storage.remove('current_session');

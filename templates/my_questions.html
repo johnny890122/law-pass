@@ -2,38 +2,35 @@
 
 {% block title %}我的題目 - 專利法 AI 刷題助手{% endblock %}
 
-{% block content %}
-<div class="container">
-    <!-- Header with Tabs -->
-    <div class="card">
-        <h1 style="font-size: 1.5rem; margin-bottom: 1rem;">我的題目</h1>
-        
-        <!-- Tab Navigation -->
-        <div class="tab-nav" role="tablist">
-            <button class="tab-btn active" 
-                    data-tab="starred" 
-                    role="tab" 
-                    aria-selected="true" 
-                    aria-controls="questions-container">
-                ⭐ 收藏題目
-            </button>
-            <button class="tab-btn" 
-                    data-tab="wrong" 
-                    role="tab" 
-                    aria-selected="false" 
-                    aria-controls="questions-container">
-                ❌ 答錯題目
-            </button>
-        </div>
-    </div>
+{% block main_class %}narrow{% endblock %}
 
-    <!-- Filter -->
-    <div class="card">
-        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-            <button class="btn btn-sm filter-btn active" data-filter="all">全部</button>
-            <button class="btn btn-sm filter-btn" data-filter="MCQ">選擇題</button>
-            <button class="btn btn-sm filter-btn" data-filter="ShortAnswer">問答題</button>
-        </div>
+{% block content %}
+<h1 class="page-title">我的題目</h1>
+
+<!-- Tab Navigation -->
+<div class="filter-tabs" role="tablist">
+    <button class="filter-tab tab-btn active"
+            data-tab="starred"
+            role="tab"
+            aria-selected="true"
+            aria-controls="questions-container">
+        ⭐ 收藏題目
+    </button>
+    <button class="filter-tab tab-btn"
+            data-tab="wrong"
+            role="tab"
+            aria-selected="false"
+            aria-controls="questions-container">
+        ❌ 答錯題目
+    </button>
+</div>
+
+<!-- Filter, states, and the questions share one panel -->
+<section class="card">
+    <div class="filter-tabs">
+        <button class="filter-tab filter-btn active" data-filter="all">全部</button>
+        <button class="filter-tab filter-btn" data-filter="MCQ" data-flag="accent">選擇題</button>
+        <button class="filter-tab filter-btn" data-filter="ShortAnswer" data-flag="short">問答題</button>
     </div>
 
     <!-- Loading State -->
@@ -43,190 +40,37 @@
     </div>
 
     <!-- Error State -->
-    <div id="error-state" class="card hidden" style="text-align: center; padding: 3rem 1rem;">
-        <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
-        <h3 style="margin-bottom: 0.5rem;">載入失敗</h3>
-        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+    <div id="error-state" class="empty-state hidden">
+        <div class="empty-state-icon">⚠️</div>
+        <h3 class="empty-state-title">載入失敗</h3>
+        <p class="empty-state-text">
             無法載入題目，請檢查網路連線
         </p>
         <button id="retry-btn" class="btn btn-primary">重試</button>
     </div>
 
     <!-- Questions List -->
-    <div id="questions-container" class="hidden" role="region" aria-live="polite">
+    <div id="questions-container" class="question-list hidden" role="region" aria-live="polite">
         <!-- Questions will be rendered here -->
     </div>
 
     <!-- Empty State -->
-    <div id="empty-state" class="card hidden" style="text-align: center; padding: 3rem 1rem;">
-        <div style="font-size: 3rem; margin-bottom: 1rem;" id="empty-icon">📭</div>
-        <h3 style="margin-bottom: 0.5rem;" id="empty-title">尚無收藏的題目</h3>
-        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;" id="empty-desc">
+    <div id="empty-state" class="empty-state hidden">
+        <div class="empty-state-icon" id="empty-icon">📭</div>
+        <h3 class="empty-state-title" id="empty-title">尚無收藏的題目</h3>
+        <p class="empty-state-text" id="empty-desc">
             在答題或法條詳情頁面點擊 ⭐ 來收藏題目
         </p>
         <a href="/quiz/config" class="btn btn-primary">開始答題</a>
     </div>
+</section>
 
-    <!-- Pagination -->
-    <div id="pagination" class="card pager hidden">
-        <button id="prev-btn" class="btn btn-sm" disabled>← 上一頁</button>
-        <span id="page-info" class="pager-info">第 1 頁</span>
-        <button id="next-btn" class="btn btn-sm">下一頁 →</button>
-    </div>
+<!-- Pagination -->
+<div id="pagination" class="card pager hidden">
+    <button id="prev-btn" class="btn btn-outline btn-sm" disabled>← 上一頁</button>
+    <span id="page-info" class="pager-info">第 1 頁</span>
+    <button id="next-btn" class="btn btn-outline btn-sm">下一頁 →</button>
 </div>
-
-<style>
-.tab-nav {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 0.75rem;
-    border-bottom: 2px solid var(--border-color);
-    margin-bottom: -1rem;
-}
-
-.tab-btn {
-    padding: 0.75rem 1.5rem;
-    border: none;
-    background: none;
-    color: var(--text-secondary);
-    cursor: pointer;
-    font-size: 0.9375rem;
-    font-weight: 500;
-    border-bottom: 2px solid transparent;
-    margin-bottom: -2px;
-    transition: all 0.2s;
-}
-
-.tab-btn:hover {
-    color: var(--text-primary);
-}
-
-.tab-btn.active {
-    color: #3b82f6;
-    border-bottom-color: #3b82f6;
-}
-
-.filter-btn {
-    padding: 0.5rem 1rem;
-    border: 1px solid var(--border-color);
-    background: var(--surface);
-    color: var(--text-secondary);
-    border-radius: 0.375rem;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.filter-btn:hover {
-    background: var(--surface-hover);
-}
-
-.filter-btn.active {
-    background: #3b82f6;
-    color: white;
-    border-color: #3b82f6;
-}
-
-.question-card {
-    background: var(--surface);
-    border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
-    padding: 0.75rem;
-    margin-bottom: 0.75rem;
-    transition: all 0.2s;
-}
-
-.question-card:hover {
-    border-color: var(--primary);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.question-clickable {
-    cursor: pointer;
-}
-
-.question-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: start;
-    margin-bottom: 0.75rem;
-}
-
-.question-meta {
-    display: flex;
-    gap: 0.75rem;
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    flex-wrap: wrap;
-    align-items: center;
-}
-
-.question-content {
-    color: var(--text-primary);
-    line-height: 1.5;
-    margin-bottom: 0.5rem;
-    font-size: 0.9375rem;
-}
-
-.question-options {
-    margin: 0.5rem 0;
-    padding-left: 1rem;
-}
-
-.question-option {
-    padding: 0.25rem 0;
-    font-size: 0.875rem;
-    line-height: 1.4;
-}
-
-.correct-answer {
-    color: #10b981;
-    font-weight: 600;
-}
-
-.question-answer-section {
-    margin-top: 0.5rem;
-    padding-top: 0.5rem;
-    border-top: 1px solid var(--border-color);
-    font-size: 0.875rem;
-}
-
-.score-badge {
-    font-size: 0.75rem;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
-    font-weight: 600;
-}
-
-.score-good {
-    background: #d1fae5;
-    color: #065f46;
-}
-
-.score-bad {
-    background: #fee2e2;
-    color: #991b1b;
-}
-
-.star-btn {
-    background: none;
-    border: none;
-    font-size: 1.25rem;
-    cursor: pointer;
-    padding: 0.25rem;
-}
-
-.sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border-width: 0;
-}
-</style>
 {% endblock %}
 
 {% block extra_js %}
@@ -359,7 +203,7 @@ function renderQuestions(questions) {
 // Create a question card element
 function createQuestionCard(q) {
     const card = document.createElement('div');
-    card.className = 'question-card';
+    card.className = 'question-item';
     
     // Type icon and name
     const typeIcon = q.type === QUESTION_TYPES.MCQ ? '📝' : '✍️';
@@ -369,27 +213,27 @@ function createQuestionCard(q) {
     let scoreBadgeHtml = '';
     if (q.last_score !== null && q.last_score !== undefined) {
         const scorePercent = Math.round(q.last_score * 100);
-        const scoreClass = q.last_score >= PASS_THRESHOLD ? 'score-good' : 'score-bad';
-        scoreBadgeHtml = `<span>·</span><span class="score-badge ${scoreClass}">得分: ${scorePercent}%</span>`;
+        const scoreClass = q.last_score >= PASS_THRESHOLD ? 'badge-success' : 'badge-danger';
+        scoreBadgeHtml = `<span class="badge ${scoreClass}">得分: ${scorePercent}%</span>`;
     }
     
     // Law accuracy badge (答對率)
     let lawAccuracyHtml = '';
     if (q.law_info && q.law_info.attempt_count > 0) {
         const accuracy = Math.round(q.law_info.avg_score * 100);
-        const accuracyClass = q.law_info.avg_score >= PASS_THRESHOLD ? 'score-good' : 'score-bad';
-        lawAccuracyHtml = `<span>·</span><span class="score-badge ${accuracyClass}" title="此法條答對率 (${q.law_info.attempt_count}次作答)">法條: ${accuracy}%</span>`;
+        const accuracyClass = q.law_info.avg_score >= PASS_THRESHOLD ? 'badge-success' : 'badge-danger';
+        lawAccuracyHtml = `<span class="badge ${accuracyClass}" title="此法條答對率 (${q.law_info.attempt_count}次作答)">法條: ${accuracy}%</span>`;
     }
     
     // Options for MCQ
     let optionsHtml = '';
     if (q.type === QUESTION_TYPES.MCQ && q.options && q.options.length > 0) {
         const correctLetter = getCorrectOptionLetter(q.correct_answer);
-        optionsHtml = '<div class="question-options">';
+        optionsHtml = '<div class="item-options">';
         q.options.forEach(option => {
             const optionLetter = option.trim().charAt(0);
             const isCorrect = correctLetter && optionLetter === correctLetter;
-            const optionClass = isCorrect ? 'question-option correct-answer' : 'question-option';
+            const optionClass = isCorrect ? 'correct' : '';
             optionsHtml += `<div class="${optionClass}">${escapeHtml(option)}</div>`;
         });
         optionsHtml += '</div>';
@@ -403,7 +247,7 @@ function createQuestionCard(q) {
             answerHtml += `<div><strong>✓ 正確答案：</strong>${escapeHtml(q.correct_answer)}</div>`;
         }
         if (q.ai_explanation) {
-            answerHtml += `<div style="margin-top: 0.25rem;"><strong>說明：</strong>${escapeHtml(q.ai_explanation)}</div>`;
+            answerHtml += `<div><strong>說明：</strong>${escapeHtml(q.ai_explanation)}</div>`;
         }
         answerHtml += '</div>';
     }
@@ -412,22 +256,21 @@ function createQuestionCard(q) {
     const starLabel = q.is_starred ? '取消收藏' : '收藏題目';
     
     card.innerHTML = `
-        <div class="question-header">
-            <div class="question-meta">
-                <span>${typeIcon} ${typeName}</span>
-                <span>·</span>
-                <span class="question-clickable law-link" data-law-id="${escapeHtml(q.law_id)}" style="color: var(--primary);">${escapeHtml(q.law_info.article_number)}</span>
+        <div class="question-item-head">
+            <div>
+                <span class="badge ${q.type === QUESTION_TYPES.MCQ ? 'badge-mcq' : 'badge-short'}">${typeIcon} ${typeName}</span>
+                <a class="law-link" href="/laws/${escapeHtml(q.law_id)}">${escapeHtml(q.law_info.article_number)}</a>
                 ${lawAccuracyHtml}
                 ${scoreBadgeHtml}
             </div>
-            <button class="star-btn"
+            <button class="icon-btn star-btn"
                     data-question-id="${escapeHtml(q._id)}"
                     data-is-starred="${q.is_starred}"
                     aria-label="${starLabel}">
                 ${starIcon}
             </button>
         </div>
-        <div class="question-content">${escapeHtml(q.content)}</div>
+        <div>${escapeHtml(q.content)}</div>
         ${optionsHtml}
         ${answerHtml}
     `;
@@ -539,12 +382,6 @@ questionsContainer.addEventListener('click', (e) => {
         return;
     }
     
-    // Handle law link clicks
-    if (e.target.classList.contains('law-link')) {
-        const lawId = e.target.getAttribute('data-law-id');
-        window.location.href = `/laws/${lawId}`;
-        return;
-    }
 });
 
 // Tab button handlers

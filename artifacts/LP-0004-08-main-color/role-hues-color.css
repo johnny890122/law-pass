@@ -1,0 +1,46 @@
+/* role-hues: color lives in flags. Each hue is a solid mark fixed to one
+ * meaning on every page, like the colored index flags in a 六法全書: the main
+ * color (--color-accent: actions, 選擇題, 作答題數), 簡答題 (--d-flag-short),
+ * 法條 (--d-flag-law), and the streak (--d-flag-streak). The values file sets
+ * each hue; this file only says where it goes. LP-0004-08 shares it across
+ * the purple, blue, and teal main colors. Flags are graphics, held to 3:1;
+ * text stays ink.
+ * Metric order follows the markup: 連續練習天數, 作答題數, 掌握題數,
+ * 平均得分率, 覆蓋法條數. Filter tab order: 全部, 選擇題, 簡答題. */
+
+/* Badges are flags: solid hue, white label */
+.badge-mcq { background: var(--color-accent); color: var(--color-accent-contrast); }
+.badge-short { background: var(--d-flag-short); color: var(--color-accent-contrast); }
+
+/* Flag keys in the ledger and on the question-type tabs. Unflagged metrics
+ * keep the space, so every label starts on the same edge. */
+.metric-label::before,
+.filter-tab:nth-child(2)::before,
+.filter-tab:nth-child(3)::before {
+  content: "";
+  display: inline-block;
+  width: 0.375rem;
+  height: 0.875em;
+  margin-right: var(--space-2);
+  vertical-align: -0.1em;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: var(--d-flag, transparent);
+}
+.metric:nth-child(1) { --d-flag: var(--d-flag-streak); }
+.metric:nth-child(2),
+.filter-tab:nth-child(2) { --d-flag: var(--color-accent); }
+.metric:nth-child(5) { --d-flag: var(--d-flag-law); }
+.filter-tab:nth-child(3) { --d-flag: var(--d-flag-short); }
+
+/* 法條: a flag stuck on the sheet's top edge, over the article head */
+.law-panel { position: relative; }
+.law-panel::before {
+  content: "";
+  position: absolute;
+  top: calc(var(--space-3) * -1);
+  left: var(--space-5);
+  width: 0.75rem;
+  height: var(--space-6);
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  background: var(--d-flag-law);
+}

@@ -1,0 +1,15 @@
+/* purple-line: color lives in lines. Panels, the law sheet, and quiz options
+ * take a 2px accent outline; every rule is the accent tint (--color-border).
+ * Headings and the ledger's numbers take the deep accent. */
+
+.card,
+.law-panel,
+.mcq-option,
+.mcq-option-review { border-width: var(--d-outline-width); }
+
+.card,
+.law-panel,
+.mcq-option-review { border-color: var(--color-accent); }
+
+h1, h2,
+.metric-value { color: var(--d-ink); }

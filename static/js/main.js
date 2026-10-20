@@ -229,29 +229,16 @@ document.addEventListener('DOMContentLoaded', async function() {
 });
 
 // ==================== Utilities ====================
-// Utility: Show toast notification
+// Utility: Show toast notification. style.css colors and places it by class.
 function showToast(message, type = 'info') {
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
+    toast.setAttribute('role', 'status');
     toast.textContent = message;
-    toast.style.cssText = `
-        position: fixed;
-        bottom: 2rem;
-        left: 50%;
-        transform: translateX(-50%);
-        background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
-        color: white;
-        padding: 1rem 1.5rem;
-        border-radius: 0.5rem;
-        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-        z-index: 1000;
-        animation: slideUp 0.3s ease;
-    `;
-    
     document.body.appendChild(toast);
-    
+
     setTimeout(() => {
-        toast.style.animation = 'slideDown 0.3s ease';
+        toast.classList.add('toast-leaving');
         setTimeout(() => toast.remove(), 300);
     }, 3000);
 }
@@ -321,33 +308,6 @@ const storage = {
         localStorage.removeItem(key);
     }
 };
-
-// Add CSS animation keyframes
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideUp {
-        from {
-            transform: translateX(-50%) translateY(100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-        }
-    }
-    
-    @keyframes slideDown {
-        from {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-        }
-        to {
-            transform: translateX(-50%) translateY(100%);
-            opacity: 0;
-        }
-    }
-`;
-document.head.appendChild(style);
 
 // ==================== Additional Law Type Utilities ====================
 // Get available law types

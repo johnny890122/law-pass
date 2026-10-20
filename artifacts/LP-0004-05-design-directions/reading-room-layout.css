@@ -1,0 +1,191 @@
+/* reading-room: direction tier. One quiet header row at every width; on
+ * phone the nav, 中/EN, and the user menu fold into a menu opened from the
+ * current page's name (the capture's below-860px pattern). Content sits on
+ * the page, not in cards; law text and question stems are a sunken document.
+ * Phone first. */
+
+/* Header */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--color-surface);
+  border-bottom: var(--border-width) solid var(--color-border);
+  padding-block: var(--space-2);
+  padding-left: max(var(--space-3), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--space-3), env(safe-area-inset-right, 0px));
+}
+.header-content {
+  position: relative;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.logo { display: flex; align-items: center; min-height: 2.75rem; color: var(--color-accent); }
+.logo:hover { color: var(--color-accent-hover); }
+.menu-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 2.75rem;
+  padding-inline: var(--space-2);
+  border-radius: var(--radius);
+  font-weight: var(--weight-emphasis);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.menu-trigger::after {
+  content: "";
+  width: 0.4em;
+  height: 0.4em;
+  border-right: var(--border-width) solid currentColor;
+  border-bottom: var(--border-width) solid currentColor;
+  transform: translateY(-25%) rotate(45deg);
+}
+.menu-trigger:hover { background: var(--color-surface-hover); }
+.menu-toggle:focus-visible + .menu-trigger { outline: var(--focus-ring-width) solid var(--color-focus); outline-offset: var(--focus-ring-offset); }
+.law-type-selector { margin-left: auto; width: 9rem; }
+
+/* Phone menu: closed at rest */
+.menu { display: none; }
+.menu-toggle:checked ~ .menu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  left: 0;
+  right: 0;
+  padding: var(--space-3);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-overlay);
+}
+.nav { display: flex; flex-direction: column; }
+.nav-link { display: flex; align-items: center; min-height: 2.75rem; padding-inline: var(--space-2); border-radius: var(--radius); color: var(--color-text); }
+.nav-link:hover { background: var(--color-surface-hover); color: var(--color-text); text-decoration: none; }
+.nav-link.active { color: var(--color-accent); font-weight: var(--weight-emphasis); }
+.header-right { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding-top: var(--space-3); border-top: var(--border-width) solid var(--color-border); }
+.user-menu { display: flex; align-items: center; gap: var(--space-2); min-width: 0; }
+
+/* Page */
+.page {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding-block: var(--space-4) var(--space-6);
+  padding-left: max(var(--space-3), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--space-3), env(safe-area-inset-right, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+.column { width: 100%; max-width: 46rem; margin-inline: auto; display: flex; flex-direction: column; gap: var(--space-5); }
+.arrow-link { align-self: flex-start; font-weight: var(--weight-emphasis); }
+.section-title { font-size: var(--text-lg); margin-bottom: var(--space-3); }
+
+/* The document: law text and question stems */
+.document {
+  background: var(--color-surface-sunken);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-3);
+  font-family: var(--font-law);
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+}
+.document > * { max-width: var(--measure); }
+
+/* Dashboard */
+.lead { display: flex; flex-direction: column; gap: var(--space-3); }
+.chapter-list { display: flex; flex-direction: column; gap: var(--space-2); }
+.chapter-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  color: var(--color-text);
+  font-family: var(--font-law);
+  font-size: var(--text-base);
+}
+.chapter-card:hover { background: var(--color-surface-hover); border-color: var(--color-border-strong); color: var(--color-text); text-decoration: none; }
+.tips { color: var(--color-text-muted); font-size: var(--text-sm); }
+.tips h2 { font-size: var(--text-sm); color: var(--color-text); margin-bottom: var(--space-2); }
+.tips li { padding-block: var(--space-1); }
+
+/* Quiz */
+.quiz-progress { display: flex; flex-direction: column; gap: var(--space-2); }
+.progress-info { display: flex; justify-content: space-between; font-size: var(--text-sm); color: var(--color-text-muted); }
+.progress-count { font-variant-numeric: tabular-nums; }
+.quiz-progress .progress-bar { height: 0.25rem; }
+.question-meta { display: flex; align-items: center; gap: var(--space-3); font-size: var(--text-sm); color: var(--color-text-muted); }
+.question-card { display: flex; flex-direction: column; gap: var(--space-4); }
+.question-content { font-size: var(--text-lg); }
+.mcq-options { display: flex; flex-direction: column; gap: var(--space-2); }
+.mcq-option { padding: var(--space-3); }
+.result-card { display: flex; flex-direction: column; gap: var(--space-4); }
+.result-section .result-label { margin-bottom: var(--space-2); }
+.mcq-options-review { display: flex; flex-direction: column; gap: var(--space-2); }
+.mcq-option-review { padding: var(--space-3); }
+.result-actions { display: grid; grid-template-columns: auto auto; justify-content: start; gap: var(--space-2); }
+
+/* Law detail */
+.law-article { display: flex; flex-direction: column; gap: var(--space-4); }
+.law-head { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-3); }
+.law-head > div { min-width: 0; }
+.law-chapter { font-size: var(--text-sm); color: var(--color-text-muted); }
+.law-head h1 { font-family: var(--font-law); font-size: var(--text-xl); margin-block: var(--space-1); }
+.law-meta { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-3); font-size: var(--text-sm); color: var(--color-text-muted); }
+.law-content { display: flex; flex-direction: column; gap: var(--space-3); }
+.filter-tabs { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-3); }
+.question-list { display: flex; flex-direction: column; }
+.question-item { display: flex; flex-direction: column; gap: var(--space-3); padding-block: var(--space-4); border-top: var(--border-width) solid var(--color-border); }
+.question-item-head { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); }
+.question-item-head > div { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.item-stem { font-family: var(--font-law); font-size: var(--text-base); }
+.item-index { color: var(--color-text-muted); font-size: var(--text-sm); font-variant-numeric: tabular-nums; }
+.item-options { display: flex; flex-direction: column; gap: var(--space-1); font-size: var(--text-sm); color: var(--color-text-muted); }
+.item-answer { font-size: var(--text-sm); }
+.item-answer strong { color: var(--color-success); margin-right: var(--space-2); }
+.explain-body { margin-top: var(--space-2); font-size: var(--text-sm); color: var(--color-text-muted); }
+.text-danger { color: var(--color-danger); font-size: var(--text-sm); font-weight: var(--weight-emphasis); }
+.text-success { color: var(--color-success); font-size: var(--text-sm); }
+
+/* Tablet and up: the menu unfolds into the header row */
+@media (min-width: 768px) {
+  .header { padding-block: var(--space-3); padding-left: max(var(--space-4), env(safe-area-inset-left, 0px)); padding-right: max(var(--space-4), env(safe-area-inset-right, 0px)); }
+  .header-content { gap: var(--space-3); }
+  .menu-trigger { display: none; }
+  .menu, .menu-toggle:checked ~ .menu { display: contents; }
+  .law-type-selector { order: 1; margin-left: 0; }
+  .nav { flex-direction: row; margin-right: auto; }
+  .nav-link { padding-inline: var(--space-3); color: var(--color-text-muted); }
+  .header-right { order: 2; padding-top: 0; border-top: 0; }
+  .user-name { display: none; }
+  .page { padding-block: var(--space-6); padding-left: max(var(--space-4), env(safe-area-inset-left, 0px)); padding-right: max(var(--space-4), env(safe-area-inset-right, 0px)); }
+  .document { padding: var(--space-5) var(--space-6); }
+}
+
+@media (min-width: 1024px) {
+  .user-name { display: block; max-width: 8rem; }
+  .page { padding-block: var(--space-7); }
+  .dash {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    grid-template-areas: "lead chapters" "tips chapters";
+    grid-template-rows: auto 1fr;
+    gap: var(--space-6) var(--space-7);
+    align-items: start;
+    align-content: start;
+    max-width: 72rem;
+  }
+  .dash .lead { grid-area: lead; }
+  .dash .chapters { grid-area: chapters; }
+  .dash .tips { grid-area: tips; }
+  .law-head h1 { font-size: var(--text-2xl); }
+}

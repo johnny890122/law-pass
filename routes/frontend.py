@@ -14,10 +14,12 @@ frontend_bp = Blueprint('frontend', __name__)
 def dashboard():
     """
     S-01 Home / Dashboard
-    Entry point showing streak, starred laws count, and quick actions.
+    Entry point showing the five all-time progress numbers for the current
+    law type, the start block, and tips (LP-0004-07).
     Requires authentication.
     """
-    return render_template('dashboard.html')
+    summary = get_progress_summary(get_current_user(), None, get_current_law_type())
+    return render_template('dashboard.html', summary=summary)
 
 
 @frontend_bp.route('/laws')

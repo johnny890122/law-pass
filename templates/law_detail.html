@@ -3,109 +3,86 @@
 {% block title %}法條詳情 - 專利法 AI 刷題助手{% endblock %}
 
 {% block content %}
-<div class="container">
-    <!-- Back Button -->
-    <div style="margin-bottom: 1rem;">
-        <a href="/laws" class="btn btn-secondary">
-            ← 返回法條列表
-        </a>
-    </div>
+<a href="/laws" class="back-link">← 返回法條列表</a>
 
-    <!-- Loading State -->
-    <div id="loading" class="loading">
-        <div class="spinner"></div>
-        <p class="loading-text">載入中...</p>
-    </div>
+<!-- Loading State -->
+<div id="loading" class="loading">
+    <div class="spinner"></div>
+    <p class="loading-text">載入中...</p>
+</div>
 
-    <!-- Error State -->
-    <div id="error-state" class="card" style="display: none;">
-        <h2 style="color: var(--error-color);">⚠️ 載入失敗</h2>
-        <p id="error-message">無法載入法條資料</p>
-        <a href="/laws" class="btn btn-primary">返回法條列表</a>
-    </div>
+<!-- Error State -->
+<div id="error-state" class="card empty-state" style="display: none;">
+    <h2 class="empty-state-title error-title">⚠️ 載入失敗</h2>
+    <p class="empty-state-text" id="error-message">無法載入法條資料</p>
+    <a href="/laws" class="btn btn-primary">返回法條列表</a>
+</div>
 
-    <!-- Law Detail Card -->
-    <div id="law-detail" style="display: none;">
-        <!-- Law Info Card -->
-        <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
-                <div style="flex: 1;">
-                    <h1 class="card-title" id="law-article" style="margin-bottom: 0.25rem;">載入中...</h1>
-                    <p class="card-subtitle" id="law-chapter" style="margin-bottom: 0.5rem;">載入中...</p>
-                    <!-- Compact Statistics -->
-                    <div class="law-stats-compact">
-                        <span class="stat-badge">
-                            <span class="stat-icon">📊</span>
-                            <span id="attempt-count">0</span> 次作答
-                        </span>
-                        <span class="stat-separator">·</span>
-                        <span class="stat-badge">
-                            <span class="stat-icon">✓</span>
-                            平均 <span id="avg-score">0.0</span>
-                        </span>
-                    </div>
-                </div>
-                <button
-                    id="star-btn"
-                    class="btn btn-outline"
-                    style="font-size: 1.5rem; padding: 0.5rem 1rem;"
-                    title="收藏此法條"
-                >
-                    ☆
-                </button>
+<!-- Law Detail: the sheet, then the related questions panel -->
+<div id="law-detail" class="law" style="display: none;">
+    <section class="law-panel">
+        <div class="law-head">
+            <div>
+                <h1 id="law-article">載入中...</h1>
+                <p class="law-meta">
+                    <span id="law-chapter">載入中...</span>
+                    <span class="law-stats-compact">
+                        <span><span id="attempt-count">0</span> 次作答</span>
+                        <span>✓ 平均 <span id="avg-score">0.0</span></span>
+                    </span>
+                </p>
             </div>
-            
-            <div class="law-content" id="law-content">
-                載入中...
-            </div>
+            <button id="star-btn" class="btn btn-outline btn-star btn-icon" title="收藏此法條">☆</button>
+        </div>
+        <div class="law-content law-text" id="law-content">
+            載入中...
+        </div>
+    </section>
+
+    <section class="card">
+        <h2 class="card-title">相關題目</h2>
+
+        <!-- Filter Tabs -->
+        <div class="filter-tabs">
+            <button class="filter-tab active" data-filter="all">
+                全部 (<span id="count-all">0</span>)
+            </button>
+            <button class="filter-tab" data-filter="MCQ" data-flag="accent">
+                選擇題 (<span id="count-mcq">0</span>)
+            </button>
+            <button class="filter-tab" data-filter="ShortAnswer" data-flag="short">
+                簡答題 (<span id="count-short">0</span>)
+            </button>
+            <button class="filter-tab" data-filter="starred">
+                已收藏 (<span id="count-starred">0</span>)
+            </button>
+            <button class="filter-tab" data-filter="marked-wrong">
+                答錯題 (<span id="count-wrong">0</span>)
+            </button>
+            <button class="filter-tab" data-filter="deleted">
+                已刪除 (<span id="count-deleted">0</span>)
+            </button>
         </div>
 
-        <!-- Questions History Card -->
-        <div class="card">
-            <h2 class="card-title">📝 相關題目</h2>
-            
-            <!-- Filter Tabs -->
-            <div class="filter-tabs" style="margin: 1rem 0;">
-                <button class="filter-tab active" data-filter="all">
-                    全部 (<span id="count-all">0</span>)
-                </button>
-                <button class="filter-tab" data-filter="MCQ">
-                    選擇題 (<span id="count-mcq">0</span>)
-                </button>
-                <button class="filter-tab" data-filter="ShortAnswer">
-                    簡答題 (<span id="count-short">0</span>)
-                </button>
-                <button class="filter-tab" data-filter="starred">
-                    已收藏 (<span id="count-starred">0</span>)
-                </button>
-                <button class="filter-tab" data-filter="marked-wrong">
-                    答錯題 (<span id="count-wrong">0</span>)
-                </button>
-                <button class="filter-tab" data-filter="deleted">
-                    已刪除 (<span id="count-deleted">0</span>)
-                </button>
-            </div>
-            
-            <!-- Questions List -->
-            <div id="questions-list">
-                <!-- Questions will be loaded here -->
-            </div>
-            
-            <!-- Pagination -->
-            <div id="questions-pagination" class="pagination" style="display: none;">
-                <button class="pagination-btn" id="prev-page-btn" disabled>← 上一頁</button>
-                <span class="pagination-info" id="page-info">第 1 頁 / 共 1 頁</span>
-                <button class="pagination-btn" id="next-page-btn">下一頁 →</button>
-            </div>
-            
-            <!-- Empty State -->
-            <div id="questions-empty" class="empty-state" style="display: none;">
-                <div class="empty-state-icon">📭</div>
-                <div class="empty-state-title">尚無相關題目</div>
-                <p class="empty-state-text">此法條還沒有生成過題目</p>
-            </div>
+        <!-- Questions List -->
+        <div id="questions-list" class="question-list">
+            <!-- Questions will be loaded here -->
         </div>
-    </div>
+
+        <!-- Pagination -->
+        <div id="questions-pagination" class="pagination" style="display: none;">
+            <button class="pagination-btn" id="prev-page-btn" disabled>← 上一頁</button>
+            <span class="pagination-info" id="page-info">第 1 頁 / 共 1 頁</span>
+            <button class="pagination-btn" id="next-page-btn">下一頁 →</button>
+        </div>
+
+        <!-- Empty State -->
+        <div id="questions-empty" class="empty-state" style="display: none;">
+            <div class="empty-state-icon">📭</div>
+            <div class="empty-state-title">尚無相關題目</div>
+            <p class="empty-state-text">此法條還沒有生成過題目</p>
+        </div>
+    </section>
 </div>
 {% endblock %}
 
@@ -132,7 +109,7 @@
         // Filter tabs
         document.querySelectorAll('.filter-tab').forEach(tab => {
             tab.addEventListener('click', (e) => {
-                const filter = e.target.dataset.filter;
+                const filter = e.currentTarget.dataset.filter;
                 setFilter(filter);
             });
         });
@@ -182,12 +159,12 @@
             
             // Hide loading, show content
             document.getElementById('loading').style.display = 'none';
-            document.getElementById('law-detail').style.display = 'block';
+            document.getElementById('law-detail').style.display = '';
             
         } catch (error) {
             console.error('Error loading law detail:', error);
             document.getElementById('loading').style.display = 'none';
-            document.getElementById('error-state').style.display = 'block';
+            document.getElementById('error-state').style.display = '';
             document.getElementById('error-message').textContent = error.message || '無法載入法條資料';
         }
     }
@@ -217,7 +194,7 @@
         // Update star button
         const starBtn = document.getElementById('star-btn');
         starBtn.textContent = lawData.is_starred ? '★' : '☆';
-        starBtn.style.color = lawData.is_starred ? 'var(--warning-color)' : '';
+        starBtn.classList.toggle('starred', !!lawData.is_starred);
         
         // Update statistics (only show if there are attempts)
         const statsContainer = document.querySelector('.law-stats-compact');
@@ -293,10 +270,10 @@
         
         if (filteredQuestions.length === 0) {
             listEl.style.display = 'none';
-            emptyEl.style.display = 'block';
+            emptyEl.style.display = '';
             paginationEl.style.display = 'none';
         } else {
-            listEl.style.display = 'block';
+            listEl.style.display = '';
             emptyEl.style.display = 'none';
             
             // Update pagination controls
@@ -310,79 +287,33 @@
             }
             
             listEl.innerHTML = paginatedQuestions.map((q, index) => `
-                <div class="question-item ${q.is_deleted ? 'deleted' : ''}" style="
-                    border: 1px solid var(--border-color);
-                    border-radius: 0.5rem;
-                    padding: 1rem;
-                    margin-bottom: 1rem;
-                    ${q.is_deleted ? 'opacity: 0.6; background-color: var(--bg-color);' : ''}
-                ">
-                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
-                        <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-                            <span class="question-type-badge ${q.type === 'MCQ' ? 'badge-mcq' : 'badge-short'}" style="
-                                display: inline-block;
-                                padding: 0.25rem 0.75rem;
-                                border-radius: 1rem;
-                                font-size: 0.875rem;
-                                font-weight: 500;
-                            ">
-                                ${q.type === 'MCQ' ? '選擇題' : '簡答題'}
-                            </span>
-                            ${q.is_deleted ? '<span style="color: var(--danger-color); margin-left: 0.5rem;">🗑️ 已刪除</span>' : ''}
-                            ${!q.is_deleted && q.is_marked_wrong ? `
-                                <span style="color: var(--danger-color); font-size: 0.875rem; font-weight: 500;">
-                                    ✗ 答錯 (${Math.round((q.last_score || 0) * 100)}%)
-                                </span>
-                            ` : ''}
-                            ${!q.is_deleted && !q.is_marked_wrong && q.last_score !== undefined ? `
-                                <span style="color: var(--success-color); font-size: 0.875rem;">
-                                    ✓ ${Math.round(q.last_score * 100)}%
-                                </span>
-                            ` : ''}
+                <div class="question-item ${q.is_deleted ? 'deleted' : ''}">
+                    <div class="question-item-head">
+                        <div>
+                            <span class="badge ${q.type === 'MCQ' ? 'badge-mcq' : 'badge-short'}">${q.type === 'MCQ' ? '選擇題' : '簡答題'}</span>
+                            ${q.is_deleted ? '<span class="text-danger">🗑️ 已刪除</span>' : ''}
+                            ${!q.is_deleted && q.is_marked_wrong ? `<span class="text-danger">✗ 答錯 (${Math.round((q.last_score || 0) * 100)}%)</span>` : ''}
+                            ${!q.is_deleted && !q.is_marked_wrong && q.last_score !== undefined ? `<span class="text-success">✓ ${Math.round(q.last_score * 100)}%</span>` : ''}
                         </div>
-                        <div style="display: flex; gap: 0.5rem; align-items: center;">
-                            <span style="color: var(--text-secondary); font-size: 0.875rem;">
-                                #${startIdx + index + 1}
-                            </span>
+                        <div>
+                            <span class="item-index">#${startIdx + index + 1}</span>
                             ${!q.is_deleted ? `
                                 <button
-                                    class="btn-icon-small"
+                                    class="icon-btn star-btn ${q.is_starred ? 'starred' : ''}"
                                     onclick="toggleQuestionStar('${q._id}')"
                                     title="${q.is_starred ? '取消收藏' : '收藏題目'}"
-                                    style="color: ${q.is_starred ? 'var(--warning-color)' : 'var(--text-secondary)'};"
-                                >
-                                    ${q.is_starred ? '★' : '☆'}
-                                </button>
+                                >${q.is_starred ? '★' : '☆'}</button>
                             ` : ''}
                         </div>
                     </div>
-                    <div style="margin-bottom: 0.75rem; color: var(--text-primary);">
-                        ${q.content}
-                    </div>
+                    <div>${q.content}</div>
                     ${q.type === 'MCQ' && q.options ? `
-                        <div style="margin-bottom: 0.75rem; display: flex; flex-direction: column; gap: 0.25rem;">
-                            ${q.options.map((opt, i) => `
-                                <div style="padding: 0.5rem; background: var(--bg-color); border-radius: 0.25rem; font-size: 0.875rem;">
-                                    ${opt}
-                                </div>
-                            `).join('')}
-                        </div>
+                        <div class="item-options">${q.options.map(opt => `<div>${opt}</div>`).join('')}</div>
                     ` : ''}
-                    <div style="padding: 0.75rem; background: rgba(16, 185, 129, 0.1); border-left: 3px solid var(--success-color); border-radius: 0.25rem; margin-bottom: 0.5rem;">
-                        <div style="font-weight: 500; color: var(--success-color); margin-bottom: 0.25rem; font-size: 0.875rem;">
-                            ✓ 正確答案
-                        </div>
-                        <div style="font-size: 0.875rem;">
-                            ${q.correct_answer}
-                        </div>
-                    </div>
-                    <details style="margin-top: 0.75rem;">
-                        <summary style="cursor: pointer; color: var(--primary-color); font-weight: 500; font-size: 0.875rem;">
-                            💡 查看解析
-                        </summary>
-                        <div style="margin-top: 0.5rem; padding: 0.75rem; background: var(--bg-color); border-radius: 0.25rem; font-size: 0.875rem; color: var(--text-secondary);">
-                            ${q.ai_explanation}
-                        </div>
+                    <div class="item-answer"><strong>✓ 正確答案</strong>${q.correct_answer}</div>
+                    <details class="explain">
+                        <summary>💡 查看解析</summary>
+                        <div class="explain-body">${q.ai_explanation}</div>
                     </details>
                 </div>
             `).join('');
@@ -419,7 +350,7 @@
             // Update button
             const starBtn = document.getElementById('star-btn');
             starBtn.textContent = lawData.is_starred ? '★' : '☆';
-            starBtn.style.color = lawData.is_starred ? 'var(--warning-color)' : '';
+            starBtn.classList.toggle('starred', !!lawData.is_starred);
             
             window.appUtils.showToast(response.message, 'success');
             

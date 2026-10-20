@@ -38,6 +38,10 @@ tickets, so it runs here, separate from the code ticket.
   7. Deploy. `init_db()` builds `email_1`.
   8. Rotate `SECRET_KEY`.
   9. Smoke test on Heroku with two test accounts that sign themselves up.
+  10. Set `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`, and
+      `OPENROUTER_GRADING_MODEL`, only after `LP-0002-05`'s grading cap is
+      deployed. Deferred from `LP-0008` on 2026-10-17. The grading var is
+      required, because the code default is no longer listed on OpenRouter.
 - Changed on 2026-10-17 (`LP-0003`): `law-pass` starts on a new, empty
   Atlas database, because the old one is unreachable. Its only users are
   the ones `scripts/add_user.py` creates before the cutover, and the old app
@@ -72,6 +76,8 @@ tickets, so it runs here, separate from the code ticket.
       email.
 - [ ] Deployed: the boot log shows `init_db()` completing, and `SECRET_KEY`
       is rotated.
+- [ ] The three OpenRouter vars are set only after `LP-0002-05` is deployed,
+      and one answer is graded on Heroku.
 - [ ] `pytest` and `flake8`: none — no code changes.
 - [ ] Seen working on Heroku: two test accounts sign themselves up over
       `https://`. A logout then shows Google's account chooser.
@@ -89,7 +95,8 @@ tickets, so it runs here, separate from the code ticket.
 - `docs/prd/LP-0002-01-google-sign-in.md` (Rollout)
 - `scripts/migrations/20261016_remove_username_only_users.py`
 - `docs/modules/db/data-model.md`
-- `docs/issues/in_progress/LP-0003-heroku-ci-cd.md`
+- `docs/issues/resolved/LP-0003-heroku-ci-cd.md`
+- `docs/issues/resolved/LP-0008-heroku-config-vars.md`
 - `docs/issues/pending/LP-0002-invite-only-beta/LP-0002-05-grading-daily-cap.md`
 
 ## Handoff Appendix

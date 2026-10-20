@@ -51,16 +51,30 @@ with every page holding at phone, tablet, and desktop.
   - `LP-0004-02` `neta-design` skill, merged from `design-variants` (`ui`).
   - `LP-0004-03` RWD pass: every page holds at all three viewports on the
     current CSS (`ui`).
-  - `LP-0004-04` Capture the first reference site(s) with `site-capture`.
-    Filed once the reference URLs are named.
-  - `LP-0004-05` Design-system directions: `neta-design` builds two or three
-    directions from the captures on real law_pass screens, and the user
-    picks. Artifact required.
-  - `LP-0004-06` Adopt the chosen design system: its tokens replace the
-    Figma files in `static/css/`, and `style.css` and `templates/` migrate
-    onto it. The PRD call is made when it is filed.
-- Order: `01` → `02` → `04` → `05` → `06`. `02`'s token section reads the
-  output format `01` defines. `03` depends on nothing and lands before `06`,
+  - `LP-0004-04` Capture `dotnet.microsoft.com` (home and `/en-us/learn`)
+    with `site-capture` (`docs`).
+  - `LP-0004-05` Three design-system directions from that capture on the
+    dashboard, quiz session, and law detail screens. The user picks and
+    iterates. Artifact required (`ui`). The user picked the `dense-tabbar`
+    layout. Color went to `LP-0004-06`.
+  - `LP-0004-06` Three color variants on the `dense-tabbar` layout, drawn
+    from the same capture. The user picks the palette. Artifact required
+    (`ui`). The user picked `role-hues`. Its main color went to
+    `LP-0004-08`.
+  - `LP-0004-07` Adopt the picked layout and palette: its values file replaces both
+    Figma token files in `static/css/`, `style.css` and `templates/`
+    migrate onto the contract names, and the MUI CDN is dropped. One
+    story, filed once `LP-0004-08`'s `DECISION.md` lands, because its
+    scope depends on the pick. Filed, covering every page, with a PRD. The PRD call is made then: `/` must also
+    load the progress numbers the `dense-tabbar` dashboard opens on.
+  - `LP-0004-08` Compare `role-hues` with blue and with a derived teal as its
+    main color, against the purple baseline. The user picks. Artifact
+    required (`ui`). The user picked teal.
+  - `LP-0004-09` Dark mode on the adopted tokens, with each learner's
+    choice stored in a new `user_ui_flags` collection. Artifact and PRD
+    required (`ui`).
+- Order: `01` → `02` → `04` → `05` → `06` → `08` → `07` → `09`. `02`'s token section reads the
+  output format `01` defines. `03` depends on nothing and lands before `07`,
   so adoption starts from a layout that already holds and only has to keep
   it holding.
 
@@ -77,10 +91,53 @@ Confirmed with the user on 2026-10-17:
   1440x900. The tablet viewport joins the artifact contract and the done
   gate.
 
-- No artifact at the epic level. `LP-0004-05` carries the visual choice.
+Confirmed with the user on 2026-10-18:
+
+- The reference site is `https://dotnet.microsoft.com/en-us/`, recorded
+  without the `?utm_source=tailwindcss` referral tag. The slug is
+  `dotnet-microsoft-com`, and the capture covers the homepage and
+  `/en-us/learn` only.
+- The .NET accent purple is a token, taken from the capture like every
+  other value, and not a branded motif.
+- Directions: three, applied to the dashboard, quiz session, and law
+  detail screens. One keeps today's layout as the baseline. All four layout
+  axes are open: phone navigation, density, dashboard entry point, and law
+  text treatment.
+- Adoption retires `design-tokens.css` and `design-tokens-dark.css`. Nobody
+  regenerates them from Figma.
+- Adoption drops the MUI 0.10.3 CDN from `base.html`. No template or script
+  uses a `mui-` class, so it supplies only a global reset.
+
+Confirmed with the user on 2026-10-19:
+
+- The `dense-tabbar` layout wins `LP-0004-05`. Its colors read gray, not
+  like the example, so color is a separate story, `LP-0004-06`. Adoption
+  becomes `LP-0004-07`.
+- The color variants draw only from the dotnet capture. They change color
+  roles and line weight, not type, spacing, radius, or layout. The capture's
+  four card hues may appear fixed to roles, never rotating, and gradients
+  stay out.
+- After the first `LP-0004-06` review, the user asked for a less-AI pass.
+  It reopened the panel treatment, the metric strip's form, and the emoji
+  section markers. All text is 黑體, with no Ming face anywhere.
+- `role-hues` wins `LP-0004-06`. Before adoption, `LP-0004-08` compares its
+  main color, purple, with the capture's blue and a teal. The teal is the
+  one value allowed from outside the dotnet capture, marked `derived:` with
+  its reason. Adoption follows `LP-0004-08`.
+- Teal wins `LP-0004-08`. `LP-0004-07` adopts the teal `role-hues` palette on
+  every page in one story, and the dashboard's five numbers cover all time.
+
+Confirmed with the user on 2026-10-20:
+
+- Dark mode joins the epic as `LP-0004-09`. It offers light and dark only,
+  with light as the default, and derives its dark values from the light
+  tokens. The choice is stored per user in `user_ui_flags`.
+
+- No artifact at the epic level. `LP-0004-05` and `LP-0004-06` carry the
+  visual choices.
 - Out of scope: copying any reference asset, copy, logo, or branded motif;
-  dark mode (`design-tokens-dark.css` is not wired today); new pages or
-  routes; UI copy changes.
+  new pages or routes beyond `LP-0004-09`'s save route; UI copy changes
+  beyond `LP-0004-09`'s toggle label.
 
 ## Acceptance Criteria
 
@@ -89,7 +146,7 @@ Confirmed with the user on 2026-10-17:
       invokes them. `design-variants` appears only in changelog entries and
       `LP-0001` tickets.
 - [ ] Every page passes the three-viewport check: no page scroll and no
-      overflowing element. `LP-0004-03` sets this and `LP-0004-06` keeps it.
+      overflowing element. `LP-0004-03` sets this and `LP-0004-07` keeps it.
 - [ ] `pytest` green: covered by the child stories.
 - [ ] `flake8` clean: covered by the child stories.
 - [ ] Seen working: covered by each child story.
@@ -98,8 +155,7 @@ Confirmed with the user on 2026-10-17:
 
 ## Open Questions
 
-- Which reference site(s) does the design system draw from? This blocks
-  filing `LP-0004-04`. It does not block `01`–`03`.
+- None.
 
 ## Related Files
 
@@ -111,13 +167,9 @@ Confirmed with the user on 2026-10-17:
 - `static/css/design-tokens-dark.css`
 - `static/css/style.css`
 - `templates/`
+- `docs/references/dotnet-microsoft-com/`
+- `artifacts/LP-0004-05-design-directions/`
+- `artifacts/LP-0004-06-color-variants/`
+- `artifacts/LP-0004-08-main-color/`
+- `artifacts/LP-0004-09-dark-mode/`
 - `docs/issues/*/LP-0004-design-system/`
-
-## Handoff Appendix
-
-### Deferred Decisions
-
-- Whether anyone still regenerates `design-tokens*.css` from Figma. Decided
-  when `LP-0004-06` is filed, since that story retires the Figma files.
-- Whether adoption drops the MUI CDN (`mui-0.10.3`, loaded in `base.html`).
-  Decided when `LP-0004-06` is filed.

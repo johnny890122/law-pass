@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>LP-0004-06 · purple-tint · 法條詳情</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="../../.claude/skills/neta-design/tokens/purple-tint.css">
+  <link rel="stylesheet" href="system.css">
+  <link rel="stylesheet" href="dense-tabbar-layout.css">
+  <link rel="stylesheet" href="purple-tint-color.css">
+</head>
+<body>
+  <header class="shell">
+    <a href="#" class="logo" title="專利法刷題">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+    </a>
+    <div class="law-type-selector select-wrap">
+      <select id="law-type-select" class="law-type-select" title="選擇法律類型">
+        <option selected>專利法</option><option>專利審查基準</option><option>訴願法</option><option>行政訴訟法</option>
+      </select>
+    </div>
+    <nav class="nav">
+      <a href="#" class="nav-link"><span>首頁</span></a>
+      <a href="#" class="nav-link active" aria-current="page"><span>法條瀏覽</span></a>
+      <a href="#" class="nav-link"><span>題庫</span></a>
+      <a href="#" class="nav-link"><span>我的進度</span></a>
+    </nav>
+    <div class="header-right">
+      <div class="lang-toggle">
+        <button id="lang-zh" class="lang-btn active" title="切換到中文">中</button>
+        <button id="lang-en" class="lang-btn" title="Switch to English">EN</button>
+      </div>
+      <div class="user-menu">
+        <!-- stand-in --><span id="user-display-name" class="user-name">王小明</span>
+        <button id="logout-btn" class="icon-btn btn-logout" title="登出">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main law">
+    <a href="#" class="back-link">← 返回法條列表</a>
+
+    <section class="law-panel" id="law-detail">
+      <div class="law-head">
+        <div>
+          <h1 id="law-article">第 22 條</h1>
+          <!-- stand-in: attempt count and average -->
+          <p class="law-meta">
+            <span id="law-chapter">第 二 章 發明專利</span>
+            <span><span id="attempt-count">2</span> 次作答</span>
+            <span>✓ 平均 <span id="avg-score">43%</span></span>
+          </p>
+        </div>
+        <button id="star-btn" class="btn btn-outline btn-star btn-icon" title="收藏此法條">☆</button>
+      </div>
+      <!-- 專利法第 22 條, verbatim from knowledge/patent_law_zh.md -->
+      <div class="law-content law-text" id="law-content">
+        <p><span class="para-num">1</span><span>可供產業上利用之發明，無下列情事之一，得依本法申請取得發明專利：<br>一、申請前已見於刊物者。<br>二、申請前已公開實施者。<br>三、申請前已為公眾所知悉者。</span></p>
+        <p><span class="para-num">2</span><span>發明雖無前項各款所列情事，但為其所屬技術領域中具有通常知識者依申請前之先前技術所能輕易完成時，仍不得取得發明專利。</span></p>
+        <p><span class="para-num">3</span><span>申請人出於本意或非出於本意所致公開之事實發生後十二個月內申請者，該事實非屬第一項各款或前項不得取得發明專利之情事。</span></p>
+        <p><span class="para-num">4</span><span>因申請專利而在我國或外國依法於公報上所為之公開係出於申請人本意者，不適用前項規定。</span></p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">相關題目</h2>
+      <!-- stand-in: counts -->
+      <div class="filter-tabs">
+        <button class="filter-tab active">全部 (2)</button>
+        <button class="filter-tab">選擇題 (1)</button>
+        <button class="filter-tab">簡答題 (1)</button>
+        <button class="filter-tab">已收藏 (1)</button>
+        <button class="filter-tab">答錯題 (1)</button>
+        <button class="filter-tab">已刪除 (0)</button>
+      </div>
+
+      <!-- stand-in: two generated questions -->
+      <div class="question-list" id="questions-list">
+        <div class="question-item">
+          <div class="question-item-head">
+            <div><span class="badge badge-mcq">選擇題</span><span class="text-danger">✗ 答錯 (0%)</span></div>
+            <div><span class="item-index">#1</span><button class="icon-btn starred" title="取消收藏">★</button></div>
+          </div>
+          <div>依專利法第 22 條第 3 項，申請人出於本意或非出於本意所致公開之事實發生後，於下列何期間內申請者，該事實非屬不得取得發明專利之情事？</div>
+          <div class="item-options"><div>A. 六個月內</div><div>B. 十二個月內</div><div>C. 十八個月內</div><div>D. 二十四個月內</div></div>
+          <div class="item-answer"><strong>✓ 正確答案</strong>B. 十二個月內</div>
+          <details class="explain">
+            <summary>💡 查看解析</summary>
+            <div class="explain-body">第 22 條第 3 項給予發明專利十二個月的優惠期。</div>
+          </details>
+        </div>
+        <div class="question-item">
+          <div class="question-item-head">
+            <div><span class="badge badge-short">簡答題</span><span class="text-success">✓ 85%</span></div>
+            <div><span class="item-index">#2</span><button class="icon-btn" title="收藏題目">☆</button></div>
+          </div>
+          <div>請說明專利法第 22 條第 2 項進步性的判斷主體與判斷基準。</div>
+          <div class="item-answer"><strong>✓ 正確答案</strong>判斷主體為該發明所屬技術領域中具有通常知識者，判斷基準為申請前之先前技術；能輕易完成者，不得取得發明專利。</div>
+          <details class="explain">
+            <summary>💡 查看解析</summary>
+            <div class="explain-body">第 2 項是進步性要件，與第 1 項的新穎性要件分開判斷。</div>
+          </details>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

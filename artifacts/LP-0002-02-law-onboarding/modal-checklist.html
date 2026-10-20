@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LP-0002-02 · modal checklist</title>
+  <link rel="icon" href="data:,">
+  <link href="https://cdn.muicss.com/mui-0.10.3/css/mui.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../static/css/design-tokens.css">
+  <link rel="stylesheet" href="../../static/css/design-tokens-dark.css">
+  <link rel="stylesheet" href="../../static/css/style.css">
+  <style>
+    .ob-dialog { max-height: 100%; display: flex; flex-direction: column; }
+    .ob-dialog .modal-header { flex-direction: column; align-items: flex-start; gap: var(--spacing-base-1); padding: var(--spacing-base-4) var(--spacing-base-5); }
+    .ob-sub { font-size: var(--typography-font-size-sm); color: var(--neutral-gray-600); text-wrap: pretty; }
+    .ob-dialog .modal-body { display: grid; gap: var(--spacing-base-4); padding: var(--spacing-base-4) var(--spacing-base-5); overflow-y: auto; }
+    .ob-field { display: grid; gap: var(--spacing-base-1); border: 0; min-width: 0; margin: 0; padding: 0; }
+    .ob-field .form-label { margin-bottom: var(--spacing-base-1); }
+    .ob-input {
+      width: 100%;
+      min-height: var(--component-input-height-base);
+      padding: var(--spacing-component-input-padding-y) var(--spacing-component-input-padding-x);
+      border: 1px solid var(--form-input-border);
+      border-radius: var(--border-radius-input);
+      background: var(--form-input-background);
+      color: var(--form-input-text);
+      font-size: var(--typography-font-size-base);
+    }
+    .ob-input:focus { outline: 2px solid var(--border-focus); outline-offset: 1px; border-color: var(--form-input-border-focus); }
+    .law-check {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-base-3);
+      min-height: var(--component-button-height-lg);
+      border-bottom: 1px solid var(--border-default);
+      cursor: pointer;
+    }
+    .law-check:last-child { border-bottom: 0; }
+    .law-check input { width: 1.25rem; height: 1.25rem; flex: none; accent-color: var(--primary-primary); }
+    .law-name { flex: 1; min-width: 0; font-size: var(--typography-font-size-base); }
+    .law-count { font-size: var(--typography-font-size-sm); color: var(--neutral-gray-600); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .ob-dialog .modal-footer { padding: var(--spacing-base-4) var(--spacing-base-5); }
+    .ob-dialog .modal-footer .btn { flex: 1; padding: var(--spacing-base-3) var(--spacing-base-4); }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-content">
+      <a href="/" class="logo" title="專利法刷題">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+      </a>
+      <nav class="nav">
+        <a href="/" class="nav-link active">首頁</a>
+        <a href="/laws" class="nav-link">法條瀏覽</a>
+        <a href="/question-bank" class="nav-link">題庫</a>
+        <a href="/progress" class="nav-link">我的進度</a>
+      </nav>
+      <div class="law-type-selector">
+        <select id="law-type-select" class="law-type-select" title="選擇法律類型">
+          <option value="patent-act" selected>專利法</option>
+          <option value="patent-examination">專利審查基準</option>
+          <option value="administrative-appeal">訴願法</option>
+          <option value="administrative-litigation">行政訴訟法</option>
+        </select>
+      </div>
+      <div class="header-right">
+        <div class="lang-toggle">
+          <button id="lang-zh" class="lang-btn active" data-lang="zh-TW" title="切換到中文">中</button>
+          <button id="lang-en" class="lang-btn" data-lang="en" title="Switch to English">EN</button>
+        </div>
+        <div class="user-menu">
+          <!-- stand-in -->
+          <span id="user-display-name" class="user-name">learner-3fa9c2</span>
+          <button id="logout-btn" class="btn-logout" title="登出">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <div class="card">
+        <a href="/quiz/config" class="btn btn-primary btn-block btn-lg">開始新測驗</a>
+        <a href="/laws" class="btn btn-secondary btn-block">法條瀏覽</a>
+        <a href="/my-questions" class="btn btn-secondary btn-block">我的題目</a>
+      </div>
+      <div class="card">
+        <h2 class="card-title">💡 學習小提示</h2>
+        <ul style="list-style: none; padding: 0;">
+          <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border-color);">✓ 每天至少練習 10 題以保持連續記錄</li>
+          <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border-color);">✓ 收藏重點法條以便快速複習</li>
+          <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border-color);">✓ 連續答對 3 次即達到「精熟」狀態</li>
+          <li style="padding: 0.5rem 0;">✓ 使用「複習模式」強化需要加強的題目</li>
+        </ul>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="ob-title">
+    <form class="modal-dialog ob-dialog" onsubmit="return false">
+      <div class="modal-header">
+        <h3 class="modal-title" id="ob-title">選擇你要準備的法規</h3>
+        <p class="ob-sub">法規選單只會列出你選的法規，之後可在帳戶設定更改。</p>
+      </div>
+      <div class="modal-body">
+        <div class="ob-field">
+          <label class="form-label" for="ob-name">顯示名稱</label>
+          <!-- stand-in -->
+          <input id="ob-name" class="ob-input" type="text" value="learner-3fa9c2" maxlength="30" autocomplete="nickname">
+        </div>
+        <fieldset class="ob-field">
+          <legend class="form-label">準備的法規（可複選）</legend>
+          <div>
+            <label class="law-check">
+              <input type="checkbox" id="law-patent-act" name="law" value="patent-act">
+              <span class="law-name">專利法</span>
+              <span class="law-count">168 條</span>
+            </label>
+            <label class="law-check">
+              <input type="checkbox" id="law-patent-examination" name="law" value="patent-examination">
+              <span class="law-name">專利審查基準</span>
+              <!-- stand-in -->
+              <span class="law-count">96 條</span>
+            </label>
+            <label class="law-check">
+              <input type="checkbox" id="law-administrative-appeal" name="law" value="administrative-appeal" checked>
+              <span class="law-name">訴願法</span>
+              <span class="law-count">101 條</span>
+            </label>
+            <label class="law-check">
+              <input type="checkbox" id="law-administrative-litigation" name="law" value="administrative-litigation" checked>
+              <span class="law-name">行政訴訟法</span>
+              <span class="law-count">390 條</span>
+            </label>
+          </div>
+        </fieldset>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline">略過</button>
+        <button type="submit" class="btn btn-primary">儲存</button>
+      </div>
+    </form>
+  </div>
+</body>
+</html>
