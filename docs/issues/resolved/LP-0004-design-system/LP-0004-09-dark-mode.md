@@ -2,10 +2,10 @@
 id: LP-0004-09
 title: Dark mode, with each learner's choice stored in user_ui_flags
 type: story
-status: in_progress
+status: resolved
 priority: medium
 created: 2026-10-20
-resolved:
+resolved: 2026-10-21
 area: ui
 parent: LP-0004
 tags:
@@ -134,7 +134,7 @@ every device they sign in from.
 - [x] Docs synced: `docs/modules/ui/index.md` (themes, the toggle, and
       where dark tokens live), `docs/modules/db/data-model.md` (through
       `schema-check`), and a changelog entry.
-- [ ] PRD tickets only: report at
+- [x] PRD tickets only: report at
       `docs/reports/LP-0004-09-dark-mode/report.md` is approved.
 
 ## Open Questions
@@ -227,3 +227,13 @@ For the PRD to fix exactly:
 
 - A "follow the system" option: not planned. A new ticket if wanted.
 - Moving `appLang` from `localStorage` into `user_ui_flags`: not planned.
+
+## Resolution
+
+Learners can switch to the derived `teal-ink` dark theme with a toggle beside
+中/EN. The choice is stored per learner in the new `user_ui_flags` collection
+and rendered on `<html>` by the server, so there is no light flash, and login
+stays light. It is live as Heroku v14, with production's `user_id_1` index
+confirmed. A "follow the system" option, moving `appLang` into the flags, and
+a dark login page were left out. See [the changelog entry](../../../changelog/2026-10-21-dark-mode.md)
+and [the approved report](../../../reports/LP-0004-09-dark-mode/report.md).

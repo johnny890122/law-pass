@@ -6,6 +6,7 @@
 
 | ID | Type | Priority | Area | Parent | Title | Created | Resolved |
 | --- | --- | --- | --- | --- | --- | --- | --- |
+| LP-0004-09 | [STORY] | Medium | ui | [LP-0004](./pending/LP-0004-design-system.md) | [Dark mode, with each learner's choice stored in user_ui_flags](./resolved/LP-0004-design-system/LP-0004-09-dark-mode.md) | 2026-10-20 | 2026-10-21 |
 | LP-0004-07 | [STORY] | Medium | ui | [LP-0004](./pending/LP-0004-design-system.md) | [Adopt the dense-tabbar layout and teal role-hues palette on every page](./resolved/LP-0004-design-system/LP-0004-07-adopt-design-system.md) | 2026-10-19 | 2026-10-20 |
 | LP-0004-08 | [STORY] | Medium | ui | [LP-0004](./pending/LP-0004-design-system.md) | [Compare blue and teal against purple as role-hues' main color](./resolved/LP-0004-design-system/LP-0004-08-main-color.md) | 2026-10-19 | 2026-10-19 |
 | LP-0004-06 | [STORY] | Medium | ui | [LP-0004](./pending/LP-0004-design-system.md) | [Three color variants on the dense-tabbar layout, aligned to the dotnet capture](./resolved/LP-0004-design-system/LP-0004-06-color-variants.md) | 2026-10-19 | 2026-10-19 |

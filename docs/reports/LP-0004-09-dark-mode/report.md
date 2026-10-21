@@ -1,10 +1,10 @@
 ---
 ticket: LP-0004-09
 prd: docs/prd/LP-0004-09-dark-mode.md
-status: draft
+status: approved
 created: 2026-10-21
-approved:
-reviewer:
+approved: 2026-10-21
+reviewer: Johnny Chang
 ---
 
 # Report: Dark mode, with each learner's choice stored in user_ui_flags
