@@ -15,7 +15,7 @@ from bson import ObjectId
 from pymongo.errors import DuplicateKeyError
 
 from app import app as flask_app
-from db.models import Database, user_daily_stats_collection
+from db.models import Database, user_daily_stats_collection, user_ui_flags_collection
 
 
 # ── Fixtures ────────────────────────────────────────────────────────────────
@@ -160,6 +160,7 @@ def signed_in(app):
         session["current_law_type"] = "patent-act"
     yield client, user_id
     user_daily_stats_collection.delete_many({"user_id": user_id})
+    user_ui_flags_collection.delete_many({"user_id": user_id})
 
 
 class TestDashboard:
@@ -223,3 +224,64 @@ class TestShell:
         assert "tokens.css" in html
         assert "muicss" not in html
         assert 'class="shell"' not in html
+
+
+class TestUiFlags:
+    """LP-0004-09: the theme is stored per user in user_ui_flags and rendered on <html> by the server."""
+
+    def test_save_dark_then_light(self, signed_in):
+        client, user_id = signed_in
+        response = client.put("/api/ui-flags/theme", json={"theme": "dark"})
+        assert response.status_code == 200
+        assert response.get_json() == {"theme": "dark"}
+        first = user_ui_flags_collection.find_one({"user_id": user_id})
+        assert first["theme"] == "dark"
+        assert isinstance(first["updated_at"], datetime)
+
+        assert client.put("/api/ui-flags/theme", json={"theme": "light"}).get_json() == {"theme": "light"}
+        docs = list(user_ui_flags_collection.find({"user_id": user_id}))
+        assert len(docs) == 1
+        assert docs[0]["theme"] == "light"
+        assert docs[0]["updated_at"] >= first["updated_at"]
+
+    @pytest.mark.parametrize("body", [
+        {"json": {"theme": "blue"}},
+        {"json": {"theme": "Dark"}},
+        {"json": {}},
+        {"json": {"theme": 1}},
+        {"json": {"theme": None}},
+        {"json": ["dark"]},
+        {"data": "dark", "content_type": "text/plain"},
+    ])
+    def test_bad_value_writes_nothing(self, signed_in, body):
+        client, user_id = signed_in
+        response = client.put("/api/ui-flags/theme", **body)
+        assert response.status_code == 400
+        assert response.get_json() == {"error": "theme 必須是 light 或 dark"}
+        assert user_ui_flags_collection.count_documents({"user_id": user_id}) == 0
+
+    def test_signed_out_gets_401(self, app):
+        before = user_ui_flags_collection.count_documents({})
+        response = app.test_client().put("/api/ui-flags/theme", json={"theme": "dark"})
+        assert response.status_code == 401
+        assert response.get_json() == {"error": "Not authenticated"}
+        assert user_ui_flags_collection.count_documents({}) == before
+
+    @pytest.mark.parametrize("path", ["/", "/progress"])
+    def test_renders_the_stored_dark(self, signed_in, path):
+        client, user_id = signed_in
+        user_ui_flags_collection.insert_one({"user_id": user_id, "theme": "dark", "updated_at": datetime.utcnow()})
+        html = client.get(path).get_data(as_text=True)
+        assert '<html lang="zh-TW" data-theme="dark">' in html
+        assert 'aria-pressed="true"' in html
+
+    def test_no_document_renders_light(self, signed_in):
+        client, _ = signed_in
+        html = client.get("/").get_data(as_text=True)
+        assert '<html lang="zh-TW" data-theme="light">' in html
+        assert 'aria-pressed="false"' in html
+
+    def test_login_stays_light(self, app):
+        response = app.test_client().get("/auth/login")
+        assert response.status_code == 200
+        assert "data-theme" not in response.get_data(as_text=True)

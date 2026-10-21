@@ -96,6 +96,22 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// ==================== Theme (LP-0004-09) ====================
+// Save the other theme, then reload: the server renders data-theme and the icon, and charts redraw
+document.addEventListener('DOMContentLoaded', function() {
+    const toggle = document.getElementById('theme-toggle');
+    if (!toggle) return;
+    toggle.addEventListener('click', async function() {
+        const theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        try {
+            await apiCall('/api/ui-flags/theme', { method: 'PUT', body: JSON.stringify({ theme }) });
+            window.location.reload();
+        } catch (error) {
+            // apiCall has already shown its error toast; the theme stays as it was
+        }
+    });
+});
+
 // ==================== Law Type Management ====================
 // Get current law type from session
 async function getCurrentLawType() {

@@ -24,6 +24,16 @@ def test_no_color_literal_outside_tokens():
     assert hits == []
 
 
+def test_dark_names_exist_in_light():  # LP-0004-09: a misspelled dark name would do nothing silently
+    light, dark = TOKENS.read_text().split(':root[data-theme="dark"] {')
+    assert set(DECLARED.findall(dark)) - set(DECLARED.findall(light)) == set()
+
+
+def test_no_os_theme_reading():  # LP-0004-09: the stored choice is the only source of the theme
+    files = [*ROOT.glob("templates/**/*.html"), *ROOT.glob("static/js/**/*.js"), *ROOT.glob("static/css/*.css")]
+    assert [str(path.relative_to(ROOT)) for path in files if "prefers-color-scheme" in path.read_text()] == []
+
+
 def test_figma_token_files_are_retired():
     assert not (ROOT / "static/css/design-tokens.css").exists()
     assert not (ROOT / "static/css/design-tokens-dark.css").exists()

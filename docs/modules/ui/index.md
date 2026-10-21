@@ -2,7 +2,8 @@
 
 How every page looks and holds across screen sizes. The look is the
 `dense-tabbar` layout with the teal `role-hues` palette, adopted on every page
-by [LP-0004-07](../../changelog/2026-10-20-adopt-design-system.md). The
+by [LP-0004-07](../../changelog/2026-10-20-adopt-design-system.md), with a
+dark theme from [LP-0004-09](../../changelog/2026-10-21-dark-mode.md). The
 viewport rules date from
 [LP-0004-03](../../changelog/2026-10-18-rwd-all-pages.md).
 
@@ -44,11 +45,12 @@ One markup in `base.html`, two arrangements, on every page but login:
 
 | Width | Layout |
 | --- | --- |
-| Below 1024px | A sticky top bar (logo, the law-type select taking the free width, 中/EN, logout) and a fixed bottom tab bar of the four nav links. The active tab is marked on its top edge. The user name is hidden. The body pads the tab bar plus `env(safe-area-inset-bottom)`. |
-| 1024px and up | A fixed left sidebar: logo, select, the four links stacked (the active one on an accent tint), then 中/EN and the user name with logout at the bottom. |
+| Below 1024px | A sticky top bar (logo, the law-type select taking the free width, 中/EN, the theme toggle, logout) and a fixed bottom tab bar of the four nav links. The active tab is marked on its top edge. The user name is hidden. The body pads the tab bar plus `env(safe-area-inset-bottom)`. |
+| 1024px and up | A fixed left sidebar: logo, select, the four links stacked (the active one on an accent tint), then 中/EN and the theme toggle on one row, and the user name with logout at the bottom. |
 
 - Every control stays at every width: logo, 首頁 法條瀏覽 題庫 我的進度, the
-  law-type select, 中/EN, and logout. The user name shows from 1024px.
+  law-type select, 中/EN, the theme toggle, and logout. The user name shows
+  from 1024px. 中/EN and the toggle share one `.shell-tools` row.
 - The active link comes from `request.path`: `/` is 首頁, `/laws*` 法條瀏覽,
   `/question-bank` 題庫, `/progress` 我的進度. Other pages mark none.
 - **The language toggle shows only for patent-act**, the one law type with EN
@@ -75,8 +77,43 @@ One markup in `base.html`, two arrangements, on every page but login:
 - **All text is 黑體** (`--font-body`), including law text. No Ming face and
   no web font.
 - Charts read `--color-data-1` and `--color-data-2` through
-  `getComputedStyle`. Both stay plain `#rrggbb`, because the chart code adds
-  alpha as a hex suffix.
+  `getComputedStyle`. Both stay plain `#rrggbb` in both themes, because the
+  chart code adds alpha as a hex suffix.
+
+### Themes
+
+- **Light and dark, light by default.** The OS `prefers-color-scheme` setting
+  is ignored, and `tests/test_design_tokens.py` fails if any template, script,
+  or stylesheet mentions it. There is no "follow the system" option.
+- **Stored per learner**, in that learner's `user_ui_flags` document
+  (`docs/modules/db/data-model.md`), so the choice follows them to every
+  browser they sign in from. A learner with no document gets light.
+- **No light flash.** `base.html` writes `data-theme="light|dark"` on `<html>`
+  from the stored flag, read once per page render. The attribute arrives
+  before any stylesheet, and no script sets the theme on load.
+- **The toggle** is an icon button beside 中/EN: a moon in light and a sun in
+  dark, labeled 「深色模式」, with `aria-pressed` carrying the state. It shows
+  for every law type, unlike 中/EN. A click saves the other theme and reloads
+  the page, as 中/EN does. That way the server renders the new icon and the
+  `/progress` charts redraw in the new colors. A failed save shows `apiCall`'s
+  toast and changes nothing.
+- **The login page stays light.** It has no user and no `data-theme`, and its
+  `--brand-*` buttons keep their owners' light values.
+- **Dark tokens** live in `tokens.css`'s `:root[data-theme="dark"]` block,
+  which also sets `color-scheme: dark` for native controls and scrollbars.
+  The block redefines only tokens whose value changes. Type, space, radius,
+  layout, motion, and `--brand-*` stay light.
+- **Every dark value is derived**, never captured. A role keeps its light hue
+  at 0.6× saturation, so nothing glows, and is lightened until it has the
+  contrast on the dark panel that its light value has on white. Each value's
+  comment says so and gives its ratios. Text holds 4.5:1 on bg, surface, and
+  sunken, a label on a fill 4.5:1, and flags and focus 3:1. A new token gets a
+  dark value by the same rule, or an explicit note that it stays light.
+- **The ground is `teal-ink`** (`#101a1b`, panels `#172323`): faintly teal,
+  like thinned teal ink. The pick is in
+  `artifacts/LP-0004-09-dark-mode/DECISION.md`.
+- **Labels on fills turn dark in dark.** `--color-accent-contrast` becomes the
+  ground, because the teal and magenta fills it sits on turn light.
 
 ### Containers
 
@@ -136,12 +173,16 @@ actions and links.
 
 ## Code
 
-- `static/css/tokens.css`: every token value.
+- `static/css/tokens.css`: every token value, the light `:root` block, then
+  the dark `:root[data-theme="dark"]` block.
 - `static/css/style.css`: base and primitives, the shell and containers, the
   flags, then one section per page. Both breakpoint blocks sit at the end.
-- `templates/base.html`: the shell markup. `templates/_ledger.html`: the five
-  progress numbers.
+- `templates/base.html`: the shell markup, `data-theme`, and the theme toggle.
+  `templates/_ledger.html`: the five progress numbers.
 - `routes/frontend.py`: `/` loads `get_progress_summary(user, None, law_type)`.
+  The `inject_theme` context processor supplies `theme` to every template, and
+  `PUT /api/ui-flags/theme` saves it (401 when signed out, 400 for anything but
+  `light` or `dark`).
 - `templates/progress.html`: Chart.js options and token colors.
-- `static/js/main.js`: language toggle visibility by law type, and
-  `showToast`, which sets classes only.
+- `static/js/main.js`: language toggle visibility by law type, the theme
+  toggle's save-then-reload, and `showToast`, which sets classes only.

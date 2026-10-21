@@ -19,6 +19,12 @@ tokens/
 └── <direction>.css   one per direction, named by its thesis, e.g. dense-study.css
 ```
 
+`dark-neutral.css`, `dark-dim.css`, and `dark-teal-ink.css` are `LP-0004-09`'s
+dark-mode variants. They are overlays, not directions: each redefines only the
+tokens a dark theme changes, under `:root[data-theme="dark"]`, on top of
+`static/css/tokens.css`. `dark-teal-ink.css` won and was copied into
+`tokens.css`. These copies are the record and are not kept in sync.
+
 ## What earns a place in the contract
 
 A role must pass both tests to live in `_structure.css`:

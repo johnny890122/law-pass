@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-TW" data-theme="{{ theme }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -35,9 +35,23 @@
             {% endfor %}
         </nav>
         <div class="header-right">
-            <div class="lang-toggle">
-                <button id="lang-zh" class="lang-btn active" data-lang="zh-TW" title="切換到中文">中</button>
-                <button id="lang-en" class="lang-btn" data-lang="en" title="Switch to English">EN</button>
+            <div class="shell-tools">
+                <div class="lang-toggle">
+                    <button id="lang-zh" class="lang-btn active" data-lang="zh-TW" title="切換到中文">中</button>
+                    <button id="lang-en" class="lang-btn" data-lang="en" title="Switch to English">EN</button>
+                </div>
+                <button id="theme-toggle" class="icon-btn" title="深色模式" aria-label="深色模式" aria-pressed="{{ 'true' if theme == 'dark' else 'false' }}">
+                    {% if theme == 'dark' %}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <circle cx="12" cy="12" r="4"></circle>
+                        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+                    </svg>
+                    {% else %}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    {% endif %}
+                </button>
             </div>
             <div class="user-menu">
                 <span id="user-display-name" class="user-name">載入中...</span>

@@ -20,8 +20,10 @@
  */
 
 :root {
+  color-scheme: light;               /* native controls and scrollbars follow the theme (LP-0004-09) */
+
   /* Surfaces */
-  --color-bg: #f5f5f5;               /* tokens.md: card hover surface, a.card:hover @all; one step down so flat white panels separate */
+  --color-bg: #f5f5f5;              /* tokens.md: card hover surface, a.card:hover @all; one step down so flat white panels separate */
   --color-surface: #ffffff;          /* tokens.md: surface, header.uhf-header and a.card @all */
   --color-surface-sunken: #fafafa;   /* tokens.md: page background, body.refresh @all; set into white panels */
   --color-scrim: rgb(0 0 0 / 0.5);   /* derived: no overlay captured; strongest text rgb(0,0,0) at half opacity */
@@ -133,4 +135,68 @@
   --brand-line-contrast: #ffffff;    /* LINE Login button guidelines: text and logo */
   --brand-line-divider: rgb(0 0 0 / 0.08); /* LINE Login button guidelines: separator between logo and text */
   --brand-line-press: #000000;       /* LINE Login button guidelines: overlay, 10% on hover and 30% on press */
+}
+
+/* Dark theme (LP-0004-09): base.html sets data-theme from the learner's
+ * user_ui_flags document; login.html never does, so it stays light. Copied from
+ * .claude/skills/neta-design/tokens/dark-teal-ink.css, the winner in
+ * artifacts/LP-0004-09-dark-mode/DECISION.md. Every value is derived from the
+ * light block: a role keeps its light hue at 0.6x saturation (no glow) and is
+ * lightened until it has the contrast on the dark panel that its light value has
+ * on white. Only tokens whose value changes are redefined; type, space, radius,
+ * layout, motion, and --brand-* stay light. Ratios are WCAG 2.x on these values. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Surfaces */
+  --color-bg: #101a1b;               /* derived: --color-accent's hue 184 at 25% saturation, near-black */
+  --color-surface: #172323;          /* derived: one 1.10:1 step above --color-bg at hue 184, the light bg-to-surface step */
+  --color-surface-sunken: #141f1f;   /* derived: half the bg-to-surface step, set into panels as in light */
+  --color-scrim: rgb(0 0 0 / 0.6);   /* derived: light's 0.5 black barely dims a dark page */
+
+  /* Lines */
+  --color-border: #2f3939;           /* derived: 1.36:1 on surface at hue 184; light's 1.24:1 line is lost on dark */
+  --color-border-strong: #92a4a5;    /* derived: --color-text-muted, as in light; 6.21:1 on surface */
+
+  /* Text */
+  --color-text: #ecf0f0;             /* derived: hue 184, 14.06:1 on surface, a step under light's 15.52:1 to cut glare; 15.43:1 bg, 14.68:1 sunken */
+  --color-text-muted: #92a4a5;       /* derived: hue 184, light's 6.19:1 on surface kept; 6.81:1 bg, 6.48:1 sunken */
+  --color-text-disabled: #556768;    /* derived: light's 2.25:1 on --color-disabled-surface kept; exempt from WCAG 1.4.3 */
+
+  /* Accent */
+  --color-accent: #2ca9b1;           /* derived: hue 184 at 0.6x saturation, lightened to light's 5.69:1 on surface; 6.26:1 bg, 5.96:1 sunken, 4.73:1 on its surface */
+  --color-accent-hover: #43c6d0;     /* derived: lightened to light hover's 7.86:1 on surface; hover moves toward the text, as in light */
+  --color-accent-contrast: #101a1b;  /* derived: --color-bg, a dark label on the light teal; 6.26:1 on accent, 8.63:1 on hover, 5.20:1 on the 簡答題 flag */
+  --color-accent-surface: #1a3334;   /* derived: --color-accent at 0.12 alpha over --color-surface */
+  --color-focus: #ffffff;            /* derived: white, the strongest mark on dark as black is on light; 17.71:1 bg, 16.14:1 surface */
+
+  /* Links */
+  --color-link: #2ca9b1;             /* derived: --color-accent */
+  --color-link-hover: #43c6d0;       /* derived: --color-accent-hover */
+
+  /* Interactive surfaces */
+  --color-surface-hover: #22292a;    /* derived: one 1.09:1 step above surface, toward the text, as light's hover steps toward it */
+  --color-disabled-surface: #273030; /* derived: light's 1.19:1 step from surface, lightened */
+
+  /* Status: the light hue at 0.6x saturation, lightened to the light ratio on surface */
+  --color-success: #3eaa6f;          /* derived: hue 147, past light's 5.27:1 to clear 4.5:1 on its surface; 5.52:1 surface, 6.06:1 bg, 4.61:1 on its surface */
+  --color-success-surface: #1c332c;  /* derived: --color-success at 0.12 alpha over --color-surface */
+  --color-danger: #d2949c;           /* derived: hue 353 at light's 6.50:1; reads rose, kept by the user (DECISION.md); 7.13:1 bg, 5.30:1 on its surface */
+  --color-danger-surface: #2d3132;   /* derived: --color-danger at 0.12 alpha over --color-surface */
+  --color-warning: #d09843;          /* derived: hue 36 at light's 6.33:1; 6.96:1 bg, 5.22:1 on its surface */
+  --color-warning-surface: #2d3127;  /* derived: --color-warning at 0.12 alpha over --color-surface */
+  --color-info: #7ba0d8;             /* derived: hue 216 at light's 6.03:1; 6.63:1 bg, 4.95:1 on its surface */
+  --color-info-surface: #233239;     /* derived: --color-info at 0.12 alpha over --color-surface */
+
+  /* Data: plain #rrggbb, since the chart code adds alpha as a hex suffix */
+  --color-data-1: #2ca9b1;           /* derived: --color-accent, as in light */
+  --color-data-2: #92a4a5;           /* derived: --color-text-muted, as in light */
+
+  /* Elevation */
+  --shadow-overlay: 0 8px 24px rgb(0 0 0 / 0.5); /* derived: light's 0.1 black is invisible on dark; overlays also separate by the scrim */
+
+  /* Role flags: the light hue at 0.6x saturation, lightened to the light ratio on surface; graphics, held to 3:1 */
+  --d-flag-short:  #d65dbe;          /* derived: hue 312 at light's 4.73:1; 簡答題 flag, 4.74:1 surface, 5.20:1 bg */
+  --d-flag-law:    #5789d5;          /* derived: hue 216 at light's 4.56:1; 法條 flag, 4.57:1 surface, 5.01:1 bg */
+  --d-flag-streak: #c74353;          /* derived: hue 353 at light's 3.35:1; streak flag, 3.35:1 surface, 3.67:1 bg */
 }

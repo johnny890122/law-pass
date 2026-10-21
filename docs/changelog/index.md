@@ -4,6 +4,7 @@ One entry per landing, newest first.
 
 | File | LP ids | Summary |
 | --- | --- | --- |
+| [2026-10-21-dark-mode.md](2026-10-21-dark-mode.md) | LP-0004-09 | Dark mode, light by default: a toggle beside 中/EN saves each learner's choice in a new `user_ui_flags` collection, and the server renders it on `<html>` so there is no light flash; the `teal-ink` dark tokens are derived from the light ones with ratios in their comments; login stays light. |
 | [2026-10-20-adopt-design-system.md](2026-10-20-adopt-design-system.md) | LP-0004-07 | The teal `dense-tabbar` / `role-hues` design system on every page: `tokens.css` is the one token file and the only home of color literals; MUI and the Figma token files are gone; the shell is a top bar plus bottom tab bar, then a sidebar from 1024px; `/` opens on the five all-time progress numbers. |
 | [2026-10-19-main-color.md](2026-10-19-main-color.md) | LP-0004-08 | Teal `#00727a` (derived, outside the capture) beat purple and the capture's blue as `role-hues`' main color; flag tokens renamed by meaning (`--d-flag-law`, `--d-flag-short`, `--d-flag-streak`); adoption filed as LP-0004-07. |
 | [2026-10-19-color-variants.md](2026-10-19-color-variants.md) | LP-0004-06 | Three color variants on the `dense-tabbar` layout; the user picked `role-hues` (four captured hues as flags with fixed meanings, text in ink), on a less-AI frame of ledger, panels, and a law sheet, all in 黑體; the main color goes to LP-0004-08 before adoption. |
