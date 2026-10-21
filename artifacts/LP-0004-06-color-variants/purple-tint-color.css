@@ -1,0 +1,27 @@
+/* purple-tint: color lives in surfaces. The shell and the ledger band take
+ * the light tint; the start block takes the stronger tint, like the capture's
+ * announcement banner. Tinted blocks gain inner padding so their text clears
+ * the fill's edge. Borders stay --color-border. */
+
+.shell,
+.nav { background: var(--d-tint); }
+
+.metrics {
+  padding-inline: var(--space-4);
+  border-color: transparent;
+  border-radius: var(--radius-lg);
+  background: var(--d-tint);
+}
+
+.start {
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--d-tint-strong);
+}
+
+/* --color-accent-surface equals the shell tint, so the sidebar's active
+ * item steps up, and its hover step lifts to white instead of gray. */
+@media (min-width: 1024px) {
+  .nav-link:hover span { background: var(--color-surface); }
+  .nav-link.active span { background: var(--d-tint-strong); }
+}

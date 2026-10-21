@@ -1,0 +1,112 @@
+/* baseline: direction tier. Today's layout from static/css/style.css,
+ * re-expressed in contract names. Phone first, then 768 and 1024. */
+
+/* Header: phone is two rows (logo | lang + user, then nav | law type) */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--color-surface);
+  border-bottom: var(--border-width) solid var(--color-border);
+  box-shadow: var(--shadow-raised);
+  padding-block: var(--space-2);
+  padding-left: max(var(--space-2), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--space-2), env(safe-area-inset-right, 0px));
+}
+.header-content {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  display: grid;
+  grid-template-areas: "logo right" "nav selector";
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+}
+.logo { grid-area: logo; display: flex; align-items: center; color: var(--color-accent); min-height: 2.75rem; }
+.logo:hover { color: var(--color-accent-hover); }
+.nav { grid-area: nav; display: flex; align-items: center; min-width: 0; }
+.nav-link {
+  padding: var(--space-2) var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  border-radius: var(--radius);
+}
+.nav-link:hover { background: var(--color-surface-hover); color: var(--color-accent); text-decoration: none; }
+.nav-link.active { color: var(--color-accent); font-weight: var(--weight-emphasis); }
+.law-type-selector { grid-area: selector; justify-self: end; width: 8.5rem; }
+.header-right { grid-area: right; display: flex; align-items: center; justify-content: flex-end; gap: var(--space-2); }
+.user-menu { display: flex; align-items: center; gap: var(--space-2); }
+.user-name { display: none; max-width: 8rem; }
+
+/* Page */
+.container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding-block: var(--space-4);
+  padding-left: max(var(--space-4), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--space-4), env(safe-area-inset-right, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.stack { display: flex; flex-direction: column; gap: var(--space-4); }
+.stack-sm { display: flex; flex-direction: column; gap: var(--space-2); }
+
+/* Dashboard */
+.tips li { padding-block: var(--space-2); border-bottom: var(--border-width) solid var(--color-border); }
+.tips li:last-child { border-bottom: 0; }
+
+/* Quiz */
+.quiz-container { max-width: 800px; }
+.progress-info { display: flex; justify-content: space-between; margin-bottom: var(--space-2); font-size: var(--text-sm); font-weight: var(--weight-emphasis); }
+.progress-count { color: var(--color-accent); font-variant-numeric: tabular-nums; }
+.question-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-bottom: var(--space-4); margin-bottom: var(--space-5);
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+.question-number { font-weight: var(--weight-emphasis); color: var(--color-text-muted); }
+.question-content { font-size: var(--text-lg); margin-bottom: var(--space-6); }
+.mcq-options { display: flex; flex-direction: column; gap: var(--space-3); }
+.result-header { text-align: center; margin-bottom: var(--space-6); }
+.result-section { padding-bottom: var(--space-4); margin-bottom: var(--space-4); border-bottom: var(--border-width) solid var(--color-border); }
+.result-section:last-child { border-bottom: 0; margin-bottom: 0; padding-bottom: 0; }
+.result-section .result-label { margin-bottom: var(--space-2); }
+.result-section.callout { border: var(--border-width) solid var(--color-accent); padding: var(--space-4); }
+.mcq-options-review { display: flex; flex-direction: column; gap: var(--space-3); }
+.result-actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); margin-block: var(--space-6) var(--space-4); }
+
+/* Law detail */
+.law-head { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-3); margin-bottom: var(--space-3); }
+.law-head > div { min-width: 0; }
+.law-head h1 { font-size: var(--text-xl); margin-bottom: var(--space-1); }
+.law-stats-compact { display: flex; flex-wrap: wrap; gap: var(--space-2); font-size: var(--text-sm); color: var(--color-text-muted); margin-top: var(--space-2); }
+.law-content { display: flex; flex-direction: column; gap: var(--space-2); }
+.filter-tabs { display: flex; flex-wrap: wrap; gap: var(--space-2); padding-block: var(--space-4); border-bottom: var(--border-width) solid var(--color-border); margin-bottom: var(--space-4); }
+.question-item { border: var(--border-width) solid var(--color-border); border-radius: var(--radius); padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-3); }
+.question-item-head { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); }
+.question-item-head > div { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.item-index { color: var(--color-text-muted); font-size: var(--text-sm); font-variant-numeric: tabular-nums; }
+.item-options { display: flex; flex-direction: column; gap: var(--space-1); }
+.item-options div { padding: var(--space-2); background: var(--color-surface-sunken); border-radius: var(--radius-sm); font-size: var(--text-sm); }
+.item-answer { padding: var(--space-3); background: var(--color-success-surface); border-radius: var(--radius-sm); font-size: var(--text-sm); }
+.item-answer strong { display: block; color: var(--color-success); font-weight: var(--weight-emphasis); }
+.explain-body { margin-top: var(--space-2); padding: var(--space-3); background: var(--color-surface-sunken); border-radius: var(--radius-sm); font-size: var(--text-sm); color: var(--color-text-muted); }
+.text-danger { color: var(--color-danger); font-size: var(--text-sm); font-weight: var(--weight-emphasis); }
+.text-success { color: var(--color-success); font-size: var(--text-sm); }
+
+/* Tablet and up: one-row header */
+@media (min-width: 768px) {
+  .header { padding-block: var(--space-3); }
+  .header-content { display: flex; justify-content: space-between; gap: var(--space-4); }
+  .nav { flex: 1; justify-content: center; gap: var(--space-1); }
+  .nav-link { padding: var(--space-2) var(--space-3); font-size: var(--text-base); }
+  .header-right { gap: var(--space-3); }
+  .container { padding-block: var(--space-6); }
+  .question-content { font-size: var(--text-xl); }
+}
+
+@media (min-width: 1024px) {
+  .user-name { display: block; }
+}

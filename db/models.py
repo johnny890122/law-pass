@@ -113,6 +113,14 @@ class UserQuestionStarModel:
     # Composite unique index: (user_id, question_id)
 
 @dataclass
+class UserUiFlagsModel:
+    """Per-user UI flags, one document per user (LP-0004-09). No document means the defaults."""
+    user_id: str           # Links to users collection
+    theme: Literal["light", "dark"] = "light"
+    updated_at: datetime = field(default_factory=datetime.utcnow)
+    # Unique index: user_id
+
+@dataclass
 class I18nMappingModel:
     """Bidirectional mapping between zh-TW and en law articles"""
     zh_tw_law_id: str      # ObjectId of zh-TW law
@@ -147,6 +155,7 @@ class Database:
         self.user_law_stats_collection = self.db['user_law_stats']
         self.user_question_stars_collection = self.db['user_question_stars']
         self.user_daily_stats_collection = self.db['user_daily_stats']
+        self.user_ui_flags_collection = self.db['user_ui_flags']
 
     def init_db(self):
         """Ensure indexes are created for performance."""
@@ -224,7 +233,10 @@ class Database:
             [('user_id', 1), ('law_type', 1), ('date', -1)],
             name='user_id_law_type_date_desc'
         )
-        
+
+        # User UI flags: one document per user (LP-0004-09)
+        self.user_ui_flags_collection.create_index('user_id', unique=True)
+
         # i18n mapping indexes
         try:
             # Get existing indexes first
@@ -272,3 +284,4 @@ user_law_stars_collection = db.user_law_stars_collection
 user_law_stats_collection = db.user_law_stats_collection
 user_question_stars_collection = db.user_question_stars_collection
 user_daily_stats_collection = db.user_daily_stats_collection
+user_ui_flags_collection = db.user_ui_flags_collection

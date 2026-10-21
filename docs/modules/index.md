@@ -8,4 +8,5 @@ same change.
 | --- | --- | --- |
 | auth | [auth/index.md](auth/index.md) | Who may sign in and how: Google and LINE OIDC with self-signup, keyed by `users.email` and `users.line_user_id` and never linked, the login page, logout, sessions, and `login_required`. |
 | deploy | [deploy/index.md](deploy/index.md) | CI on GitHub Actions, the `law-pass` Heroku app, auto-deploy of `main`, and the config var inventory. |
+| ui | [ui/index.md](ui/index.md) | How every page looks and holds across screen sizes: the three viewports and the check every template or CSS change passes, the mobile-first breakpoint rule, the `dense-tabbar` shell, `static/css/tokens.css` as the one token file, the light and dark themes and the toggle, the container vocabulary, and the role map of hues. |
 | db | [db/data-model.md](db/data-model.md) | MongoDB collections, fields, indexes, `LAW_TYPES`, `init_db()`, and migrations. The schema's single source of truth, written only through the `schema-check` skill. |

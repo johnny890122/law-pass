@@ -2,82 +2,55 @@
 {% block title %}我的進度{% endblock %}
 
 {% block content %}
-<div class="progress-page">
-  <div class="progress-header">
-
-    <!-- Time range selector -->
-    <div class="range-selector">
-      <a href="/progress?range=7"
-         class="range-btn {% if selected_range == '7' %}active{% endif %}">最近 7 天</a>
-      <a href="/progress?range=30"
-         class="range-btn {% if selected_range == '30' %}active{% endif %}">最近 30 天</a>
-      <a href="/progress?range=all"
-         class="range-btn {% if selected_range == 'all' %}active{% endif %}">全部時間</a>
-    </div>
-  </div>
-
-  <!-- Five metric cards -->
-  <div class="metric-cards">
-    <div class="metric-card">
-      <div class="metric-value">{{ summary.streak }}</div>
-      <div class="metric-label">連續練習天數</div>
-    </div>
-    <div class="metric-card">
-      <div class="metric-value">{{ summary.questions_answered }}</div>
-      <div class="metric-label">作答題數</div>
-    </div>
-    <div class="metric-card">
-      <div class="metric-value">{{ summary.mastered_count }}</div>
-      <div class="metric-label">掌握題數</div>
-    </div>
-    <div class="metric-card">
-      <div class="metric-value">{{ "%.1f"|format(summary.avg_score_rate) }}%</div>
-      <div class="metric-label">平均得分率</div>
-    </div>
-    <div class="metric-card">
-      <div class="metric-value">{{ summary.laws_covered }}</div>
-      <div class="metric-label">覆蓋法條數</div>
-    </div>
-  </div>
-
-  {% if summary.questions_answered == 0 %}
-  <div class="empty-state">
-    <p>目前尚無練習記錄，完成第一次測驗後即可在此查看進度。</p>
-    <a href="/quiz/config" class="btn btn-primary">開始練習</a>
-  </div>
-  {% else %}
-
-  {% if summary.is_legacy %}
-  <div class="legacy-notice">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <circle cx="12" cy="12" r="10"></circle>
-      <line x1="12" y1="8" x2="12" y2="12"></line>
-      <line x1="12" y1="16" x2="12.01" y2="16"></line>
-    </svg>
-    以上數據為歷史累積總計。每日趨勢圖將從今日作答後開始記錄。
-  </div>
-  {% endif %}
-
-  <!-- Charts: only shown when daily stats have been accumulated -->
-  {% if not summary.is_legacy %}
-  <div class="charts-section">
-    <div class="chart-block">
-      <p class="chart-description">每日作答題數</p>
-      <div class="chart-container">
-        <canvas id="chart-questions"></canvas>
-      </div>
-    </div>
-    <div class="chart-block">
-      <p class="chart-description">每日平均得分率 (%)</p>
-      <div class="chart-container">
-        <canvas id="chart-score"></canvas>
-      </div>
-    </div>
-  </div>
-  {% endif %}
-
-  {% endif %}
+<!-- Time range selector -->
+<div class="filter-tabs range-selector">
+  <a href="/progress?range=7"
+     class="filter-tab range-btn {% if selected_range == '7' %}active{% endif %}">最近 7 天</a>
+  <a href="/progress?range=30"
+     class="filter-tab range-btn {% if selected_range == '30' %}active{% endif %}">最近 30 天</a>
+  <a href="/progress?range=all"
+     class="filter-tab range-btn {% if selected_range == 'all' %}active{% endif %}">全部時間</a>
 </div>
+
+{% include "_ledger.html" %}
+
+{% if summary.questions_answered == 0 %}
+<div class="empty-state">
+  <p>目前尚無練習記錄，完成第一次測驗後即可在此查看進度。</p>
+  <a href="/quiz/config" class="btn btn-primary">開始練習</a>
+</div>
+{% else %}
+
+{% if summary.is_legacy %}
+<div class="legacy-notice">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="12" cy="12" r="10"></circle>
+    <line x1="12" y1="8" x2="12" y2="12"></line>
+    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+  </svg>
+  以上數據為歷史累積總計。每日趨勢圖將從今日作答後開始記錄。
+</div>
+{% endif %}
+
+<!-- Charts: only shown when daily stats have been accumulated -->
+{% if not summary.is_legacy %}
+<div class="charts-section">
+  <section class="card chart-block">
+    <h2 class="card-title">每日作答題數</h2>
+    <div class="chart-container">
+      <canvas id="chart-questions"></canvas>
+    </div>
+  </section>
+  <section class="card chart-block">
+    <h2 class="card-title">每日平均得分率 (%)</h2>
+    <div class="chart-container">
+      <canvas id="chart-score"></canvas>
+    </div>
+  </section>
+</div>
+{% endif %}
+
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}
@@ -87,9 +60,19 @@
 (function () {
   const chartData = {{ chart_data | tojson }};
 
+  // Colors come from tokens.css; the data tokens are #rrggbb, so alpha is a hex suffix
+  const css = getComputedStyle(document.documentElement);
+  const token = name => css.getPropertyValue(name).trim();
+  const withAlpha = (color, alpha) => color + Math.round(alpha * 255).toString(16).padStart(2, '0');
+  const data1 = token('--color-data-1');
+  const data2 = token('--color-data-2');
+  Chart.defaults.font.family = token('--font-body');
+  Chart.defaults.color = token('--color-text-muted');
+  Chart.defaults.borderColor = token('--color-border');
+
   const commonOptions = {
     responsive: true,
-    maintainAspectRatio: true,
+    maintainAspectRatio: false,  // .chart-container sets the 2:1 box, capped at 260px (LP-0004-03)
     plugins: { legend: { display: false } },
     scales: {
       x: { ticks: { maxTicksLimit: 10, maxRotation: 45 } },
@@ -104,8 +87,8 @@
       datasets: [{
         label: '作答題數',
         data: chartData.questions_data,
-        backgroundColor: 'rgba(99, 102, 241, 0.6)',
-        borderColor: 'rgba(99, 102, 241, 1)',
+        backgroundColor: withAlpha(data1, 0.6),
+        borderColor: data1,
         borderWidth: 1,
         borderRadius: 4
       }]
@@ -120,8 +103,8 @@
       datasets: [{
         label: '平均得分率 (%)',
         data: chartData.score_data,
-        borderColor: 'rgba(16, 185, 129, 1)',
-        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        borderColor: data2,
+        backgroundColor: withAlpha(data2, 0.1),
         borderWidth: 2,
         pointRadius: 3,
         fill: true,

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>LP-0004-06 · role-hues · 首頁</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="../../.claude/skills/neta-design/tokens/role-hues.css">
+  <link rel="stylesheet" href="system.css">
+  <link rel="stylesheet" href="dense-tabbar-layout.css">
+  <link rel="stylesheet" href="role-hues-color.css">
+</head>
+<body>
+  <header class="shell">
+    <a href="#" class="logo" title="專利法刷題">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+    </a>
+    <div class="law-type-selector select-wrap">
+      <select id="law-type-select" class="law-type-select" title="選擇法律類型">
+        <option selected>專利法</option><option>專利審查基準</option><option>訴願法</option><option>行政訴訟法</option>
+      </select>
+    </div>
+    <nav class="nav">
+      <a href="#" class="nav-link active" aria-current="page"><span>首頁</span></a>
+      <a href="#" class="nav-link"><span>法條瀏覽</span></a>
+      <a href="#" class="nav-link"><span>題庫</span></a>
+      <a href="#" class="nav-link"><span>我的進度</span></a>
+    </nav>
+    <div class="header-right">
+      <div class="lang-toggle">
+        <button id="lang-zh" class="lang-btn active" title="切換到中文">中</button>
+        <button id="lang-en" class="lang-btn" title="Switch to English">EN</button>
+      </div>
+      <div class="user-menu">
+        <!-- stand-in --><span id="user-display-name" class="user-name">王小明</span>
+        <button id="logout-btn" class="icon-btn btn-logout" title="登出">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main dash">
+    <!-- stand-in: the five progress.html numbers -->
+    <section class="metrics" aria-label="我的進度">
+      <div class="metric"><span class="metric-value">7</span><span class="metric-label">連續練習<wbr>天數</span></div>
+      <div class="metric"><span class="metric-value">186</span><span class="metric-label">作答題數</span></div>
+      <div class="metric"><span class="metric-value">42</span><span class="metric-label">掌握題數</span></div>
+      <div class="metric"><span class="metric-value">71.3%</span><span class="metric-label">平均<wbr>得分率</span></div>
+      <div class="metric"><span class="metric-value">38</span><span class="metric-label">覆蓋<wbr>法條數</span></div>
+    </section>
+
+    <section class="start">
+      <a href="#" class="btn btn-primary btn-block btn-lg">開始新測驗</a>
+      <div class="start-more">
+        <a href="#" class="btn btn-secondary">法條瀏覽</a>
+        <a href="#" class="btn btn-secondary">我的題目</a>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="card-title">學習小提示</h2>
+      <ul class="tips">
+        <li>✓ 每天至少練習 10 題以保持連續記錄</li>
+        <li>✓ 收藏重點法條以便快速複習</li>
+        <li>✓ 連續答對 3 次即達到「精熟」狀態</li>
+        <li>✓ 使用「複習模式」強化需要加強的題目</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

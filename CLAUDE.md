@@ -66,8 +66,10 @@ A ticket resolves only when all four hold:
 2. **`flake8` clean**, using the repo's [.flake8](.flake8).
 3. **Seen working in the app.** Run `python app.py` with a `.env` copied from
    [.env.example](.env.example) and a reachable MongoDB, then exercise the
-   change in a browser using Playwright MCP. If the app cannot run, say so.
-   Never claim it was seen.
+   change in a browser using Playwright MCP. A template or CSS change is
+   seen at phone 390x844, tablet 768x1024, and desktop 1440x900, and passes
+   the check in [docs/modules/ui/index.md](docs/modules/ui/index.md). If the
+   app cannot run, say so. Never claim it was seen.
 4. **Docs synced.** Update the owning module doc and write a changelog entry,
    or have the ticket state why none applies.
 

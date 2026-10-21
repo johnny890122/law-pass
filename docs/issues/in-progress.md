@@ -4,5 +4,4 @@
 
 | ID | Type | Priority | Area | Parent | Title | Created | Resolved |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| LP-0009 | [FEATURE] | Medium | auth | - | [LINE Login with self-signup](./in_progress/LP-0009-line-login.md) | 2026-10-17 | - |
-| LP-0002-01 | [STORY] | High | auth | [LP-0002](./pending/LP-0002-invite-only-beta.md) | [Google sign-in with self-signup](./in_progress/LP-0002-invite-only-beta/LP-0002-01-google-sign-in.md) | 2026-10-16 | - |
+| LP-0004-09 | [STORY] | Medium | ui | [LP-0004](./pending/LP-0004-design-system.md) | [Dark mode, with each learner's choice stored in user_ui_flags](./in_progress/LP-0004-design-system/LP-0004-09-dark-mode.md) | 2026-10-20 | - |

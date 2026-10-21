@@ -27,6 +27,13 @@ before the merge to `main`, or the new release crash-loops. At boot,
 and `line_user_id_1`. A Heroku rollback is clean only until the second LINE
 signup: after that, two null emails block the old index, so fix forward.
 
+Deployed as release v13 (`db9dbbc`) on 2026-10-18. Its first boot crashed
+once: both gunicorn workers ran the one-time `drop_index('email_1')`, and the
+second found the index already gone. Heroku restarted the dyno about 12
+seconds later, the drop was skipped, and the app has been up since. Any
+database that still holds the unfiltered `email_1` will do the same once
+under more than one worker.
+
 ## Deliberately not done
 
 - Account linking or merging Google and LINE accounts.

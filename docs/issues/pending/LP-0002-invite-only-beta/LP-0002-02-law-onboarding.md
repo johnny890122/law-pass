@@ -80,8 +80,8 @@ also where a new learner can replace the random display name they start with.
     No interruption, but the most likely to be ignored.
 - Not open in any variant:
   - UI copy is 繁體中文, and the list comes from `LAW_TYPES`.
-  - Styles use `static/css/design-tokens.css`, and everything works at 390px
-    wide.
+  - Styles use `static/css/tokens.css` (the token file since `LP-0004-07`),
+    and everything works at 390px wide.
   - A visible skip action for learners whose laws are not listed.
   - A display-name field.
 - The account page reuses the winning picker, so it gets no artifact of its
@@ -110,9 +110,9 @@ also where a new learner can replace the random display name they start with.
 - [ ] Each login starts on the first chosen law, and never on a law outside
       the set.
 - [ ] `/account` changes the chosen laws, and the switcher updates to match.
-- [ ] Variants in `artifacts/LP-0002-02-law-onboarding/` screenshot at phone
+- [x] Variants in `artifacts/LP-0002-02-law-onboarding/` screenshot at phone
       (390x844), tablet (768x1024), and desktop (1440x900), reviewed with the
-      user; choice recorded in `DECISION.md`.
+      user; choice recorded in `DECISION.md` (A, full page).
 - [ ] `schema-check` passed. `data-model.md` lists `study_law_types` and
       `onboarded_at`, with a Change Log row.
 - [ ] `pytest` green — covered by `tests/test_onboarding.py`.

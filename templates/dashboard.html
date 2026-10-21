@@ -2,49 +2,26 @@
 
 {% block title %}首頁 - 專利法 AI 刷題助手{% endblock %}
 
+{% block main_class %}dash{% endblock %}
+
 {% block content %}
-<div class="container">
-    <!-- Quick Actions -->
-    <div class="card">
-        <a href="/quiz/config" class="btn btn-primary btn-block btn-lg">
-            開始新測驗
-        </a>
-        
-        <a href="/laws" class="btn btn-secondary btn-block">
-            法條瀏覽
-        </a>
-        
-        <a href="/my-questions" class="btn btn-secondary btn-block">
-            我的題目
-        </a>
-    </div>
+{% include "_ledger.html" %}
 
-    <!-- Study Tips -->
-    <div class="card">
-        <h2 class="card-title">💡 學習小提示</h2>
-        <ul style="list-style: none; padding: 0;">
-            <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border-color);">
-                ✓ 每天至少練習 10 題以保持連續記錄
-            </li>
-            <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border-color);">
-                ✓ 收藏重點法條以便快速複習
-            </li>
-            <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border-color);">
-                ✓ 連續答對 3 次即達到「精熟」狀態
-            </li>
-            <li style="padding: 0.5rem 0;">
-                ✓ 使用「複習模式」強化需要加強的題目
-            </li>
-        </ul>
+<section class="start">
+    <a href="/quiz/config" class="btn btn-primary btn-block btn-lg">開始新測驗</a>
+    <div class="start-more">
+        <a href="/laws" class="btn btn-secondary">法條瀏覽</a>
+        <a href="/my-questions" class="btn btn-secondary">我的題目</a>
     </div>
-</div>
-{% endblock %}
+</section>
 
-{% block extra_js %}
-<script>
-    // Dashboard initialization
-    document.addEventListener('DOMContentLoaded', () => {
-        console.log('Dashboard loaded');
-    });
-</script>
+<section>
+    <h2 class="card-title">學習小提示</h2>
+    <ul class="tips">
+        <li>✓ 每天至少練習 10 題以保持連續記錄</li>
+        <li>✓ 收藏重點法條以便快速複習</li>
+        <li>✓ 連續答對 3 次即達到「精熟」狀態</li>
+        <li>✓ 使用「複習模式」強化需要加強的題目</li>
+    </ul>
+</section>
 {% endblock %}

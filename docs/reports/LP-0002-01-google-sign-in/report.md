@@ -1,10 +1,10 @@
 ---
 ticket: LP-0002-01
 prd: docs/prd/LP-0002-01-google-sign-in.md
-status: draft
+status: approved
 created: 2026-10-17
-approved:
-reviewer:
+approved: 2026-10-18
+reviewer: Johnny Chang
 ---
 
 # Report: Google sign-in with self-signup

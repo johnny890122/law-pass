@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>LP-0004-05 · dense-tabbar · 答題結果</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="../../.claude/skills/neta-design/tokens/dense-tabbar.css">
+  <link rel="stylesheet" href="system.css">
+  <link rel="stylesheet" href="dense-tabbar-layout.css">
+</head>
+<body>
+  <header class="shell">
+    <a href="#" class="logo" title="專利法刷題">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+    </a>
+    <div class="law-type-selector select-wrap">
+      <select id="law-type-select" class="law-type-select" title="選擇法律類型">
+        <option selected>專利法</option><option>專利審查基準</option><option>訴願法</option><option>行政訴訟法</option>
+      </select>
+    </div>
+    <nav class="nav">
+      <a href="#" class="nav-link"><span>首頁</span></a>
+      <a href="#" class="nav-link"><span>法條瀏覽</span></a>
+      <a href="#" class="nav-link"><span>題庫</span></a>
+      <a href="#" class="nav-link"><span>我的進度</span></a>
+    </nav>
+    <div class="header-right">
+      <div class="lang-toggle">
+        <button id="lang-zh" class="lang-btn active" title="切換到中文">中</button>
+        <button id="lang-en" class="lang-btn" title="Switch to English">EN</button>
+      </div>
+      <div class="user-menu">
+        <!-- stand-in --><span id="user-display-name" class="user-name">王小明</span>
+        <button id="logout-btn" class="icon-btn btn-logout" title="登出">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main narrow">
+    <!-- stand-in: question 3 of 10 -->
+    <div class="quiz-progress">
+      <span class="progress-text">題目進度</span>
+      <div class="progress-bar"><div class="progress-fill" style="width: 30%"></div></div>
+      <span class="progress-count" id="progress-count">3 / 10</span>
+    </div>
+
+    <section class="card result-card" id="result-card">
+      <div class="result-top">
+        <div class="score-badge score-wrong" id="score-badge">答題結果</div>
+      </div>
+      <!-- stand-in: the learner chose A; the explanation is stand-in AI output -->
+      <div class="result-section">
+        <h3 class="result-label">題目</h3>
+        <p class="result-text">依專利法第 22 條第 3 項，申請人出於本意或非出於本意所致公開之事實發生後，於下列何期間內申請者，該事實非屬不得取得發明專利之情事？</p>
+      </div>
+      <div class="result-section">
+        <h3 class="result-label">選項</h3>
+        <div class="mcq-options-review">
+          <div class="mcq-option-review wrong"><div class="option-text">A. 六個月內</div><span class="badge badge-danger">✗ 您的選擇</span></div>
+          <div class="mcq-option-review correct"><div class="option-text">B. 十二個月內</div><span class="badge badge-success">✓ 正確答案</span></div>
+          <div class="mcq-option-review"><div class="option-text">C. 十八個月內</div></div>
+          <div class="mcq-option-review"><div class="option-text">D. 二十四個月內</div></div>
+        </div>
+      </div>
+      <div class="result-section callout">
+        <h3 class="result-label">💡 AI 解析（重點）</h3>
+        <p class="result-text">第 22 條第 3 項給予發明專利十二個月的優惠期：公開事實發生後十二個月內申請者，該公開不構成喪失新穎性或進步性的事由。六個月是第 122 條第 3 項設計專利的期間，兩者容易混淆。</p>
+      </div>
+      <div class="result-actions">
+        <button type="button" class="btn btn-outline btn-star btn-icon" id="star-question-btn" title="收藏題目"><span class="star-icon">☆</span></button>
+        <button type="button" class="btn btn-outline btn-danger btn-icon" id="delete-question-btn" title="回報題目問題">📢</button>
+        <button type="button" class="btn btn-primary" id="next-question-btn">下一題</button>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

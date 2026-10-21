@@ -313,6 +313,33 @@ unique key).
 | `user_id_date_law_type_unique` | `[("user_id", 1), ("date", 1), ("law_type", 1)]` | yes |
 | `user_id_law_type_date_desc` | `[("user_id", 1), ("law_type", 1), ("date", -1)]` | no |
 
+## `user_ui_flags`
+
+Per-user UI preferences, one document per user. A user with no document gets
+the defaults, so `theme` is light. A future flag is added as a field through
+`schema-check`.
+
+Dataclass: `UserUiFlagsModel`
+
+Writers: `routes/frontend.py` (`PUT /api/ui-flags/theme`, an upsert on
+`user_id` that sets `theme` and `updated_at`). Reader: the `routes/frontend.py`
+context processor, once per page render. Deleted with its user by
+`scripts/migrations/20261016_remove_username_only_users.py`.
+
+### Fields
+
+| Field | Type | Required | References | Notes |
+| --- | --- | --- | --- | --- |
+| `user_id` | ObjectId | yes | `users._id` | One document per user. |
+| `theme` | str | yes | — | `light` or `dark`. The reader renders anything but `dark` as light. |
+| `updated_at` | datetime | yes | — | UTC. Set on every save. |
+
+### Indexes
+
+| Name | Keys | Unique |
+| --- | --- | --- |
+| `user_id_1` | `[("user_id", 1)]` | yes |
+
 ## `sessions`
 
 One quiz session and its answers.
@@ -395,4 +422,5 @@ and the owning ticket cannot resolve until that cell is filled.
 | --- | --- | --- | --- | --- | --- |
 | 2026-10-16 | LP-0001-01 | Baseline seeded from write sites. `init_db()` now raises when `laws.article_number_lang_type_unique` or `user_daily_stats.user_id_date_law_type_unique` cannot be built. | none | local: fresh DB passes. heroku: the duplicate and same-key-name query never ran, and is moot. Production moved to a new, empty `law_pass` database (LP-0003), where `init_db()` built both indexes at boot on release v4 and `GET /health` returned 200 on 2026-10-17. | [2026-10-16-schema-check](../../changelog/2026-10-16-schema-check.md) |
 | 2026-10-16 | LP-0002-01 | `users.email` added (str, required, lowercased) with unique index `email_1`; `username` becomes a stored label. `find_or_create_user` inserts users on a first Google sign-in (self-signup), and `scripts/add_user.py` is deleted. Username-only users and their documents in the six per-user collections are deleted, not backfilled. | `scripts/migrations/20261016_remove_username_only_users.py` | local: `patent_act` has 0 users, so the migration and the `email` preflight are no-ops; fresh DB builds `email_1`. pending: heroku, owned by LP-0007. Neither the production migration (`--apply`) nor the `email` duplicate preflight has run. | [2026-10-16-google-sign-in](../../changelog/2026-10-16-google-sign-in.md) |
-| 2026-10-18 | LP-0009 | `users.line_user_id` added (str or null) with unique partial index `line_user_id_1`. `users.email` becomes optional (null on LINE accounts), and `email_1` becomes unique partial over strings: `init_db()` drops the unfiltered `email_1` once and rebuilds it. A second insert writer, `find_or_create_line_user`, shares `_find_or_create` with Google. The LP-0002-01 cleanup is narrowed to users with neither identity, so it never deletes LINE accounts. | none (`init_db()` rebuilds `email_1`); `scripts/migrations/20261016_remove_username_only_users.py` edited | local: `law_pass` holds the unfiltered `email_1` and 0 users, `lp_report_0002_01` 1 user with a string email; no duplicate string emails and no `line_user_id` anywhere. `tests/test_migrations.py` shows the rebuild and that a second `init_db()` is a no-op. Booting the app on `law_pass` rebuilt `email_1` partial and built `line_user_id_1`, and a real LINE signup then wrote one doc with `email: None` (2026-10-18). pending: heroku. The production preflight (distinct string emails, and `email_1` the real name of the unfiltered index) and the boot-time rebuild have not run. | [2026-10-18-line-login](../../changelog/2026-10-18-line-login.md) |
+| 2026-10-18 | LP-0009 | `users.line_user_id` added (str or null) with unique partial index `line_user_id_1`. `users.email` becomes optional (null on LINE accounts), and `email_1` becomes unique partial over strings: `init_db()` drops the unfiltered `email_1` once and rebuilds it. A second insert writer, `find_or_create_line_user`, shares `_find_or_create` with Google. The LP-0002-01 cleanup is narrowed to users with neither identity, so it never deletes LINE accounts. | none (`init_db()` rebuilds `email_1`); `scripts/migrations/20261016_remove_username_only_users.py` edited | local: `law_pass` holds the unfiltered `email_1` and 0 users, `lp_report_0002_01` 1 user with a string email; no duplicate string emails and no `line_user_id` anywhere. `tests/test_migrations.py` shows the rebuild and that a second `init_db()` is a no-op. Booting the app on `law_pass` rebuilt `email_1` partial and built `line_user_id_1`, and a real LINE signup then wrote one doc with `email: None` (2026-10-18). heroku: release v13 (`db9dbbc`) rebuilt `email_1` at boot on 2026-10-18 07:07 UTC. The first boot crashed once: both gunicorn workers (`WEB_CONCURRENCY=2`) saw the unfiltered `email_1`, and the second `drop_index` found it already gone. Heroku restarted the dyno, which booted cleanly, so `email_1` is the partial index and `line_user_id_1` exists. The duplicate preflight was not run by query (a production read was blocked). It is moot: the old unique `email_1` already guaranteed distinct emails, and the partial build succeeded. | [2026-10-18-line-login](../../changelog/2026-10-18-line-login.md) |
+| 2026-10-21 | LP-0004-09 | `user_ui_flags` added: one document per user with `user_id`, `theme` (`light` or `dark`), and `updated_at`, unique on `user_id_1`, built by `init_db()`. The only writer is `PUT /api/ui-flags/theme`, an upsert. A missing document means light, so nothing is backfilled. The LP-0002-01 cleanup's `PER_USER` gains it. | none; `scripts/migrations/20261016_remove_username_only_users.py` edited | local: no database held a `user_ui_flags` collection, so there were no duplicates and no index with the same keys. `init_db()` on `lp_0004_09` built `user_id_1`, and a second run was a no-op (2026-10-21). pending: heroku. After deploy, confirm `user_id_1` exists on production `user_ui_flags`. | [2026-10-21-dark-mode](../../changelog/2026-10-21-dark-mode.md) |

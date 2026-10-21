@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-theme="dark"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="專利法 AI 刷題助手 - 台灣專利法考試準備工具">
+    <title>LP-0004-09 · neutral · dashboard</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="../../static/css/tokens.css">
+    <link rel="stylesheet" href="../../.claude/skills/neta-design/tokens/dark-neutral.css">
+    <link rel="stylesheet" href="../../static/css/style.css">
+  <style>
+    /* The toggle's place, as PRD LP-0004-09 sets it; style.css gains this rule at implementation */
+    .shell-tools { display: flex; align-items: center; gap: var(--space-3); }
+    @media (min-width: 1024px) { .shell-tools .lang-toggle { align-self: auto; } }
+  </style>
+    
+</head>
+<body>
+    <!-- Shell: top bar and bottom tab bar below 1024px, left sidebar from 1024px -->
+    <header class="shell">
+        <a href="/" class="logo" title="專利法刷題">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+        </a>
+        <div class="law-type-selector select-wrap">
+            <select id="law-type-select" class="law-type-select" title="選擇法律類型"><option value="patent-act">專利法 (168)</option><option value="patent-examination">專利審查基準 (0)</option><option value="administrative-appeal">訴願法 (0)</option><option value="administrative-litigation">行政訴訟法 (0)</option></select>
+        </div>
+        <nav class="nav">
+            
+            <a href="/" class="nav-link active" aria-current="page"><span>首頁</span></a>
+            
+            <a href="/laws" class="nav-link"><span>法條瀏覽</span></a>
+            
+            <a href="/question-bank" class="nav-link"><span>題庫</span></a>
+            
+            <a href="/progress" class="nav-link"><span>我的進度</span></a>
+            
+        </nav>
+        <div class="header-right">
+            <div class="shell-tools">
+                <div class="lang-toggle" style="display: flex;">
+                <button id="lang-zh" class="lang-btn active" data-lang="zh-TW" title="切換到中文">中</button>
+                <button id="lang-en" class="lang-btn" data-lang="en" title="Switch to English">EN</button>
+            </div>
+                <button id="theme-toggle" class="icon-btn" title="深色模式" aria-label="深色模式" aria-pressed="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg></button>
+            </div>
+            <div class="user-menu">
+                <!-- stand-in --><span id="user-display-name" class="user-name">王小明</span>
+                <button id="logout-btn" class="icon-btn btn-logout" title="登出">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main dash">
+        
+
+<!-- stand-in: the five numbers -->
+<section class="metrics" aria-label="我的進度">
+    <div class="metric" data-flag="streak"><span class="metric-value">7</span><span class="metric-label">連續練習<wbr>天數</span></div>
+    <div class="metric" data-flag="accent"><span class="metric-value">186</span><span class="metric-label">作答題數</span></div>
+    <div class="metric" data-flag=""><span class="metric-value">42</span><span class="metric-label">掌握題數</span></div>
+    <div class="metric" data-flag=""><span class="metric-value">71.3%</span><span class="metric-label">平均<wbr>得分率</span></div>
+    <div class="metric" data-flag="law"><span class="metric-value">38</span><span class="metric-label">覆蓋<wbr>法條數</span></div>
+</section>
+
+<section class="start">
+    <a href="/quiz/config" class="btn btn-primary btn-block btn-lg">開始新測驗</a>
+    <div class="start-more">
+        <a href="/laws" class="btn btn-secondary">法條瀏覽</a>
+        <a href="/my-questions" class="btn btn-secondary">我的題目</a>
+    </div>
+</section>
+
+<section>
+    <h2 class="card-title">學習小提示</h2>
+    <ul class="tips">
+        <li>✓ 每天至少練習 10 題以保持連續記錄</li>
+        <li>✓ 收藏重點法條以便快速複習</li>
+        <li>✓ 連續答對 3 次即達到「精熟」狀態</li>
+        <li>✓ 使用「複習模式」強化需要加強的題目</li>
+    </ul>
+</section>
+
+    </main>
+
+    
+    
+
+</body></html>

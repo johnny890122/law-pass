@@ -1,0 +1,129 @@
+/* Token contract for law_pass design-system directions.
+ *
+ * PLACEHOLDER VALUES. Every value below is a neutral stand-in marked TODO.
+ * A direction's values file (tokens/<direction>.css) defines every name here
+ * with a value derived from a docs/references/<site-slug>/tokens.md capture.
+ * Do not link this file from a page. Copy the structure.
+ *
+ * Tokens carry values, not layout. Layout differences between directions live
+ * in each direction's artifact HTML. See ../SKILL.md, "Two Tiers".
+ *
+ * SCOPE: what templates/ renders today, and nothing wider. Every role below
+ * names the screen that needs it. There is deliberately no image, media,
+ * table, or monospace role, because no template renders one. The first ticket
+ * that renders one extends this file and every direction file in flight. It
+ * never puts a literal in an artifact. See README.md for the admission rule.
+ */
+
+:root {
+  /* Surfaces: page, card, and the modal over a scrim (quiz_config,
+   * quiz_session). */
+  --color-bg: /* TODO */ #f7f7f8;
+  --color-surface: /* TODO */ #ffffff;
+  --color-surface-sunken: /* TODO: law text, review panels */ #f0f0f2;
+  --color-scrim: /* TODO: modal-overlay, loading-overlay */ rgb(0 0 0 / 0.5);
+
+  /* Lines: card and header borders, dividers, form-field outlines. */
+  --color-border: /* TODO */ #e2e2e6;
+  --color-border-strong: /* TODO: must reach 3:1 on --color-surface,
+                            because fields are outlined with it */ #8a8a92;
+
+  /* Text */
+  --color-text: /* TODO */ #1c1c1f;
+  --color-text-muted: /* TODO: subtitles, stat labels, char-count */ #5f5f66;
+  --color-text-disabled: /* TODO */ #a0a0a6;
+
+  /* Accent: logo, primary button, active nav link, progress fill. */
+  --color-accent: /* TODO */ #4a4a9c;
+  --color-accent-hover: /* TODO */ #3c3c82;
+  --color-accent-contrast: /* TODO: text on --color-accent */ #ffffff;
+  --color-accent-surface: /* TODO: selected tab, checked radio-card,
+                             active lang-btn background */ #ececf7;
+  --color-focus: /* TODO */ #4a4a9c;
+
+  /* Links: law cross-references and plain links in every template. */
+  --color-link: /* TODO */ #4a4a9c;
+  --color-link-hover: /* TODO */ #3c3c82;
+
+  /* Interactive surfaces: hover on cards, list rows, pagination. */
+  --color-surface-hover: /* TODO */ #f2f2f4;
+  --color-disabled-surface: /* TODO: disabled buttons and pagination */ #f0f0f2;
+
+  /* Status. Each pair is a foreground (text, border, icon) and a tinted
+   * surface. The foreground must reach 4.5:1 on its own surface and on
+   * --color-surface.
+   * success: correct answers, score-perfect, success toasts.
+   * danger:  wrong answers, score-wrong, btn-danger, error toasts and alerts.
+   * warning: score-partial, modal-warning, starred laws and questions.
+   * info:    info toasts. */
+  --color-success: /* TODO */ #1d6b3a;
+  --color-success-surface: /* TODO */ #eaf6ee;
+  --color-danger: /* TODO */ #b3261e;
+  --color-danger-surface: /* TODO */ #fcebea;
+  --color-warning: /* TODO */ #8a5a00;
+  --color-warning-surface: /* TODO */ #fdf4e3;
+  --color-info: /* TODO */ #1f5aa6;
+  --color-info-surface: /* TODO */ #e9f1fb;
+
+  /* Data: the two progress.html charts. Chart.js takes colors from JS, so
+   * a page reads these with getComputedStyle. Keep them plain colors. */
+  --color-data-1: /* TODO: 每日作答題數 bars */ #4a4a9c;
+  --color-data-2: /* TODO: 每日平均得分率 line */ #1d6b3a;
+
+  /* Typography. System stacks only, with a Traditional Chinese face named. */
+  --font-body: /* TODO */ system-ui, "Noto Sans TC", sans-serif;
+  --font-heading: /* TODO */ system-ui, "Noto Sans TC", sans-serif;
+  --font-law: /* TODO: law-text in law_detail and quiz review. A direction
+                 may set law text apart from UI text. */ system-ui, "Noto Sans TC", sans-serif;
+  --text-xs: /* TODO: badges */ 0.75rem;
+  --text-sm: /* TODO: labels, meta, nav */ 0.875rem;
+  --text-base: /* TODO */ 1rem;
+  --text-lg: /* TODO: card titles */ 1.25rem;
+  --text-xl: /* TODO: page titles */ 1.5rem;
+  --text-2xl: /* TODO: stat values */ 2rem;
+  --leading-tight: /* TODO */ 1.25;
+  --leading-body: /* TODO: Chinese body and law text */ 1.7;
+  --weight-body: /* TODO */ 400;
+  --weight-emphasis: /* TODO: badges, active nav, option letters */ 600;
+  --weight-heading: /* TODO */ 700;
+
+  /* Space: one scale, used everywhere. */
+  --space-1: /* TODO */ 0.25rem;
+  --space-2: /* TODO */ 0.5rem;
+  --space-3: /* TODO */ 0.75rem;
+  --space-4: /* TODO */ 1rem;
+  --space-5: /* TODO */ 1.5rem;
+  --space-6: /* TODO */ 2rem;
+  --space-7: /* TODO */ 3rem;
+
+  /* Layout */
+  --container-max: /* TODO: header-content and page containers */ 1200px;
+  --measure: /* TODO: law text and question stems */ 40em;
+
+  /* Radius */
+  --radius-sm: /* TODO: badges */ 4px;
+  --radius: /* TODO: buttons, fields */ 6px;
+  --radius-lg: /* TODO: cards, modal */ 12px;
+  --radius-full: /* TODO: pills, progress bar */ 999px;
+
+  /* Elevation. `raised` lifts a card or the sticky header. `overlay` is for
+   * anything over page content: the modal and toasts. */
+  --shadow-raised: /* TODO */ 0 1px 3px rgb(0 0 0 / 0.08);
+  --shadow-overlay: /* TODO */ 0 8px 24px rgb(0 0 0 / 0.16);
+
+  /* Line weights. System CSS may use no raw px, so these are tokens. */
+  --border-width: /* TODO */ 1px;
+  --focus-ring-width: /* TODO */ 2px;
+  --focus-ring-offset: /* TODO */ 2px;
+
+  /* Motion: keep it restrained and respect prefers-reduced-motion. */
+  --duration-fast: /* TODO */ 120ms;
+  --ease: /* TODO */ cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* Breakpoints are not custom properties, because media queries cannot read
+ * them. Mobile-first, matching the CLAUDE.md viewports:
+ *   phone    390px  base styles, no query
+ *   tablet   768px  @media (min-width: 768px)
+ *   desktop  1024px @media (min-width: 1024px), shot at 1440px
+ */

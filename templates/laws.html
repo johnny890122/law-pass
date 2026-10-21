@@ -2,38 +2,35 @@
 
 {% block title %}法條瀏覽 - 專利法 AI 刷題助手{% endblock %}
 
+{% block main_class %}narrow{% endblock %}
+
 {% block content %}
-<div class="container">
-    <!-- Chapter Filter & Search Section -->
-    <div class="filter-section">
-        <!-- Chapter Selector (Horizontal with Toggle) -->
-        <div class="chapter-selector-card">
-            <div class="chapter-selector-header">
-                <span class="chapter-selector-title">📚 章節篩選</span>
-                <button class="chapter-toggle-btn" id="chapter-toggle-btn" aria-label="切換章節選擇器">
-                    ▼
-                </button>
-            </div>
-            <div class="chapter-selector-wrapper" id="chapter-selector-wrapper">
-                <div class="chapter-selector" id="chapter-selector">
-                    <div class="chapter-tab active" data-chapter="all">
-                        <span>📑 全部</span>
-                        <span class="chapter-badge" id="count-all">0</span>
-                    </div>
-                    <!-- Chapters will be dynamically loaded here -->
-                </div>
-            </div>
-        </div>
-        
-        <!-- Search Bar -->
-        <div class="search-bar-wrapper">
-            <input
-                type="text"
-                id="search-input"
-                placeholder="🔍 搜尋法條內容或條號..."
-                class="search-input"
-            >
-            <button id="clear-search-btn" class="clear-btn hidden">✕</button>
+<!-- Search Bar -->
+<div class="search-bar-wrapper">
+    <input
+        type="text"
+        id="search-input"
+        placeholder="🔍 搜尋法條內容或條號..."
+        class="search-input"
+    >
+    <button id="clear-search-btn" class="clear-btn hidden" aria-label="清除搜尋">✕</button>
+</div>
+
+<!-- Chapter tabs and the laws list share one panel -->
+<section class="card">
+    <div class="chapter-selector-header">
+        <span class="chapter-selector-title">📚 章節篩選</span>
+        <button class="icon-btn chapter-toggle-btn" id="chapter-toggle-btn" aria-label="切換章節選擇器">
+            ▼
+        </button>
+    </div>
+    <div class="chapter-selector-wrapper" id="chapter-selector-wrapper">
+        <div class="filter-tabs chapter-selector" id="chapter-selector">
+            <button type="button" class="filter-tab chapter-tab active" data-chapter="all">
+                <span>📑 全部</span>
+                <span class="chapter-badge" id="count-all">0</span>
+            </button>
+            <!-- Chapters will be dynamically loaded here -->
         </div>
     </div>
 
@@ -60,7 +57,7 @@
         <span class="pagination-info" id="page-info">第 1 頁</span>
         <button class="pagination-btn" id="next-btn">下一頁 →</button>
     </div>
-</div>
+</section>
 {% endblock %}
 
 {% block extra_js %}
@@ -179,16 +176,16 @@
             // Shorten chapter name for display
             const shortName = chapter.name.replace('第 ', '').replace(' 章', '');
             html += `
-                <div class="chapter-tab" data-chapter="${chapter.name}">
+                <button type="button" class="filter-tab chapter-tab" data-chapter="${chapter.name}">
                     <span>${shortName}</span>
                     <span class="chapter-badge">${chapter.count}</span>
-                </div>
+                </button>
             `;
         });
 
         // Preserve the initial "全部" tab and rebuild the rest
         const allTab = chapterSelector.querySelector('[data-chapter="all"]');
-        const allHtml = allTab ? allTab.outerHTML : `<div class="chapter-tab active" data-chapter="all"><span>📑 全部</span><span class="chapter-badge" id="count-all">0</span></div>`;
+        const allHtml = allTab ? allTab.outerHTML : `<button type="button" class="filter-tab chapter-tab active" data-chapter="all"><span>📑 全部</span><span class="chapter-badge" id="count-all">0</span></button>`;
         chapterSelector.innerHTML = allHtml + html;
 
         // Attach click handlers to updated tabs

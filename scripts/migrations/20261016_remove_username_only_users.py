@@ -17,7 +17,10 @@ FILTER = {
     'email': {'$not': {'$type': 'string'}},
     'line_user_id': {'$not': {'$type': 'string'}},
 }
-PER_USER = ['user_progress', 'user_law_stars', 'user_law_stats', 'user_question_stars', 'user_daily_stats', 'sessions']
+PER_USER = [
+    'user_progress', 'user_law_stars', 'user_law_stats', 'user_question_stars', 'user_daily_stats', 'sessions',
+    'user_ui_flags',  # LP-0004-09
+]
 
 
 def migrate(database, apply: bool) -> dict:

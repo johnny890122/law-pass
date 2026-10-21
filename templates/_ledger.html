@@ -1,0 +1,11 @@
+{# The five progress numbers as a ledger, shared by dashboard.html and
+   progress.html. Reads `summary` from get_progress_summary. data-flag names
+   each number's hue (docs/modules/ui/index.md, role map); an empty one keeps
+   the key's space so the labels line up. #}
+<section class="metrics" aria-label="我的進度">
+    <div class="metric" data-flag="streak"><span class="metric-value">{{ summary.streak }}</span><span class="metric-label">連續練習<wbr>天數</span></div>
+    <div class="metric" data-flag="accent"><span class="metric-value">{{ summary.questions_answered }}</span><span class="metric-label">作答題數</span></div>
+    <div class="metric" data-flag=""><span class="metric-value">{{ summary.mastered_count }}</span><span class="metric-label">掌握題數</span></div>
+    <div class="metric" data-flag=""><span class="metric-value">{{ "%.1f"|format(summary.avg_score_rate) }}%</span><span class="metric-label">平均<wbr>得分率</span></div>
+    <div class="metric" data-flag="law"><span class="metric-value">{{ summary.laws_covered }}</span><span class="metric-label">覆蓋<wbr>法條數</span></div>
+</section>

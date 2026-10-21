@@ -11,4 +11,3 @@
 | LP-0002-02 | [STORY] | Medium | laws | [LP-0002](./pending/LP-0002-invite-only-beta.md) | [First-login onboarding to set your name and pick the laws you study](./pending/LP-0002-invite-only-beta/LP-0002-02-law-onboarding.md) | 2026-10-16 | - |
 | LP-0007 | [TODO] | High | deploy | - | [Production cutover for Google sign-in](./pending/LP-0007-google-sign-in-production-cutover.md) | 2026-10-17 | - |
 | LP-0004 | [EPIC] | Medium | ui | - | [Design system from captured reference sites, with RWD on every page](./pending/LP-0004-design-system.md) | 2026-10-17 | - |
-| LP-0004-03 | [STORY] | Medium | ui | [LP-0004](./pending/LP-0004-design-system.md) | [Every page holds at phone, tablet, and desktop](./pending/LP-0004-design-system/LP-0004-03-rwd-all-pages.md) | 2026-10-17 | - |

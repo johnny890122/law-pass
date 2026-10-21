@@ -1,0 +1,114 @@
+/* role-hues: four hues, each fixed to one meaning, as flags.
+ * LP-0004-06 thesis: purple, magenta, blue, and flamingo are each pinned to
+ * one meaning on every screen; panels stay white with light lines. Purple is
+ * the accent (actions, 選擇題, 作答題數), magenta is 簡答題, blue is 法條,
+ * flamingo is the 連續練習天數 streak. The hues are solid flag marks, graphics
+ * held to 3:1; text stays ink. Starts from dense-tabbar.css (the LP-0004-05
+ * layout); only --color-* roles and --d- tokens differ.
+ * Source: docs/references/dotnet-microsoft-com/tokens.md ("tokens.md" below),
+ * captured 2026-10-18. Contrast ratios are WCAG 2.x, computed on the values here.
+ */
+
+:root {
+  /* Surfaces */
+  --color-bg: #f5f5f5;               /* tokens.md: card hover surface, a.card:hover @all; one step down so flat white panels separate */
+  --color-surface: #ffffff;          /* tokens.md: surface, header.uhf-header and a.card @all */
+  --color-surface-sunken: #fafafa;   /* tokens.md: page background, body.refresh @all; set into white panels */
+  --color-scrim: rgb(0 0 0 / 0.5);   /* derived: no overlay captured; strongest text rgb(0,0,0) at half opacity */
+
+  /* Lines */
+  --color-border: #e5e7eb;           /* spec.md "Built with": preflight border color rgb(229,231,235) on every element */
+  --color-border-strong: #616161;    /* tokens.md: muted weakest, footer text @all; lighter outline for dense option lists, 6.19:1 on surface */
+
+  /* Text */
+  --color-text: #242424;             /* tokens.md: heading text, main body copy, p.body-1 @all; 14.87:1 on bg */
+  --color-text-muted: #616161;       /* tokens.md: muted weakest, footer text @all; 6.19:1 surface, 5.93:1 sunken */
+  --color-text-disabled: #9e9e9e;    /* derived: muted lightened; disabled text is exempt from WCAG 1.4.3 */
+
+  /* Accent */
+  --color-accent: #512bd4;           /* tokens.md: accent, a.btn.btn-primary fill @all; 7.94:1 on surface */
+  --color-accent-hover: #4122aa;     /* tokens.md: accent hover, a.btn.btn-primary:hover @all */
+  --color-accent-contrast: #ffffff;  /* tokens.md: text on accent, a.btn.btn-primary @all */
+  --color-accent-surface: #eeeafb;   /* tokens.md: accent tint, a.btn.btn-default:hover fill @all; accent 6.73:1 on it */
+  --color-focus: #000000;            /* tokens.md: focus outline, a.btn.btn-primary:focus @all */
+
+  /* Links */
+  --color-link: #512bd4;             /* tokens.md: accent, a.arrow-link text @all */
+  --color-link-hover: #4122aa;       /* tokens.md: accent hover, a.arrow-link:hover @all */
+
+  /* Interactive surfaces */
+  --color-surface-hover: #f5f5f5;    /* tokens.md: card hover surface, a.card:hover @all */
+  --color-disabled-surface: #ebebeb; /* tokens.md: footer band, div.footer-wrapper @all */
+
+  /* Status. The capture renders no status color (tokens.md, after Color roles). */
+  --color-success: #107c41;          /* derived: no green captured; 5.27:1 surface, 4.66:1 on its surface */
+  --color-success-surface: #e7f4ec;  /* derived: --color-success at a light tint */
+  --color-danger: #b42335;           /* derived: tokens.md gradient end stop red rgb(203,65,80) darkened; 6.50:1 surface, 5.59:1 on its surface */
+  --color-danger-surface: #fbeaec;   /* derived: --color-danger at a light tint */
+  --color-warning: #8a5300;          /* derived: no amber captured; 6.33:1 surface, 5.75:1 on its surface */
+  --color-warning-surface: #fdf3e1;  /* derived: --color-warning at a light tint */
+  --color-info: #0a5bd6;             /* derived: tokens.md card border blue rgb(11,108,255) darkened; 6.03:1 surface, 5.26:1 on its surface */
+  --color-info-surface: #e7f0ff;     /* derived: --color-info at a light tint */
+
+  /* Data */
+  --color-data-1: #512bd4;           /* tokens.md: accent @all */
+  --color-data-2: #616161;           /* derived: --color-text-muted; 每日平均得分率 is neutral here, blue belongs to 法條 */
+
+  /* Typography. System stacks only (LP-0004-05, 2026-10-19). */
+  --font-body: "Segoe UI", -apple-system, system-ui, "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", sans-serif;
+                                     /* tokens.md: site chrome stack, div.header.header-primary, with Traditional Chinese faces added */
+  --font-heading: var(--font-body);  /* derived: the display face Space Grotesk is a web font, so headings share the chrome stack */
+  --font-law: var(--font-body);      /* derived: dense keeps law text as UI */
+  --text-xs: 0.75rem;                /* tokens.md: caption 12px, p.caption-1 @all */
+  --text-sm: 0.8125rem;              /* tokens.md: nav item 13px, button.uhf-nav-item @all */
+  --text-base: 0.9375rem;            /* derived: between chrome default 14px and body 16px, for density */
+  --text-lg: 1.0625rem;              /* tokens.md: lead line 17px, p.subtitle-2 @390 */
+  --text-xl: 1.25rem;                /* tokens.md: item title 20px, h2.title-3 @390 */
+  --text-2xl: 1.5rem;                /* tokens.md: item title 24px, h2.title-3 @768 */
+  --leading-tight: 1.25;             /* tokens.md: card title 20px / 25px @768 */
+  --leading-body: 1.6;               /* derived: capture's 1.375 is Latin; 1.6 is the tightest that keeps Chinese readable */
+  --weight-body: 400;                /* tokens.md: p.body-1 @all */
+  --weight-emphasis: 600;            /* tokens.md: button label, a.btn.btn-primary @all */
+  --weight-heading: 700;             /* tokens.md: section title, h2.large-title @all */
+
+  /* Space: the capture's small steps, shifted down one for density */
+  --space-1: 0.25rem;                /* derived: half of the 8px header controls gap */
+  --space-2: 0.375rem;               /* tokens.md: small button padding 6px, div.alert-promo a.btn @all */
+  --space-3: 0.5rem;                 /* tokens.md: inline gap, header controls 8px @390 */
+  --space-4: 0.75rem;                /* tokens.md: grid column gap 12px, section.grid-wrapper @390 */
+  --space-5: 1rem;                   /* tokens.md: card content stack gap 16px @1440 */
+  --space-6: 1.25rem;                /* tokens.md: card padding 20px, a.card @all */
+  --space-7: 1.5rem;                 /* tokens.md: grid gap 24px @768 */
+
+  /* Layout */
+  --container-max: 1400px;           /* tokens.md: content max width, div.content-container @all */
+  --measure: 38em;                   /* derived: about 38 Chinese characters a line */
+
+  /* Radius */
+  --radius-sm: 3px;                  /* tokens.md: nav pill radius, a.uhf-nav-item.uhf-nav-cta @1440 */
+  --radius: 4px;                     /* tokens.md: field radius, select#culture-options @all */
+  --radius-lg: 12px;                 /* tokens.md: small panel radius, div.alert-promo @all */
+  --radius-full: 999px;              /* tokens.md: pill, button#dn-theme-toggle @all */
+
+  /* Elevation */
+  --shadow-raised: none;             /* tokens.md Shadow: "Panels and the header are flat" */
+  --shadow-overlay: 0 8px 24px rgb(0 0 0 / 0.1); /* derived: card hover's 0.1 black, spread because no overlay was captured */
+
+  /* Line weights */
+  --border-width: 1px;               /* tokens.md: field border, select#culture-options @all */
+  --focus-ring-width: 2px;           /* derived: capture draws 1px; raised to 2px for WCAG 2.4.13 */
+  --focus-ring-offset: 2px;          /* tokens.md: focus offset, a.btn.btn-primary:focus @all */
+
+  /* Motion. The capture records no durations. */
+  --duration-fast: 120ms;            /* derived: hover and focus feedback only */
+  --ease: cubic-bezier(0.2, 0, 0, 1); /* derived: standard decelerate */
+
+  /* Direction-only */
+  --d-bar-height: 3.5rem;            /* derived: 44px touch target plus 6px above and below */
+  --d-sidebar-width: 14rem;          /* derived: fits 專利審查基準 in the select at --text-sm */
+
+  /* Role flags, named by meaning so a hue can change role. The main color, purple, is --color-accent. */
+  --d-flag-short:  #d600aa;          /* tokens.md: card border hue magenta, a.card.magenta-primary @all; 簡答題 flag, white label 4.73:1 on it */
+  --d-flag-law:    #0b6cff;          /* tokens.md: card border hue blue, a.card.blue-primary @all; 法條 flag, 4.18:1 on bg */
+  --d-flag-streak: #f65163;          /* tokens.md: card border hue flamingo, a.card.flamingo-primary @all (learn); streak flag, 3.35:1 surface, 3.07:1 bg, graphic only */
+}

@@ -6,6 +6,14 @@
 
 | ID | Type | Priority | Area | Parent | Title | Created | Resolved |
 | --- | --- | --- | --- | --- | --- | --- | --- |
+| LP-0004-07 | [STORY] | Medium | ui | [LP-0004](./pending/LP-0004-design-system.md) | [Adopt the dense-tabbar layout and teal role-hues palette on every page](./resolved/LP-0004-design-system/LP-0004-07-adopt-design-system.md) | 2026-10-19 | 2026-10-20 |
+| LP-0004-08 | [STORY] | Medium | ui | [LP-0004](./pending/LP-0004-design-system.md) | [Compare blue and teal against purple as role-hues' main color](./resolved/LP-0004-design-system/LP-0004-08-main-color.md) | 2026-10-19 | 2026-10-19 |
+| LP-0004-06 | [STORY] | Medium | ui | [LP-0004](./pending/LP-0004-design-system.md) | [Three color variants on the dense-tabbar layout, aligned to the dotnet capture](./resolved/LP-0004-design-system/LP-0004-06-color-variants.md) | 2026-10-19 | 2026-10-19 |
+| LP-0004-05 | [STORY] | Medium | ui | [LP-0004](./pending/LP-0004-design-system.md) | [Three design-system directions from the dotnet capture, picked by looking](./resolved/LP-0004-design-system/LP-0004-05-design-directions.md) | 2026-10-18 | 2026-10-19 |
+| LP-0009 | [FEATURE] | Medium | auth | - | [LINE Login with self-signup](./resolved/LP-0009-line-login.md) | 2026-10-17 | 2026-10-18 |
+| LP-0004-04 | [STORY] | Medium | docs | [LP-0004](./pending/LP-0004-design-system.md) | [Capture dotnet.microsoft.com as the design system's reference site](./resolved/LP-0004-design-system/LP-0004-04-capture-dotnet.md) | 2026-10-18 | 2026-10-18 |
+| LP-0004-03 | [STORY] | Medium | ui | [LP-0004](./pending/LP-0004-design-system.md) | [Every page holds at phone, tablet, and desktop](./resolved/LP-0004-design-system/LP-0004-03-rwd-all-pages.md) | 2026-10-17 | 2026-10-18 |
+| LP-0002-01 | [STORY] | High | auth | [LP-0002](./pending/LP-0002-invite-only-beta.md) | [Google sign-in with self-signup](./resolved/LP-0002-invite-only-beta/LP-0002-01-google-sign-in.md) | 2026-10-16 | 2026-10-18 |
 | LP-0008 | [TODO] | High | deploy | - | [Config vars for the new law-pass Heroku app](./resolved/LP-0008-heroku-config-vars.md) | 2026-10-17 | 2026-10-17 |
 | LP-0006 | [BUG] | Medium | auth | - | [Show Google's account chooser on the first sign-in after logout](./resolved/LP-0006-account-chooser-after-logout.md) | 2026-10-17 | 2026-10-17 |
 | LP-0005 | [IMPROVEMENT] | Medium | tests | - | [Full test coverage for Google sign-in](./resolved/LP-0005-google-sso-test-coverage.md) | 2026-10-17 | 2026-10-17 |
